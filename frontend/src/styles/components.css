@@ -1,0 +1,389 @@
+/* ---------- Botões ---------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.6rem 1.25rem;
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.button svg {
+  font-size: 1.1em;
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.button--primary {
+  color: var(--color-ink);
+  background: linear-gradient(180deg, var(--color-gold-bright), var(--color-gold));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 6px 18px rgba(201, 165, 74, 0.2);
+}
+
+.button--primary:hover:not(:disabled) {
+  color: var(--color-ink);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 8px 26px rgba(201, 165, 74, 0.38);
+}
+
+.button--secondary {
+  color: var(--color-gold-bright);
+  background: var(--color-surface-raised);
+  border-color: var(--color-gold-deep);
+}
+
+.button--secondary:hover:not(:disabled) {
+  color: var(--color-paper);
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 1px var(--color-gold-glow);
+}
+
+.button--ghost {
+  color: var(--color-text);
+  background: transparent;
+  border-color: var(--color-border-strong);
+}
+
+.button--ghost:hover:not(:disabled) {
+  color: var(--color-gold-bright);
+  border-color: var(--color-gold);
+}
+
+.button--danger {
+  color: #fff4f1;
+  background: linear-gradient(180deg, #a83a2f, var(--color-danger-deep));
+  border-color: var(--color-danger);
+}
+
+.button--danger:hover:not(:disabled) {
+  box-shadow: 0 8px 24px rgba(168, 58, 47, 0.4);
+}
+
+.button--danger-outline {
+  color: var(--color-danger);
+  background: transparent;
+  border-color: rgba(227, 128, 111, 0.7);
+}
+
+.button--danger-outline:hover:not(:disabled) {
+  background: rgba(227, 128, 111, 0.12);
+}
+
+.button--small {
+  min-height: 38px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+.button--block {
+  width: 100%;
+}
+
+/* ---------- Alertas e feedback ---------- */
+
+.alert {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+  background: rgba(26, 23, 20, 0.92);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid;
+  border-radius: var(--radius);
+}
+
+.alert--error {
+  border-left-color: var(--color-danger);
+  color: #ffdcd5;
+}
+
+.alert--success {
+  border-left-color: var(--color-success);
+  color: #e1f1d9;
+}
+
+.alert--info {
+  border-left-color: var(--color-info);
+  color: #dcebf5;
+}
+
+.status-region:empty {
+  display: none;
+}
+
+.status-region {
+  position: sticky;
+  top: 8.25rem;
+  z-index: 6;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  padding: 4rem 0;
+  color: var(--color-text-muted);
+  font-family: var(--font-typewriter);
+}
+
+.loading__lens {
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+  color: var(--color-gold);
+}
+
+/* ---------- Badges ---------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.22rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: rgba(8, 7, 6, 0.78);
+}
+
+.badge__pips {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.badge__pip {
+  width: 5px;
+  height: 10px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.25;
+}
+
+.badge__pip--on {
+  opacity: 1;
+}
+
+.badge__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.badge--difficulty-facil {
+  color: var(--color-success);
+}
+.badge--difficulty-medio {
+  color: var(--color-gold-bright);
+}
+.badge--difficulty-dificil {
+  color: var(--color-danger);
+}
+
+.badge--status-nova {
+  color: var(--color-text-muted);
+}
+.badge--status-em-andamento {
+  color: var(--color-info);
+}
+.badge--status-solucionado {
+  color: var(--color-success);
+}
+.badge--status-nao-solucionado {
+  color: var(--color-danger);
+}
+.badge--status-abandonado {
+  color: var(--color-text-muted);
+  border-style: dashed;
+}
+
+.badge--evidence-analisada {
+  color: var(--color-ink);
+  background: rgba(38, 29, 21, 0.08);
+}
+.badge--evidence-disponivel {
+  color: var(--color-gold-bright);
+}
+.badge--evidence-bloqueada {
+  color: var(--color-text-muted);
+}
+
+/* ---------- Dossiê ---------- */
+
+.dossier {
+  position: relative;
+  background:
+    linear-gradient(135deg, rgba(201, 165, 74, 0.08), transparent 45%), var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-gold-deep);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-deep);
+}
+
+.dossier__stamp {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  margin: 0;
+  padding: 0.2rem 0.6rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-danger);
+  border: 2px solid var(--color-danger);
+  border-radius: 3px;
+  transform: rotate(5deg);
+  opacity: 0.85;
+}
+
+/* ---------- Formulários ---------- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-field__label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.form-field__input {
+  min-height: 46px;
+  padding: 0.65rem 0.85rem;
+  font: inherit;
+  color: var(--color-text);
+  background: rgba(8, 7, 6, 0.85);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-field__input:hover {
+  border-color: var(--color-gold-deep);
+}
+
+.form-field__input:focus-visible {
+  border-color: var(--color-gold);
+}
+
+.form-field__input--invalid {
+  border-color: var(--color-danger);
+}
+
+.form-field__hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.form-field__error {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+/* ---------- Progresso ---------- */
+
+.progress {
+  margin-top: 1.1rem;
+}
+
+.progress__label {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.progress__track {
+  height: 8px;
+  overflow: hidden;
+  background: rgba(8, 7, 6, 0.85);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+.progress__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-gold-deep), var(--color-gold-bright));
+  box-shadow: 0 0 12px var(--color-gold-glow);
+  transition: width 0.6s var(--ease-out);
+}
+
+/* ---------- Diálogo ---------- */
+
+.dialog {
+  width: min(92vw, 500px);
+  padding: 1.9rem;
+  color: var(--color-text);
+  background:
+    linear-gradient(135deg, rgba(201, 165, 74, 0.08), transparent 50%), var(--color-surface);
+  border: 1px solid var(--color-gold-deep);
+  border-top: 3px solid var(--color-gold);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-deep);
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(3px);
+}
+
+.dialog__title {
+  font-size: 1.5rem;
+  color: var(--color-gold-bright);
+}
+
+.dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}

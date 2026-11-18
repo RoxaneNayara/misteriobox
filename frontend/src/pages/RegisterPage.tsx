@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ApiError, getErrorMessage } from '../api/client';
+import { AuthScene } from '../components/AuthScene';
 import { ErrorAlert } from '../components/Feedback';
 import { FormField } from '../components/FormField';
 import { useAuth } from '../context/auth-context';
@@ -72,8 +73,8 @@ export function RegisterPage() {
   };
 
   return (
-    <section className="auth-page" aria-labelledby="register-title">
-      <div className="auth-card dossier">
+    <AuthScene>
+      <section className="auth-card dossier" aria-labelledby="register-title">
         <p className="dossier__stamp" aria-hidden="true">
           Novo recruta
         </p>
@@ -144,7 +145,7 @@ export function RegisterPage() {
             Entrar
           </Link>
         </p>
-      </div>
-    </section>
+      </section>
+    </AuthScene>
   );
 }

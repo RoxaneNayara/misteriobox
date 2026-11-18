@@ -1,0 +1,55 @@
+:root {
+  /* Superfícies */
+  --color-bg: #0f0d0c;
+  --color-bg-deep: #080706;
+  --color-surface: #1a1714;
+  --color-surface-raised: #24201b;
+  --color-surface-warm: #2d241c;
+  --color-border: #3a3129;
+  --color-border-strong: #5a4632;
+
+  /* Papel e tinta */
+  --color-paper: #ebdfc3;
+  --color-paper-shade: #d8c7a1;
+  --color-paper-dark: #b9a47a;
+  --color-ink: #261d15;
+  --color-ink-soft: #54412d;
+
+  /* Texto */
+  --color-text: #efe8da;
+  --color-text-muted: #bcb09b;
+
+  /* Ouro envelhecido */
+  --color-gold: #c9a54a;
+  --color-gold-bright: #e6c873;
+  --color-gold-deep: #8a6d2a;
+  --color-gold-glow: rgba(230, 200, 115, 0.18);
+
+  /* Estados */
+  --color-danger: #e3806f;
+  --color-danger-deep: #8f2f25;
+  --color-success: #a3cd8f;
+  --color-success-deep: #3e5f31;
+  --color-info: #95bad0;
+  --color-cork: #3b2a1c;
+
+  /* Tipografia */
+  --font-display: 'Didot', 'Bodoni 72', Georgia, 'Times New Roman', serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-typewriter: 'American Typewriter', 'Courier New', Courier, monospace;
+
+  /* Forma e profundidade */
+  --radius: 6px;
+  --radius-lg: 12px;
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-deep: 0 24px 60px rgba(0, 0, 0, 0.65);
+  --shadow-paper: 0 2px 0 rgba(0, 0, 0, 0.15), 0 14px 28px rgba(0, 0, 0, 0.45);
+  --focus-ring: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-gold-bright);
+
+  /* Movimento */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration: 0.45s;
+
+  color-scheme: dark;
+}

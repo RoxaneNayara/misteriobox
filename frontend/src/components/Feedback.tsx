@@ -1,3 +1,5 @@
+import { MagnifierIcon } from './Icons';
+
 interface LoadingStateProps {
   message?: string;
 }
@@ -5,8 +7,10 @@ interface LoadingStateProps {
 export function LoadingState({ message = 'Carregando...' }: LoadingStateProps) {
   return (
     <div className="loading" role="status" aria-live="polite" data-testid="loading-state">
-      <span className="loading__spinner" aria-hidden="true" />
-      <span>{message}</span>
+      <span className="loading__lens" aria-hidden="true">
+        <MagnifierIcon />
+      </span>
+      <span className="loading__text">{message}</span>
     </div>
   );
 }
@@ -39,7 +43,11 @@ interface StatusMessageProps {
 export function StatusMessage({ message, testId = 'status-message' }: StatusMessageProps) {
   return (
     <div className="status-region" role="status" aria-live="polite" data-testid={testId}>
-      {message && <p className="alert alert--success">{message}</p>}
+      {message && (
+        <p className="alert alert--success" key={message}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }

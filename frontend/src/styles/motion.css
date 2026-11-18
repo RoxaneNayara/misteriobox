@@ -1,0 +1,162 @@
+/* ==========================================================================
+   Movimento: animações discretas aplicadas somente quando o usuário
+   não pediu redução de movimento.
+   ========================================================================== */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes reveal-paper {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) rotateX(18deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes stamp-in {
+  0% {
+    opacity: 0;
+    transform: rotate(-6deg) scale(1.8);
+  }
+  70% {
+    opacity: 1;
+    transform: rotate(-6deg) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-6deg) scale(1);
+  }
+}
+
+@keyframes ring-fill {
+  from {
+    stroke-dashoffset: 327;
+  }
+  to {
+    stroke-dashoffset: var(--ring-offset);
+  }
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 0.86;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  55% {
+    opacity: 0.92;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate(200px, 108px) rotate(-14deg);
+  }
+  50% {
+    transform: translate(200px, 101px) rotate(-12deg);
+  }
+}
+
+@keyframes lens-sweep {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(6px, -4px) rotate(10deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page-transition {
+    animation: fade-up var(--duration) var(--ease-out) backwards;
+  }
+
+  .mission-card {
+    animation: fade-up 0.6s var(--ease-out) backwards;
+  }
+
+  .mission-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .evidence-card--analisada {
+    animation: reveal-paper 0.5s var(--ease-out) backwards;
+    transform-origin: top center;
+  }
+
+  .evidence-card--disponivel:hover {
+    transform: translateY(-3px);
+  }
+
+  .hint-note,
+  .alert--success {
+    animation: fade-in 0.4s var(--ease-out) backwards;
+  }
+
+  .report__stamp {
+    animation: stamp-in 0.6s 0.35s var(--ease-out) both;
+  }
+
+  .score-ring__value {
+    animation: ring-fill 1.2s 0.2s var(--ease-out) both;
+  }
+
+  .cover__flicker {
+    animation: flicker 5s ease-in-out infinite;
+  }
+
+  .cover__float {
+    animation: drift 6s ease-in-out infinite;
+  }
+
+  .loading__lens {
+    animation: lens-sweep 1.4s ease-in-out infinite;
+  }
+
+  .dialog[open] {
+    animation: fade-up 0.25s var(--ease-out) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .mission-card:hover .cover {
+    transform: none;
+  }
+}

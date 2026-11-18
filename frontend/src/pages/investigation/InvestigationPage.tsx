@@ -5,9 +5,11 @@ import { investigationsApi } from '../../api/investigations.api';
 import { DifficultyBadge, StatusBadge } from '../../components/Badges';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ErrorAlert, LoadingState, StatusMessage } from '../../components/Feedback';
+import { ArrowLeftIcon, ClockIcon, FlagIcon } from '../../components/Icons';
+import { MissionCover } from '../../components/MissionCover';
 import { ProgressBar } from '../../components/ProgressBar';
 import type { Evidence, InvestigationProgress } from '../../types/api';
-import { formatDateTime } from '../../utils/labels';
+import { formatCaseNumber, formatDateTime } from '../../utils/labels';
 import { AccusationForm, type AccusationDraft } from './AccusationForm';
 import { EvidenceBoard } from './EvidenceBoard';
 import { HintPanel } from './HintPanel';
@@ -15,6 +17,14 @@ import { SuspectList } from './SuspectList';
 
 type PendingAction = 'analyze' | 'hint' | 'abandon' | 'accuse' | null;
 type OpenDialog = 'hint' | 'abandon' | 'accuse' | null;
+
+const CASE_SECTIONS = [
+  { id: 'secao-caso', label: 'O caso' },
+  { id: 'secao-suspeitos', label: 'Suspeitos' },
+  { id: 'secao-evidencias', label: 'Evidências' },
+  { id: 'secao-dicas', label: 'Dicas' },
+  { id: 'secao-acusacao', label: 'Acusação' },
+] as const;
 
 export function InvestigationPage() {
   const { investigationId = '' } = useParams();
@@ -131,75 +141,110 @@ export function InvestigationPage() {
       aria-labelledby="investigation-title"
       data-testid="investigation-page"
     >
-      <header className="investigation__header dossier">
-        <p className="dossier__stamp" aria-hidden="true">
-          Confidencial
-        </p>
-        <div className="investigation__badges">
-          <DifficultyBadge difficulty={mission.difficulty} label={mission.difficultyLabel} />
-          <StatusBadge status={investigation.status} testId="investigation-status" />
+      <header className="case-hero">
+        <div className="case-hero__cover">
+          <MissionCover missionId={mission.id} />
         </div>
-        <h1
-          id="investigation-title"
-          className="investigation__title"
-          data-testid="investigation-title"
-        >
-          {mission.title}
-        </h1>
-        <p className="investigation__theme">{mission.theme}</p>
-        <ProgressBar
-          value={progress.analyzedEvidences}
-          max={progress.totalEvidences}
-          label="Evidências analisadas"
-          testId="investigation-progress"
-        />
-        <p className="investigation__saved" data-testid="autosave-indicator">
-          Progresso salvo automaticamente em {formatDateTime(investigation.updatedAt)}.
-        </p>
-        <div className="investigation__actions">
-          <Link to="/" className="button button--ghost" data-testid="investigation-exit">
-            Sair e continuar depois
-          </Link>
-          <button
-            type="button"
-            className="button button--danger-outline"
-            onClick={() => setOpenDialog('abandon')}
-            disabled={isBusy}
-            data-testid="investigation-abandon"
+        <div className="case-hero__content">
+          <p className="case-hero__eyebrow">
+            {formatCaseNumber(mission.id)} · Arquivo confidencial
+          </p>
+          <h1
+            id="investigation-title"
+            className="case-hero__title"
+            data-testid="investigation-title"
           >
-            Abandonar missão
-          </button>
+            {mission.title}
+          </h1>
+          <p className="case-hero__theme">{mission.theme}</p>
+          <div className="case-hero__badges">
+            <DifficultyBadge difficulty={mission.difficulty} label={mission.difficultyLabel} />
+            <StatusBadge status={investigation.status} testId="investigation-status" />
+          </div>
+          <ProgressBar
+            value={progress.analyzedEvidences}
+            max={progress.totalEvidences}
+            label="Evidências analisadas"
+            testId="investigation-progress"
+          />
+          <p className="case-hero__saved" data-testid="autosave-indicator">
+            <ClockIcon /> Progresso salvo automaticamente em{' '}
+            {formatDateTime(investigation.updatedAt)}.
+          </p>
+          <div className="case-hero__actions">
+            <Link to="/" className="button button--ghost" data-testid="investigation-exit">
+              <ArrowLeftIcon /> Sair e continuar depois
+            </Link>
+            <button
+              type="button"
+              className="button button--danger-outline"
+              onClick={() => setOpenDialog('abandon')}
+              disabled={isBusy}
+              data-testid="investigation-abandon"
+            >
+              <FlagIcon /> Abandonar missão
+            </button>
+          </div>
         </div>
       </header>
+
+      <nav className="case-nav" aria-label="Seções do dossiê">
+        <ul>
+          {CASE_SECTIONS.map((section) => (
+            <li key={section.id}>
+              <a href={`#${section.id}`}>{section.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       {actionError && <ErrorAlert message={actionError} testId="investigation-action-error" />}
       <StatusMessage message={successMessage} testId="investigation-feedback" />
 
-      <section className="panel" aria-labelledby="story-title">
-        <h2 id="story-title" className="panel__title">
+      <section id="secao-caso" className="case-section" aria-labelledby="story-title">
+        <h2 id="story-title" className="case-section__title">
+          <span className="case-section__index" aria-hidden="true">
+            I
+          </span>
           O caso
         </h2>
-        <p className="story" data-testid="investigation-story">
-          {mission.story}
-        </p>
+        <div className="briefing">
+          <span className="briefing__clip" aria-hidden="true" />
+          <p className="briefing__label">Relatório preliminar</p>
+          <p className="briefing__text" data-testid="investigation-story">
+            {mission.story}
+          </p>
+        </div>
       </section>
 
-      <section className="panel" aria-labelledby="suspects-title">
-        <h2 id="suspects-title" className="panel__title">
+      <section id="secao-suspeitos" className="case-section" aria-labelledby="suspects-title">
+        <h2 id="suspects-title" className="case-section__title">
+          <span className="case-section__index" aria-hidden="true">
+            II
+          </span>
           Suspeitos e depoimentos
         </h2>
         <SuspectList suspects={investigation.suspects} />
       </section>
 
-      <section className="panel" aria-labelledby="evidences-title">
-        <h2 id="evidences-title" className="panel__title">
+      <section id="secao-evidencias" className="case-section" aria-labelledby="evidences-title">
+        <h2 id="evidences-title" className="case-section__title">
+          <span className="case-section__index" aria-hidden="true">
+            III
+          </span>
           Evidências
         </h2>
-        <p className="panel__lead">
-          Disponíveis: {progress.unlockedEvidences - progress.analyzedEvidences} · Analisadas:{' '}
-          {progress.analyzedEvidences} · Bloqueadas:{' '}
-          {progress.totalEvidences - progress.unlockedEvidences}
-        </p>
+        <ul className="evidence-summary" aria-label="Resumo das evidências">
+          <li className="evidence-summary__item evidence-summary__item--available">
+            <strong>{progress.unlockedEvidences - progress.analyzedEvidences}</strong> disponíveis
+          </li>
+          <li className="evidence-summary__item evidence-summary__item--analyzed">
+            <strong>{progress.analyzedEvidences}</strong> analisadas
+          </li>
+          <li className="evidence-summary__item evidence-summary__item--locked">
+            <strong>{progress.totalEvidences - progress.unlockedEvidences}</strong> bloqueadas
+          </li>
+        </ul>
         <EvidenceBoard
           evidences={investigation.evidences}
           disabled={isBusy}
@@ -208,9 +253,12 @@ export function InvestigationPage() {
         />
       </section>
 
-      <section className="panel" aria-labelledby="hints-title">
-        <h2 id="hints-title" className="panel__title">
-          Dicas
+      <section id="secao-dicas" className="case-section" aria-labelledby="hints-title">
+        <h2 id="hints-title" className="case-section__title">
+          <span className="case-section__index" aria-hidden="true">
+            IV
+          </span>
+          Notas do informante
         </h2>
         <HintPanel
           hints={investigation.hints}
@@ -219,11 +267,18 @@ export function InvestigationPage() {
         />
       </section>
 
-      <section className="panel panel--accusation" aria-labelledby="accusation-title">
-        <h2 id="accusation-title" className="panel__title">
+      <section
+        id="secao-acusacao"
+        className="case-section case-section--warrant"
+        aria-labelledby="accusation-title"
+      >
+        <h2 id="accusation-title" className="case-section__title">
+          <span className="case-section__index" aria-hidden="true">
+            V
+          </span>
           Acusação
         </h2>
-        <p className="panel__lead">
+        <p className="case-section__lead">
           Você tem direito a uma única acusação. Depois dela, a investigação é encerrada e a solução
           é revelada.
         </p>

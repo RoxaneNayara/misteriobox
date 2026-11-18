@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { GavelIcon, LockIcon } from '../../components/Icons';
 import type { Evidence, InvestigationProgress, Suspect } from '../../types/api';
 
 export interface AccusationDraft {
@@ -12,6 +13,7 @@ interface AccusationFormProps {
   onSubmit: (draft: AccusationDraft) => void;
 }
 
+/** Mandado de acusação: escolha do suspeito e da evidência que sustenta a acusação. */
 export function AccusationForm({ investigation, disabled, onSubmit }: AccusationFormProps) {
   const [suspectId, setSuspectId] = useState('');
   const [evidenceId, setEvidenceId] = useState('');
@@ -36,10 +38,18 @@ export function AccusationForm({ investigation, disabled, onSubmit }: Accusation
 
   if (!canAccuse) {
     return (
-      <p className="alert alert--info" data-testid="accusation-locked">
-        Analise pelo menos {minimumForAccusation} evidências para liberar a acusação (
-        {analyzedEvidences}/{minimumForAccusation}).
-      </p>
+      <div className="accusation-locked" data-testid="accusation-locked">
+        <LockIcon className="accusation-locked__icon" />
+        <p>
+          Analise pelo menos {minimumForAccusation} evidências para liberar a acusação (
+          {analyzedEvidences}/{minimumForAccusation}).
+        </p>
+        <div className="accusation-locked__meter" aria-hidden="true">
+          {Array.from({ length: minimumForAccusation }, (_, step) => (
+            <span key={step} className={step < analyzedEvidences ? 'is-filled' : ''} />
+          ))}
+        </div>
+      </div>
     );
   }
 
@@ -55,21 +65,29 @@ export function AccusationForm({ investigation, disabled, onSubmit }: Accusation
         aria-describedby={errors.suspect ? 'accusation-suspect-error' : undefined}
       >
         <legend>Quem é o responsável?</legend>
-        {investigation.suspects.map((suspect) => (
-          <label key={suspect.id} className="radio-option">
-            <input
-              type="radio"
-              name="accused-suspect"
-              value={suspect.id}
-              checked={suspectId === suspect.id}
-              onChange={() => setSuspectId(suspect.id)}
-              data-testid={`accusation-suspect-${suspect.id}`}
-            />
-            <span>
-              {suspect.name} <small>— {suspect.role}</small>
-            </span>
-          </label>
-        ))}
+        <div className="suspect-options">
+          {investigation.suspects.map((suspect) => (
+            <label
+              key={suspect.id}
+              htmlFor={`accused-suspect-${suspect.id}`}
+              className={`suspect-option ${suspectId === suspect.id ? 'is-selected' : ''}`}
+            >
+              <input
+                id={`accused-suspect-${suspect.id}`}
+                type="radio"
+                name="accused-suspect"
+                value={suspect.id}
+                checked={suspectId === suspect.id}
+                onChange={() => setSuspectId(suspect.id)}
+                data-testid={`accusation-suspect-${suspect.id}`}
+              />
+              <span className="suspect-option__text">
+                {suspect.name}
+                <small>{suspect.role}</small>
+              </span>
+            </label>
+          ))}
+        </div>
         {errors.suspect && (
           <p
             id="accusation-suspect-error"
@@ -123,6 +141,7 @@ export function AccusationForm({ investigation, disabled, onSubmit }: Accusation
         disabled={disabled}
         data-testid="accusation-submit"
       >
+        <GavelIcon />
         Fazer acusação definitiva
       </button>
     </form>

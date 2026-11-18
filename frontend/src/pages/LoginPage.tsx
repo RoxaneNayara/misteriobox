@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getErrorMessage } from '../api/client';
+import { AuthScene } from '../components/AuthScene';
 import { ErrorAlert } from '../components/Feedback';
 import { FormField } from '../components/FormField';
 import { useAuth } from '../context/auth-context';
@@ -52,8 +53,8 @@ export function LoginPage() {
   };
 
   return (
-    <section className="auth-page" aria-labelledby="login-title">
-      <div className="auth-card dossier">
+    <AuthScene>
+      <section className="auth-card dossier" aria-labelledby="login-title">
         <p className="dossier__stamp" aria-hidden="true">
           Acesso restrito
         </p>
@@ -114,7 +115,7 @@ export function LoginPage() {
             Cadastre-se como detetive
           </Link>
         </p>
-      </div>
-    </section>
+      </section>
+    </AuthScene>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth-context';
+import { MagnifierIcon } from './Icons';
 
 export function AppLayout() {
   const { user, logout } = useAuth();
@@ -25,20 +26,28 @@ export function AppLayout() {
       <header className="app-header">
         <Link to="/" className="brand" data-testid="brand-link">
           <span className="brand__icon" aria-hidden="true">
-            ◉
+            <MagnifierIcon />
           </span>
-          <span>
+          <span className="brand__name">
             Mistério<span className="brand__accent">Box</span>
           </span>
         </Link>
         {user && (
           <nav className="app-header__nav" aria-label="Menu do usuário">
-            <span className="app-header__user" data-testid="current-user-name">
-              Detetive {user.name}
+            <span className="app-header__user">
+              <span className="app-header__badge" aria-hidden="true">
+                {user.name.charAt(0).toUpperCase()}
+              </span>
+              <span data-testid="current-user-name">Detetive {user.name}</span>
             </span>
-            <Link to="/" className="button button--ghost button--small" data-testid="nav-catalog">
+            <NavLink
+              to="/"
+              end
+              className="button button--ghost button--small"
+              data-testid="nav-catalog"
+            >
               Casos
-            </Link>
+            </NavLink>
             <button
               type="button"
               className="button button--ghost button--small"
@@ -51,10 +60,13 @@ export function AppLayout() {
         )}
       </header>
       <main id="conteudo" className="app-main" tabIndex={-1}>
-        <Outlet />
+        <div className="page-transition" key={pathname}>
+          <Outlet />
+        </div>
       </main>
       <footer className="app-footer">
-        MistérioBox — histórias fictícias para investigar com lógica e atenção.
+        <span className="app-footer__line" aria-hidden="true" />
+        MistérioBox · Histórias fictícias para investigar com lógica e atenção.
       </footer>
     </div>
   );
