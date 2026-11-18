@@ -1,0 +1,786 @@
+openapi: 3.0.3
+info:
+  title: MistérioBox API
+  version: 1.0.0
+  description: |
+    API REST da **MistérioBox**, plataforma de investigação interativa.
+
+    **Formato das respostas**
+    - Sucesso: `{ "data": ... }`
+    - Erro: `{ "error": { "code": "CODIGO", "message": "Mensagem legível", "details": ... } }`
+
+    **Autenticação**: envie o token obtido em `/auth/login` ou `/auth/register` no cabeçalho
+    `Authorization: Bearer <token>`. O logout é feito pelo cliente, descartando o token.
+
+    **Segurança das soluções**: o suspeito culpado, a evidência decisiva e a explicação do caso
+    só são retornados em `/investigations/{investigationId}/result` e na resposta da acusação,
+    depois que a investigação é finalizada por acusação.
+servers:
+  - url: http://localhost:3333/api
+    description: Ambiente local
+tags:
+  - name: Saúde
+  - name: Autenticação
+  - name: Missões
+  - name: Investigações
+
+paths:
+  /health:
+    get:
+      tags: [Saúde]
+      summary: Verifica se a API está no ar
+      responses:
+        '200':
+          description: API disponível
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      status: { type: string, example: ok }
+
+  /auth/register:
+    post:
+      tags: [Autenticação]
+      summary: Cadastra um novo jogador e já retorna uma sessão
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+            example: { name: 'Ana Souza', email: 'ana@example.com', password: 'Senha123' }
+      responses:
+        '201':
+          description: Jogador cadastrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSessionResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409':
+          description: E-mail já cadastrado (`EMAIL_ALREADY_REGISTERED`)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error: { code: EMAIL_ALREADY_REGISTERED, message: Este e-mail já está cadastrado. }
+
+  /auth/login:
+    post:
+      tags: [Autenticação]
+      summary: Autentica um jogador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+            example: { email: 'sofia@example.com', password: 'Sofia@123' }
+      responses:
+        '200':
+          description: Login realizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSessionResponse' }
+              example:
+                data:
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  tokenType: Bearer
+                  expiresIn: 28800
+                  user:
+                    id: 674b1f0c2a9d4e0012345678
+                    name: Sofia Almeida
+                    email: sofia@example.com
+                    createdAt: '2026-11-18T12:00:00.000Z'
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401':
+          description: E-mail ou senha incorretos (`INVALID_CREDENTIALS`)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error: { code: INVALID_CREDENTIALS, message: E-mail ou senha incorretos. }
+
+  /auth/me:
+    get:
+      tags: [Autenticação]
+      summary: Retorna o jogador autenticado
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Jogador autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /missions:
+    get:
+      tags: [Missões]
+      summary: Lista o catálogo de missões
+      description: |
+        Rota pública. Se um token válido for enviado, cada missão inclui o status da investigação
+        do próprio jogador (ou `null` se ele ainda não iniciou a missão).
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Catálogo de missões
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/MissionCatalogItem' }
+              example:
+                data:
+                  - id: missao-001
+                    title: O Último Aplauso
+                    theme: Roubo em um teatro
+                    synopsis: Na noite de estreia de uma peça, um violino histórico desaparece...
+                    difficulty: FACIL
+                    difficultyLabel: Fácil
+                    totalEvidences: 5
+                    totalSuspects: 3
+                    totalHints: 2
+                    investigation: { id: 674b1f0c2a9d4e0012345679, status: EM_ANDAMENTO }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /missions/{missionId}:
+    get:
+      tags: [Missões]
+      summary: Consulta os detalhes públicos de uma missão
+      description: Retorna história e suspeitos. Não retorna o conteúdo das evidências nem a solução.
+      parameters:
+        - $ref: '#/components/parameters/MissionId'
+      responses:
+        '200':
+          description: Detalhes públicos da missão
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/MissionDetails' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /investigations:
+    post:
+      tags: [Investigações]
+      summary: Inicia uma investigação
+      description: Cada jogador pode ter apenas uma investigação por missão.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StartInvestigationRequest' }
+            example: { missionId: missao-001 }
+      responses:
+        '201':
+          description: Investigação criada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvestigationProgressResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Já existe investigação do jogador para esta missão (`INVESTIGATION_ALREADY_EXISTS`)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: INVESTIGATION_ALREADY_EXISTS
+                  message: Você já possui uma investigação em andamento para esta missão.
+                  details: { investigationId: 674b1f0c2a9d4e0012345679, status: EM_ANDAMENTO }
+
+  /investigations/{investigationId}:
+    get:
+      tags: [Investigações]
+      summary: Consulta o progresso de uma investigação
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/InvestigationId'
+      responses:
+        '200':
+          description: Progresso atual
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvestigationProgressResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /investigations/{investigationId}/evidences/{evidenceId}/analysis:
+    post:
+      tags: [Investigações]
+      summary: Analisa uma evidência
+      description: |
+        Registra a análise e salva o progresso automaticamente. Evidências cujos pré-requisitos
+        foram cumpridos passam a ficar disponíveis.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/InvestigationId'
+        - name: evidenceId
+          in: path
+          required: true
+          schema: { type: string, example: ev-01 }
+      responses:
+        '200':
+          description: Evidência analisada; retorna o progresso atualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvestigationProgressResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Investigação finalizada (`INVESTIGATION_FINISHED`) ou evidência já analisada (`EVIDENCE_ALREADY_ANALYZED`)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '422':
+          description: Evidência bloqueada (`EVIDENCE_LOCKED`)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: EVIDENCE_LOCKED
+                  message: Esta evidência está bloqueada. Analise primeiro as evidências exigidas.
+                  details: { missingRequirements: [ev-01] }
+
+  /investigations/{investigationId}/hints:
+    post:
+      tags: [Investigações]
+      summary: Consulta a próxima dica
+      description: Cada dica utilizada desconta 10 pontos da pontuação final.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/InvestigationId'
+      responses:
+        '200':
+          description: Dica revelada; retorna o progresso atualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvestigationProgressResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Investigação finalizada (`INVESTIGATION_FINISHED`) ou sem dicas restantes (`NO_HINTS_REMAINING`)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /investigations/{investigationId}/abandon:
+    post:
+      tags: [Investigações]
+      summary: Abandona a investigação
+      description: A investigação recebe o status `ABANDONADO`, não recebe pontuação e não pode ser retomada.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/InvestigationId'
+      responses:
+        '200':
+          description: Investigação abandonada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvestigationProgressResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/InvestigationFinished' }
+
+  /investigations/{investigationId}/accusation:
+    post:
+      tags: [Investigações]
+      summary: Envia a acusação definitiva
+      description: |
+        Exige pelo menos 3 evidências analisadas. A evidência escolhida precisa ter sido analisada.
+        Só é permitida uma acusação por investigação. A pontuação é calculada no servidor;
+        campos extras no corpo (como `score`) são rejeitados.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/InvestigationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AccusationRequest' }
+            example: { suspectId: clara-monteiro, evidenceId: ev-04 }
+      responses:
+        '200':
+          description: Acusação registrada; retorna o relatório final
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvestigationResultResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/InvestigationFinished' }
+        '422':
+          description: |
+            Regra de acusação violada: `INSUFFICIENT_EVIDENCES`, `INVALID_SUSPECT` ou `EVIDENCE_NOT_ANALYZED`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: INSUFFICIENT_EVIDENCES
+                  message: Analise pelo menos 3 evidências antes de acusar.
+                  details: { analyzedEvidences: 1, minimumForAccusation: 3 }
+
+  /investigations/{investigationId}/result:
+    get:
+      tags: [Investigações]
+      summary: Consulta o resultado de uma investigação finalizada
+      description: |
+        Disponível para investigações `SOLUCIONADO`, `NAO_SOLUCIONADO` ou `ABANDONADO`.
+        A solução (`solution`) só é preenchida quando houve acusação.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/InvestigationId'
+      responses:
+        '200':
+          description: Relatório final
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvestigationResultResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Investigação ainda em andamento (`INVESTIGATION_IN_PROGRESS`)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    MissionId:
+      name: missionId
+      in: path
+      required: true
+      schema: { type: string, example: missao-001 }
+    InvestigationId:
+      name: investigationId
+      in: path
+      required: true
+      description: Identificador da investigação (ObjectId com 24 caracteres hexadecimais)
+      schema: { type: string, pattern: '^[a-fA-F0-9]{24}$', example: 674b1f0c2a9d4e0012345679 }
+
+  responses:
+    ValidationError:
+      description: Dados inválidos (`VALIDATION_ERROR` ou `INVALID_JSON`)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example:
+            error:
+              code: VALIDATION_ERROR
+              message: Dados da requisição inválidos.
+              details: [{ field: email, message: Informe um e-mail válido. }]
+    Unauthorized:
+      description: Token ausente, inválido ou expirado (`UNAUTHORIZED`)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example:
+            error: { code: UNAUTHORIZED, message: Autenticação necessária. }
+    Forbidden:
+      description: A investigação pertence a outro jogador (`FORBIDDEN`)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example:
+            error: { code: FORBIDDEN, message: Esta investigação pertence a outro jogador. }
+    NotFound:
+      description: |
+        Recurso inexistente (`MISSION_NOT_FOUND`, `INVESTIGATION_NOT_FOUND`, `EVIDENCE_NOT_FOUND`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example:
+            error: { code: INVESTIGATION_NOT_FOUND, message: Investigação não encontrada. }
+    InvestigationFinished:
+      description: A investigação já foi finalizada (`INVESTIGATION_FINISHED`)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example:
+            error:
+              code: INVESTIGATION_FINISHED
+              message: Esta investigação já foi finalizada e não aceita novas ações.
+              details: { status: SOLUCIONADO }
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum:
+                - VALIDATION_ERROR
+                - INVALID_JSON
+                - UNAUTHORIZED
+                - INVALID_CREDENTIALS
+                - FORBIDDEN
+                - ROUTE_NOT_FOUND
+                - MISSION_NOT_FOUND
+                - INVESTIGATION_NOT_FOUND
+                - EVIDENCE_NOT_FOUND
+                - EMAIL_ALREADY_REGISTERED
+                - INVESTIGATION_ALREADY_EXISTS
+                - INVESTIGATION_FINISHED
+                - INVESTIGATION_IN_PROGRESS
+                - EVIDENCE_ALREADY_ANALYZED
+                - NO_HINTS_REMAINING
+                - CONCURRENT_UPDATE
+                - EVIDENCE_LOCKED
+                - INSUFFICIENT_EVIDENCES
+                - INVALID_SUSPECT
+                - EVIDENCE_NOT_ANALYZED
+                - INTERNAL_ERROR
+            message: { type: string }
+            details: {}
+
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required: [name, email, password]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 80 }
+        email: { type: string, format: email, maxLength: 120 }
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+          description: Deve conter pelo menos uma letra e um número.
+
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string, format: email }
+        createdAt: { type: string, format: date-time }
+
+    AuthSessionResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            token: { type: string }
+            tokenType: { type: string, enum: [Bearer] }
+            expiresIn: { type: integer, description: Validade do token em segundos }
+            user: { $ref: '#/components/schemas/User' }
+
+    Difficulty:
+      type: string
+      enum: [FACIL, MEDIO, DIFICIL]
+
+    InvestigationStatus:
+      type: string
+      enum: [EM_ANDAMENTO, SOLUCIONADO, NAO_SOLUCIONADO, ABANDONADO]
+
+    Classification:
+      type: string
+      nullable: true
+      enum:
+        - Detetive Mestre
+        - Investigador Experiente
+        - Detetive Aprendiz
+        - Investigação Inconclusiva
+
+    MissionSummary:
+      type: object
+      properties:
+        id: { type: string, example: missao-001 }
+        title: { type: string }
+        theme: { type: string }
+        synopsis: { type: string }
+        difficulty: { $ref: '#/components/schemas/Difficulty' }
+        difficultyLabel: { type: string, enum: [Fácil, Médio, Difícil] }
+        totalEvidences: { type: integer }
+        totalSuspects: { type: integer }
+        totalHints: { type: integer }
+
+    MissionCatalogItem:
+      allOf:
+        - $ref: '#/components/schemas/MissionSummary'
+        - type: object
+          properties:
+            investigation:
+              type: object
+              nullable: true
+              properties:
+                id: { type: string }
+                status: { $ref: '#/components/schemas/InvestigationStatus' }
+
+    Suspect:
+      type: object
+      properties:
+        id: { type: string, example: clara-monteiro }
+        name: { type: string }
+        role: { type: string }
+        description: { type: string }
+        testimony: { type: string, description: Depoimento do suspeito }
+
+    MissionDetails:
+      allOf:
+        - $ref: '#/components/schemas/MissionSummary'
+        - type: object
+          properties:
+            story: { type: string }
+            suspects:
+              type: array
+              items: { $ref: '#/components/schemas/Suspect' }
+
+    StartInvestigationRequest:
+      type: object
+      additionalProperties: false
+      required: [missionId]
+      properties:
+        missionId: { type: string, example: missao-001 }
+
+    EvidenceReference:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+
+    Evidence:
+      type: object
+      properties:
+        id: { type: string, example: ev-01 }
+        title: { type: string }
+        state: { type: string, enum: [ANALISADA, DISPONIVEL, BLOQUEADA] }
+        content:
+          type: string
+          nullable: true
+          description: Preenchido somente quando a evidência já foi analisada.
+        requiredEvidences:
+          type: array
+          items: { $ref: '#/components/schemas/EvidenceReference' }
+        missingRequirements:
+          type: array
+          items: { $ref: '#/components/schemas/EvidenceReference' }
+
+    Hint:
+      type: object
+      properties:
+        id: { type: string, example: dica-1 }
+        text: { type: string }
+        relatedEvidence: { $ref: '#/components/schemas/EvidenceReference' }
+
+    InvestigationProgress:
+      type: object
+      properties:
+        id: { type: string }
+        status: { $ref: '#/components/schemas/InvestigationStatus' }
+        mission:
+          type: object
+          properties:
+            id: { type: string }
+            title: { type: string }
+            theme: { type: string }
+            difficulty: { $ref: '#/components/schemas/Difficulty' }
+            difficultyLabel: { type: string }
+            story: { type: string }
+        suspects:
+          type: array
+          items: { $ref: '#/components/schemas/Suspect' }
+        evidences:
+          type: array
+          items: { $ref: '#/components/schemas/Evidence' }
+        hints:
+          type: object
+          properties:
+            used:
+              type: array
+              items: { $ref: '#/components/schemas/Hint' }
+            total: { type: integer }
+            remaining: { type: integer }
+        progress:
+          type: object
+          properties:
+            analyzedEvidences: { type: integer }
+            unlockedEvidences: { type: integer }
+            totalEvidences: { type: integer }
+            percentage: { type: integer, minimum: 0, maximum: 100 }
+            minimumForAccusation: { type: integer, example: 3 }
+            canAccuse: { type: boolean }
+        startedAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time, nullable: true }
+
+    InvestigationProgressResponse:
+      type: object
+      properties:
+        data: { $ref: '#/components/schemas/InvestigationProgress' }
+      example:
+        data:
+          id: 674b1f0c2a9d4e0012345679
+          status: EM_ANDAMENTO
+          mission:
+            id: missao-001
+            title: O Último Aplauso
+            theme: Roubo em um teatro
+            difficulty: FACIL
+            difficultyLabel: Fácil
+            story: Teatro Imperial, noite de estreia...
+          suspects:
+            - id: helena-duarte
+              name: Helena Duarte
+              role: Diretora do teatro
+              description: Dirige o Teatro Imperial há dez anos...
+              testimony: Eu estava no saguão...
+          evidences:
+            - id: ev-01
+              title: Relatório técnico do apagão
+              state: ANALISADA
+              content: Elaborado pelo eletricista de plantão...
+              requiredEvidences: []
+              missingRequirements: []
+            - id: ev-04
+              title: Registro de crachás da sala de segurança
+              state: DISPONIVEL
+              content: null
+              requiredEvidences: [{ id: ev-01, title: Relatório técnico do apagão }]
+              missingRequirements: []
+            - id: ev-05
+              title: Carrinho de lavanderia no depósito
+              state: BLOQUEADA
+              content: null
+              requiredEvidences: [{ id: ev-04, title: Registro de crachás da sala de segurança }]
+              missingRequirements: [{ id: ev-04, title: Registro de crachás da sala de segurança }]
+          hints: { used: [], total: 2, remaining: 2 }
+          progress:
+            analyzedEvidences: 1
+            unlockedEvidences: 4
+            totalEvidences: 5
+            percentage: 20
+            minimumForAccusation: 3
+            canAccuse: false
+          startedAt: '2026-11-18T12:00:00.000Z'
+          updatedAt: '2026-11-18T12:05:00.000Z'
+          finishedAt: null
+
+    AccusationRequest:
+      type: object
+      additionalProperties: false
+      required: [suspectId, evidenceId]
+      properties:
+        suspectId: { type: string, example: clara-monteiro }
+        evidenceId: { type: string, example: ev-04 }
+
+    InvestigationResult:
+      type: object
+      properties:
+        investigationId: { type: string }
+        mission:
+          type: object
+          properties:
+            id: { type: string }
+            title: { type: string }
+            difficulty: { $ref: '#/components/schemas/Difficulty' }
+            difficultyLabel: { type: string }
+        status: { $ref: '#/components/schemas/InvestigationStatus' }
+        score: { type: integer, nullable: true, minimum: 0, maximum: 100 }
+        classification: { $ref: '#/components/schemas/Classification' }
+        scoreBreakdown:
+          type: object
+          nullable: true
+          properties:
+            suspectPoints: { type: integer }
+            evidenceBonus: { type: integer }
+            hintPenalty: { type: integer }
+        hintsUsed: { type: integer }
+        analyzedEvidences: { type: integer }
+        totalEvidences: { type: integer }
+        accusation:
+          type: object
+          nullable: true
+          properties:
+            suspect:
+              type: object
+              properties:
+                id: { type: string }
+                name: { type: string }
+            evidence: { $ref: '#/components/schemas/EvidenceReference' }
+            accusedAt: { type: string, format: date-time }
+        solution:
+          type: object
+          nullable: true
+          description: Revelada somente após a finalização por acusação.
+          properties:
+            culprit:
+              type: object
+              properties:
+                id: { type: string }
+                name: { type: string }
+            decisiveEvidence: { $ref: '#/components/schemas/EvidenceReference' }
+            explanation: { type: string }
+        startedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time, nullable: true }
+
+    InvestigationResultResponse:
+      type: object
+      properties:
+        data: { $ref: '#/components/schemas/InvestigationResult' }
+      example:
+        data:
+          investigationId: 674b1f0c2a9d4e0012345679
+          mission:
+            { id: missao-001, title: O Último Aplauso, difficulty: FACIL, difficultyLabel: Fácil }
+          status: SOLUCIONADO
+          score: 90
+          classification: Detetive Mestre
+          scoreBreakdown: { suspectPoints: 70, evidenceBonus: 30, hintPenalty: 10 }
+          hintsUsed: 1
+          analyzedEvidences: 4
+          totalEvidences: 5
+          accusation:
+            suspect: { id: clara-monteiro, name: Clara Monteiro }
+            evidence: { id: ev-04, title: Registro de crachás da sala de segurança }
+            accusedAt: '2026-11-18T12:20:00.000Z'
+          solution:
+            culprit: { id: clara-monteiro, name: Clara Monteiro }
+            decisiveEvidence: { id: ev-04, title: Registro de crachás da sala de segurança }
+            explanation: Clara Monteiro roubou o violino Aurora...
+          startedAt: '2026-11-18T12:00:00.000Z'
+          finishedAt: '2026-11-18T12:20:00.000Z'

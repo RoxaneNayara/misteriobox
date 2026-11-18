@@ -1,0 +1,29 @@
+{
+  "name": "misteriobox",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MistérioBox — plataforma Web de investigação interativa (API REST + site Web).",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "setup": "npm install",
+    "dev": "concurrently --names api,web --prefix-colors yellow,cyan \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "start": "concurrently --names api,web --prefix-colors yellow,cyan \"npm run start -w backend\" \"npm run preview -w frontend\"",
+    "lint": "npm run lint -w backend && npm run lint -w frontend",
+    "lint:fix": "npm run lint:fix -w backend && npm run lint:fix -w frontend",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "prettier": "^3.4.2"
+  }
+}
