@@ -1,7 +1,10 @@
-import { HttpErrors } from '../errors/app-error';
+import { HttpErrors, type AppError } from '../errors/app-error';
+import { isDuplicateKeyError } from '../errors/database-errors';
 import {
+  toInvestigationHistoryItemView,
   toInvestigationProgressView,
   toInvestigationResultView,
+  type InvestigationHistoryItemView,
   type InvestigationProgressView,
   type InvestigationResultView,
 } from '../mappers/investigation.mapper';
@@ -36,7 +39,10 @@ async function loadOwnedInvestigation(
   return investigation;
 }
 
-/** RN08: investigações finalizadas não aceitam novas ações. */
+/** Tentativas de criação antes de desistir de uma corrida de numeração. */
+const MAX_START_ATTEMPTS = 3;
+
+/** RN08: uma investigação encerrada não pode receber novas ações. */
 function ensureInProgress(investigation: InvestigationRecord): void {
   if (investigation.status !== 'EM_ANDAMENTO') {
     throw HttpErrors.conflict(
@@ -63,6 +69,14 @@ async function loadMissionWithSolution(missionId: string): Promise<Mission> {
   return mission;
 }
 
+function activeInvestigationConflict(activeInvestigation: InvestigationRecord): AppError {
+  return HttpErrors.conflict(
+    'INVESTIGATION_ALREADY_EXISTS',
+    'Você já possui uma investigação em andamento para esta missão. Continue a investigação existente.',
+    { investigationId: activeInvestigation._id.toString(), status: activeInvestigation.status },
+  );
+}
+
 function ensureUpdated(updatedInvestigation: InvestigationRecord | null): InvestigationRecord {
   if (!updatedInvestigation) {
     throw HttpErrors.conflict(
@@ -74,30 +88,56 @@ function ensureUpdated(updatedInvestigation: InvestigationRecord | null): Invest
 }
 
 export const investigationService = {
+  /**
+   * RN08: inicia uma nova tentativa da missão. Tentativas anteriores nunca são
+   * reabertas nem alteradas; só pode haver uma tentativa EM_ANDAMENTO por missão.
+   */
   async start(userId: string, missionId: string): Promise<InvestigationProgressView> {
     const mission = await loadPublicMission(missionId);
-    const existingInvestigation = await investigationRepository.findByUserAndMission(
-      userId,
-      missionId,
-    );
-    if (existingInvestigation) {
-      throw HttpErrors.conflict(
-        'INVESTIGATION_ALREADY_EXISTS',
-        existingInvestigation.status === 'EM_ANDAMENTO'
-          ? 'Você já possui uma investigação em andamento para esta missão.'
-          : 'Você já concluiu uma investigação desta missão.',
-        {
-          investigationId: existingInvestigation._id.toString(),
-          status: existingInvestigation.status,
-        },
+    const unlockedEvidenceIds = computeUnlockedEvidenceIds(mission.evidences, []);
+
+    for (let attempt = 1; attempt <= MAX_START_ATTEMPTS; attempt += 1) {
+      const activeInvestigation = await investigationRepository.findActiveByUserAndMission(
+        userId,
+        missionId,
       );
+      if (activeInvestigation) {
+        throw activeInvestigationConflict(activeInvestigation);
+      }
+      const attemptNumber =
+        (await investigationRepository.findLatestAttemptNumber(userId, missionId)) + 1;
+      try {
+        const createdInvestigation = await investigationRepository.create({
+          userId,
+          missionId,
+          attemptNumber,
+          unlockedEvidenceIds,
+        });
+        return toInvestigationProgressView(createdInvestigation, mission);
+      } catch (error) {
+        // Corrida com outra requisição: o índice único recusou a criação.
+        // Na próxima volta, ou a tentativa ativa criada pela outra requisição é
+        // encontrada (409), ou o número da tentativa é recalculado.
+        if (!isDuplicateKeyError(error)) throw error;
+      }
     }
-    const createdInvestigation = await investigationRepository.create({
-      userId,
-      missionId,
-      unlockedEvidenceIds: computeUnlockedEvidenceIds(mission.evidences, []),
+    throw HttpErrors.conflict(
+      'CONCURRENT_UPDATE',
+      'Não foi possível iniciar a investigação por causa de requisições simultâneas. Tente novamente.',
+    );
+  },
+
+  /** Histórico do jogador autenticado (RN01: somente as próprias tentativas). */
+  async listHistory(userId: string): Promise<InvestigationHistoryItemView[]> {
+    const [investigations, missions] = await Promise.all([
+      investigationRepository.findByUserId(userId),
+      missionRepository.findAll(),
+    ]);
+    const missionsById = new Map(missions.map((mission) => [mission.missionId, mission]));
+    return investigations.flatMap((investigation) => {
+      const mission = missionsById.get(investigation.missionId);
+      return mission ? [toInvestigationHistoryItemView(investigation, mission)] : [];
     });
-    return toInvestigationProgressView(createdInvestigation, mission);
   },
 
   async getProgress(userId: string, investigationId: string): Promise<InvestigationProgressView> {

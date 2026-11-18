@@ -25,6 +25,8 @@ export interface Accusation {
 export interface Investigation {
   userId: Types.ObjectId;
   missionId: string;
+  /** Número sequencial da tentativa do jogador nesta missão (1, 2, 3...). */
+  attemptNumber: number;
   status: InvestigationStatus;
   analyzedEvidenceIds: string[];
   unlockedEvidenceIds: string[];
@@ -52,6 +54,7 @@ const investigationSchema = new Schema<Investigation>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     missionId: { type: String, required: true },
+    attemptNumber: { type: Number, required: true, min: 1 },
     status: { type: String, enum: INVESTIGATION_STATUSES, required: true, default: 'EM_ANDAMENTO' },
     analyzedEvidenceIds: { type: [String], default: [] },
     unlockedEvidenceIds: { type: [String], default: [] },
@@ -64,7 +67,26 @@ const investigationSchema = new Schema<Investigation>(
   { timestamps: true },
 );
 
-/** Cada jogador possui no máximo uma investigação por missão. */
-investigationSchema.index({ userId: 1, missionId: 1 }, { unique: true });
+/**
+ * RN08: no máximo uma tentativa EM_ANDAMENTO por jogador e missão.
+ * O índice parcial garante a regra no banco, inclusive em requisições simultâneas.
+ */
+investigationSchema.index(
+  { userId: 1, missionId: 1 },
+  {
+    name: 'uniq_active_attempt_per_user_mission',
+    unique: true,
+    partialFilterExpression: { status: 'EM_ANDAMENTO' },
+  },
+);
+
+/** Numeração sequencial e única das tentativas de cada jogador em cada missão. */
+investigationSchema.index(
+  { userId: 1, missionId: 1, attemptNumber: 1 },
+  { name: 'uniq_attempt_number_per_user_mission', unique: true },
+);
+
+/** Consulta do histórico do jogador, da tentativa mais recente para a mais antiga. */
+investigationSchema.index({ userId: 1, createdAt: -1 });
 
 export const InvestigationModel = model<Investigation>('Investigation', investigationSchema);

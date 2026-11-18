@@ -123,8 +123,9 @@ paths:
       tags: [Missões]
       summary: Lista o catálogo de missões
       description: |
-        Rota pública. Se um token válido for enviado, cada missão inclui o status da investigação
-        do próprio jogador (ou `null` se ele ainda não iniciou a missão).
+        Rota pública. Se um token válido for enviado, cada missão inclui a tentativa em andamento
+        do próprio jogador ou, se não houver, a tentativa mais recente (`null` se ele nunca jogou),
+        além do total de tentativas registradas.
       security: [{}, { bearerAuth: [] }]
       responses:
         '200':
@@ -149,6 +150,7 @@ paths:
                     totalSuspects: 3
                     totalHints: 2
                     investigation: { id: 674b1f0c2a9d4e0012345679, status: EM_ANDAMENTO }
+                    totalAttempts: 2
         '401': { $ref: '#/components/responses/Unauthorized' }
 
   /missions/{missionId}:
@@ -170,10 +172,74 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
 
   /investigations:
+    get:
+      tags: [Investigações]
+      summary: Consulta o histórico de investigações do jogador autenticado
+      description: |
+        Lista todas as tentativas do próprio jogador (identificado pelo token), da mais recente para
+        a mais antiga. Não aceita identificador de usuário: não é possível consultar o histórico de
+        outro jogador. Os registros não trazem acusação nem solução. `score` e `classification` são
+        `null` quando não houve pontuação (tentativa em andamento ou abandonada) e numéricos —
+        inclusive `0` — quando a tentativa foi finalizada por acusação. O histórico existe enquanto o
+        backend estiver em execução (banco em memória).
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Histórico do jogador (lista vazia quando ainda não há tentativas)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/InvestigationHistoryItem' }
+              example:
+                data:
+                  - id: 674b1f0c2a9d4e0012345680
+                    mission:
+                      {
+                        id: missao-001,
+                        title: O Último Aplauso,
+                        difficulty: FACIL,
+                        difficultyLabel: Fácil,
+                      }
+                    attemptNumber: 2
+                    status: ABANDONADO
+                    startedAt: '2026-11-18T13:00:00.000Z'
+                    finishedAt: '2026-11-18T13:05:00.000Z'
+                    analyzedEvidences: 1
+                    totalEvidences: 5
+                    hintsUsed: 0
+                    score: null
+                    classification: null
+                  - id: 674b1f0c2a9d4e0012345679
+                    mission:
+                      {
+                        id: missao-001,
+                        title: O Último Aplauso,
+                        difficulty: FACIL,
+                        difficultyLabel: Fácil,
+                      }
+                    attemptNumber: 1
+                    status: NAO_SOLUCIONADO
+                    startedAt: '2026-11-18T12:00:00.000Z'
+                    finishedAt: '2026-11-18T12:20:00.000Z'
+                    analyzedEvidences: 3
+                    totalEvidences: 5
+                    hintsUsed: 0
+                    score: 0
+                    classification: Investigação Inconclusiva
+        '401': { $ref: '#/components/responses/Unauthorized' }
     post:
       tags: [Investigações]
-      summary: Inicia uma investigação
-      description: Cada jogador pode ter apenas uma investigação por missão.
+      summary: Inicia uma nova tentativa de investigação
+      description: |
+        Cria uma nova tentativa da missão com número sequencial (`attemptNumber`), sem evidências
+        analisadas, sem dicas e sem acusação. Tentativas encerradas (`SOLUCIONADO`,
+        `NAO_SOLUCIONADO`, `ABANDONADO`) permanecem inalteradas no histórico. Só pode existir uma
+        tentativa `EM_ANDAMENTO` por jogador e missão, garantida por índice único no banco mesmo
+        com requisições simultâneas.
       security: [{ bearerAuth: [] }]
       requestBody:
         required: true
@@ -191,14 +257,17 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409':
-          description: Já existe investigação do jogador para esta missão (`INVESTIGATION_ALREADY_EXISTS`)
+          description: |
+            Já existe uma tentativa em andamento desta missão (`INVESTIGATION_ALREADY_EXISTS`); o campo
+            `details.investigationId` indica a investigação a ser continuada. Em corridas raras de
+            requisições simultâneas pode ser retornado `CONCURRENT_UPDATE` (tente novamente).
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorResponse' }
               example:
                 error:
                   code: INVESTIGATION_ALREADY_EXISTS
-                  message: Você já possui uma investigação em andamento para esta missão.
+                  message: Você já possui uma investigação em andamento para esta missão. Continue a investigação existente.
                   details: { investigationId: 674b1f0c2a9d4e0012345679, status: EM_ANDAMENTO }
 
   /investigations/{investigationId}:
@@ -547,9 +616,41 @@ components:
             investigation:
               type: object
               nullable: true
+              description: Tentativa em andamento do jogador ou, se não houver, a mais recente.
               properties:
                 id: { type: string }
                 status: { $ref: '#/components/schemas/InvestigationStatus' }
+            totalAttempts:
+              type: integer
+              minimum: 0
+              description: Total de tentativas do jogador nesta missão (0 sem autenticação).
+
+    InvestigationHistoryItem:
+      type: object
+      properties:
+        id: { type: string }
+        mission:
+          type: object
+          properties:
+            id: { type: string }
+            title: { type: string }
+            difficulty: { $ref: '#/components/schemas/Difficulty' }
+            difficultyLabel: { type: string }
+        attemptNumber:
+          { type: integer, minimum: 1, description: Número sequencial da tentativa na missão }
+        status: { $ref: '#/components/schemas/InvestigationStatus' }
+        startedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time, nullable: true }
+        analyzedEvidences: { type: integer }
+        totalEvidences: { type: integer }
+        hintsUsed: { type: integer }
+        score:
+          type: integer
+          nullable: true
+          minimum: 0
+          maximum: 100
+          description: '`null` = sem pontuação (em andamento ou abandonada); `0` é uma pontuação válida.'
+        classification: { $ref: '#/components/schemas/Classification' }
 
     Suspect:
       type: object

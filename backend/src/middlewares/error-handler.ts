@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError, HttpErrors } from '../errors/app-error';
+import { isDuplicateKeyError } from '../errors/database-errors';
 import { sendError } from '../utils/http-response';
 
 function isJsonSyntaxError(error: unknown): boolean {
@@ -8,10 +9,6 @@ function isJsonSyntaxError(error: unknown): boolean {
     'type' in error &&
     (error as SyntaxError & { type?: string }).type === 'entity.parse.failed'
   );
-}
-
-function isDuplicateKeyError(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && 'code' in error && error.code === 11000;
 }
 
 export function notFoundHandler(request: Request, _response: Response, next: NextFunction): void {
@@ -38,10 +35,14 @@ export function errorHandler(
     );
     return;
   }
+  // Rede de segurança: violações de índice único em corridas viram 409, nunca 500.
   if (isDuplicateKeyError(error)) {
     sendError(
       response,
-      HttpErrors.conflict('INVESTIGATION_ALREADY_EXISTS', 'O registro já existe.'),
+      HttpErrors.conflict(
+        'CONCURRENT_UPDATE',
+        'O registro já existe ou foi alterado por outra requisição. Tente novamente.',
+      ),
     );
     return;
   }

@@ -10,18 +10,22 @@ import { missionRepository } from '../repositories/mission.repository';
 
 export const missionService = {
   /**
-   * Catálogo de missões. Quando há um jogador autenticado, inclui o status
-   * da investigação dele em cada missão (somente as próprias — RN01).
+   * Catálogo de missões. Quando há um jogador autenticado, cada missão traz a
+   * tentativa ativa dele (ou, se não houver, a mais recente) e o total de
+   * tentativas — somente as próprias (RN01).
    */
   async listCatalog(userId?: string): Promise<MissionCatalogItemView[]> {
     const missions = await missionRepository.findAll();
+    // Já ordenadas da mais recente para a mais antiga.
     const investigations = userId ? await investigationRepository.findByUserId(userId) : [];
-    return missions.map((mission) =>
-      toMissionCatalogItemView(
-        mission,
-        investigations.find((investigation) => investigation.missionId === mission.missionId),
-      ),
-    );
+    return missions.map((mission) => {
+      const attempts = investigations.filter(
+        (investigation) => investigation.missionId === mission.missionId,
+      );
+      const featuredAttempt =
+        attempts.find((investigation) => investigation.status === 'EM_ANDAMENTO') ?? attempts[0];
+      return toMissionCatalogItemView(mission, featuredAttempt, attempts.length);
+    });
   },
 
   async getPublicDetails(missionId: string): Promise<MissionDetailsView> {

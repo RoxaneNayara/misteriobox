@@ -8,6 +8,7 @@ import {
 export interface CreateInvestigationData {
   userId: string;
   missionId: string;
+  attemptNumber: number;
   unlockedEvidenceIds: string[];
 }
 
@@ -16,6 +17,7 @@ export const investigationRepository = {
     const createdInvestigation = await InvestigationModel.create({
       userId: new Types.ObjectId(data.userId),
       missionId: data.missionId,
+      attemptNumber: data.attemptNumber,
       unlockedEvidenceIds: data.unlockedEvidenceIds,
     });
     return createdInvestigation.toObject();
@@ -28,20 +30,34 @@ export const investigationRepository = {
     return InvestigationModel.findById(investigationId).lean<InvestigationRecord>();
   },
 
+  /** Histórico do jogador: da tentativa mais recente para a mais antiga. */
   async findByUserId(userId: string): Promise<InvestigationRecord[]> {
-    return InvestigationModel.find({ userId: new Types.ObjectId(userId) }).lean<
-      InvestigationRecord[]
-    >();
+    return InvestigationModel.find({ userId: new Types.ObjectId(userId) })
+      .sort({ createdAt: -1, _id: -1 })
+      .lean<InvestigationRecord[]>();
   },
 
-  async findByUserAndMission(
+  async findActiveByUserAndMission(
     userId: string,
     missionId: string,
   ): Promise<InvestigationRecord | null> {
     return InvestigationModel.findOne({
       userId: new Types.ObjectId(userId),
       missionId,
+      status: 'EM_ANDAMENTO',
     }).lean<InvestigationRecord>();
+  },
+
+  /** Maior número de tentativa já usado pelo jogador na missão (0 se nunca jogou). */
+  async findLatestAttemptNumber(userId: string, missionId: string): Promise<number> {
+    const latestAttempt = await InvestigationModel.findOne({
+      userId: new Types.ObjectId(userId),
+      missionId,
+    })
+      .sort({ attemptNumber: -1 })
+      .select('attemptNumber')
+      .lean<Pick<InvestigationRecord, 'attemptNumber'>>();
+    return latestAttempt?.attemptNumber ?? 0;
   },
 
   /**

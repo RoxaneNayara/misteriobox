@@ -7,6 +7,11 @@ type InvestigationRequest = Request<{ investigationId: string }>;
 type EvidenceRequest = Request<{ investigationId: string; evidenceId: string }>;
 
 export const investigationController = {
+  async listHistory(request: Request, response: Response): Promise<void> {
+    const history = await investigationService.listHistory(requireUserId(request));
+    sendSuccess(response, history);
+  },
+
   async start(request: Request, response: Response): Promise<void> {
     const progress = await investigationService.start(
       requireUserId(request),

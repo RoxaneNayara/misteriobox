@@ -1,10 +1,19 @@
-import type { InvestigationProgress, InvestigationResult } from '../types/api';
+import type {
+  InvestigationHistoryItem,
+  InvestigationProgress,
+  InvestigationResult,
+} from '../types/api';
 import { apiRequest } from './client';
 
 const basePath = (investigationId: string) =>
   `/investigations/${encodeURIComponent(investigationId)}`;
 
 export const investigationsApi = {
+  /** Histórico do jogador autenticado, da tentativa mais recente para a mais antiga. */
+  listHistory(): Promise<InvestigationHistoryItem[]> {
+    return apiRequest('/investigations');
+  },
+
   start(missionId: string): Promise<InvestigationProgress> {
     return apiRequest('/investigations', { method: 'POST', body: { missionId } });
   },

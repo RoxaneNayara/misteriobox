@@ -4,7 +4,7 @@ import { useAuth } from '../context/auth-context';
 import { MagnifierIcon } from './Icons';
 
 export function AppLayout() {
-  const { user, logout } = useAuth();
+  const { user, status, logout } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -48,6 +48,13 @@ export function AppLayout() {
             >
               Casos
             </NavLink>
+            <NavLink
+              to="/historico"
+              className="button button--ghost button--small"
+              data-testid="nav-history"
+            >
+              Meu histórico
+            </NavLink>
             <button
               type="button"
               className="button button--ghost button--small"
@@ -58,6 +65,24 @@ export function AppLayout() {
             </button>
           </nav>
         )}
+        {status === 'anonymous' && (
+          <nav className="app-header__nav" aria-label="Acesso">
+            <NavLink
+              to="/login"
+              className="button button--ghost button--small"
+              data-testid="nav-login"
+            >
+              Entrar
+            </NavLink>
+            <NavLink
+              to="/cadastro"
+              className="button button--secondary button--small"
+              data-testid="nav-register"
+            >
+              Cadastrar
+            </NavLink>
+          </nav>
+        )}
       </header>
       <main id="conteudo" className="app-main" tabIndex={-1}>
         <div className="page-transition" key={pathname}>
@@ -66,7 +91,8 @@ export function AppLayout() {
       </main>
       <footer className="app-footer">
         <span className="app-footer__line" aria-hidden="true" />
-        MistérioBox · Histórias fictícias para investigar com lógica e atenção.
+        <p className="app-footer__quote">Os fatos não mentem. As pessoas, às vezes.</p>
+        <p className="app-footer__credit">MistérioBox · Histórias fictícias para investigar.</p>
       </footer>
     </div>
   );

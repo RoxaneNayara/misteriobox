@@ -31,7 +31,24 @@ export interface MissionCatalogItem {
   totalEvidences: number;
   totalSuspects: number;
   totalHints: number;
+  /** Tentativa ativa do jogador ou, se não houver, a mais recente. */
   investigation: { id: string; status: InvestigationStatus } | null;
+  totalAttempts: number;
+}
+
+/** Registro do histórico: `score`/`classification` são `null` quando não houve pontuação. */
+export interface InvestigationHistoryItem {
+  id: string;
+  mission: { id: string; title: string; difficulty: Difficulty; difficultyLabel: string };
+  attemptNumber: number;
+  status: InvestigationStatus;
+  startedAt: string;
+  finishedAt: string | null;
+  analyzedEvidences: number;
+  totalEvidences: number;
+  hintsUsed: number;
+  score: number | null;
+  classification: DetectiveClassification | null;
 }
 
 export interface Suspect {

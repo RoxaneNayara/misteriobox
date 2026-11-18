@@ -7,6 +7,8 @@ let memoryServer: MongoMemoryServer | null = null;
 export async function connectDatabase(): Promise<void> {
   memoryServer = await MongoMemoryServer.create();
   await mongoose.connect(memoryServer.getUri(), { dbName: 'misteriobox' });
+  // Cria os índices (inclusive os únicos) antes de a API aceitar requisições.
+  await mongoose.syncIndexes();
   console.log('[database] MongoDB em memória iniciado.');
 }
 

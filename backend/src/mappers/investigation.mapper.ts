@@ -93,6 +93,25 @@ export interface InvestigationResultView {
   finishedAt: Date | null;
 }
 
+/**
+ * Registro do histórico. Não contém acusação nem solução. `score` e
+ * `classification` são `null` quando não houve pontuação (em andamento ou
+ * abandonada) e numéricos — inclusive 0 — quando houve acusação.
+ */
+export interface InvestigationHistoryItemView {
+  id: string;
+  mission: { id: string; title: string; difficulty: Difficulty; difficultyLabel: string };
+  attemptNumber: number;
+  status: InvestigationStatus;
+  startedAt: Date;
+  finishedAt: Date | null;
+  analyzedEvidences: number;
+  totalEvidences: number;
+  hintsUsed: number;
+  score: number | null;
+  classification: DetectiveClassification | null;
+}
+
 function findEvidence(mission: PublicMission, evidenceId: string): Evidence {
   const evidence = mission.evidences.find((item) => item.evidenceId === evidenceId);
   if (!evidence) {
@@ -239,5 +258,29 @@ export function toInvestigationResultView(
       : null,
     startedAt: investigation.createdAt,
     finishedAt: investigation.finishedAt,
+  };
+}
+
+export function toInvestigationHistoryItemView(
+  investigation: InvestigationRecord,
+  mission: PublicMission,
+): InvestigationHistoryItemView {
+  return {
+    id: investigation._id.toString(),
+    mission: {
+      id: mission.missionId,
+      title: mission.title,
+      difficulty: mission.difficulty,
+      difficultyLabel: DIFFICULTY_LABELS[mission.difficulty],
+    },
+    attemptNumber: investigation.attemptNumber,
+    status: investigation.status,
+    startedAt: investigation.createdAt,
+    finishedAt: investigation.finishedAt,
+    analyzedEvidences: investigation.analyzedEvidenceIds.length,
+    totalEvidences: mission.evidences.length,
+    hintsUsed: investigation.usedHintIds.length,
+    score: investigation.score,
+    classification: investigation.classification,
   };
 }

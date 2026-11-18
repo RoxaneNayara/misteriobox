@@ -27,7 +27,9 @@ export interface MissionSummaryView {
 }
 
 export interface MissionCatalogItemView extends MissionSummaryView {
+  /** Tentativa ativa do jogador ou, se não houver, a mais recente. */
   investigation: { id: string; status: InvestigationStatus } | null;
+  totalAttempts: number;
 }
 
 export interface MissionDetailsView extends MissionSummaryView {
@@ -62,12 +64,14 @@ export function toMissionSummaryView(mission: PublicMission): MissionSummaryView
 export function toMissionCatalogItemView(
   mission: PublicMission,
   investigation: InvestigationRecord | undefined,
+  totalAttempts: number,
 ): MissionCatalogItemView {
   return {
     ...toMissionSummaryView(mission),
     investigation: investigation
       ? { id: investigation._id.toString(), status: investigation.status }
       : null,
+    totalAttempts,
   };
 }
 

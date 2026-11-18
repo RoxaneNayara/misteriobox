@@ -16,6 +16,8 @@ investigationRoutes.use(authenticate);
 
 const withInvestigationId = validateParams(investigationIdParamsSchema);
 
+// Histórico do próprio jogador: o usuário vem do token, nunca de parâmetro.
+investigationRoutes.get('/', investigationController.listHistory);
 investigationRoutes.post(
   '/',
   validateBody(startInvestigationSchema),
