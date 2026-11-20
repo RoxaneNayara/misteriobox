@@ -1,0 +1,60 @@
+# Integração contínua da MistérioBox.
+# Executa lint, verificação de formatação e build do backend e do frontend.
+# Não depende de nenhuma aplicação hospedada: tudo roda dentro do runner.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-and-build:
+    name: Lint, formatação e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      # O build não usa o MongoDB; evita baixar o binário (~70 MB) no `npm ci`.
+      # Remova esta variável quando os testes de API precisarem do banco em memória.
+      MONGOMS_DISABLE_POSTINSTALL: '1'
+
+    steps:
+      - name: Obter o código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: ESLint (backend e frontend)
+        run: npm run lint
+
+      - name: Prettier (verificação de formatação)
+        run: npm run format:check
+
+      - name: Build do backend
+        run: npm run build -w backend
+
+      - name: Build do frontend
+        run: npm run build -w frontend
+
+      # Ponto de extensão para testes automatizados (Playwright + TypeScript).
+      # Quando os testes forem adicionados, incluir aqui, por exemplo:
+      #   - npx playwright install --with-deps
+      #   - script de testes de API (backend iniciado localmente no runner)
+      #   - script de testes de frontend (backend + `vite preview` locais)
+      # e publicar o relatório com actions/upload-artifact.
