@@ -30,3 +30,6 @@ Thumbs.db
 
 # Configuração local do Claude Code
 .claude/
+
+# Plano de testes mantido apenas localmente até revisão para publicação
+artefatos_de_teste/plano_e_estrategia_de_testes_misteriobox.docx
