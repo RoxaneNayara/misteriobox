@@ -12,8 +12,14 @@ function readInteger(variableName: string, fallback: number): number {
   return parsedValue;
 }
 
+/** Valor opcional de texto; `undefined` quando ausente ou vazio. */
+export function readOptionalString(variableName: string): string | undefined {
+  const rawValue = process.env[variableName]?.trim();
+  return rawValue ? rawValue : undefined;
+}
+
 function readJwtSecret(): string {
-  const configuredSecret = process.env.JWT_SECRET?.trim();
+  const configuredSecret = readOptionalString('JWT_SECRET');
   if (configuredSecret) {
     return configuredSecret;
   }

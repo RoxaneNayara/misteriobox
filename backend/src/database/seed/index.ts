@@ -1,6 +1,7 @@
 import { missionRepository } from '../../repositories/mission.repository';
 import { userRepository } from '../../repositories/user.repository';
 import { passwordService } from '../../services/password.service';
+import { resolveDemoPassword } from './demo-passwords';
 import { DEMO_USERS } from './demo-users';
 import { assertMissionIntegrity } from './mission-integrity';
 import { DEMO_MISSIONS } from './missions';
@@ -18,7 +19,7 @@ async function seedUsers(): Promise<void> {
     await userRepository.create({
       name: demoUser.name,
       email: demoUser.email,
-      passwordHash: await passwordService.hash(demoUser.password),
+      passwordHash: await passwordService.hash(resolveDemoPassword(demoUser)),
     });
   }
   console.log(`[seed] ${DEMO_USERS.length} usuários demonstrativos criados.`);

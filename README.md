@@ -173,8 +173,10 @@ cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 ```
 
-Se `backend/.env` não existir, a API usa valores padrão e gera um `JWT_SECRET` temporário a cada
-inicialização (os tokens deixam de valer quando a API reinicia).
+Se `backend/.env` não existir (ou `JWT_SECRET` estiver vazio), a API usa valores padrão e gera um
+`JWT_SECRET` temporário a cada inicialização (os tokens deixam de valer quando a API reinicia). As
+senhas dos usuários demonstrativos também vêm do `backend/.env` (veja a seção
+[8. Dados de demonstração](#8-dados-de-demonstração)).
 
 ### Execução (macOS, Linux ou Windows)
 
@@ -224,14 +226,32 @@ Não há passo manual. Ao iniciar, o backend:
 
 Para voltar ao estado inicial, basta reiniciar o backend.
 
-> Credenciais de uso **exclusivamente local**. São dados fictícios de demonstração, com e-mails do
-> domínio reservado `example.com`.
+> Usuários de uso **exclusivamente local**. São dados fictícios de demonstração, com e-mails do
+> domínio reservado `example.com`. **Nenhuma senha fica no código ou neste README.**
 
-| Nome           | E-mail              | Senha       |
-| -------------- | ------------------- | ----------- |
-| Sofia Almeida  | `sofia@example.com` | `Sofia@123` |
-| Bruno Carvalho | `bruno@example.com` | `Bruno@123` |
-| Lívia Rocha    | `livia@example.com` | `Livia@123` |
+| Nome           | E-mail              | Variável da senha (em `backend/.env`) |
+| -------------- | ------------------- | ------------------------------------- |
+| Sofia Almeida  | `sofia@example.com` | `DEMO_USER_SOFIA_PASSWORD`            |
+| Bruno Carvalho | `bruno@example.com` | `DEMO_USER_BRUNO_PASSWORD`            |
+| Lívia Rocha    | `livia@example.com` | `DEMO_USER_LIVIA_PASSWORD`            |
+
+Como definir as senhas demonstrativas (configuração reproduzível):
+
+1. Copie o exemplo, se ainda não tiver o arquivo:
+
+   ```bash
+   cp backend/.env.example backend/.env
+   ```
+
+2. Em `backend/.env`, preencha as três variáveis com senhas de sua escolha (mínimo de 8
+   caracteres, com letras e números — a mesma política do cadastro). O arquivo `.env` não é
+   versionado.
+3. Inicie o backend e entre com o e-mail do usuário e a senha que você definiu.
+
+Se as variáveis ficarem vazias, o backend gera **senhas temporárias** a cada inicialização e as
+mostra no console do backend (linhas `[seed] ... Senha temporária de ...`). Uma senha definida
+fora da política interrompe a inicialização com uma mensagem indicando a variável. Também é
+possível criar uma conta própria pela tela de cadastro.
 
 Nenhum usuário começa com investigações; todos partem do mesmo estado.
 
