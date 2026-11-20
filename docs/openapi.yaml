@@ -76,7 +76,7 @@ paths:
         content:
           application/json:
             schema: { $ref: '#/components/schemas/LoginRequest' }
-            example: { email: 'sofia@example.com', password: 'Sofia@123' }
+            example: { email: 'sofia@example.com', password: 'SenhaDefinidaNoEnv1' }
       responses:
         '200':
           description: Login realizado
