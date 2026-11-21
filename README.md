@@ -23,7 +23,7 @@ mistérios fictícios analisando evidências, suspeitos, depoimentos e pistas.
 9. [Regras de negócio (RN01 a RN08)](#9-regras-de-negócio-rn01-a-rn08)
 10. [Histórico e reinício de missões](#10-histórico-e-reinício-de-missões)
 11. [Estrutura do projeto](#11-estrutura-do-projeto)
-12. [Lint, Prettier e build](#12-lint-prettier-e-build)
+12. [Lint, Prettier, build e testes](#12-lint-prettier-build-e-testes)
 13. [Pipeline de integração contínua (CI)](#13-pipeline-de-integração-contínua-ci)
 14. [Limitações conhecidas](#14-limitações-conhecidas)
 15. [Caráter acadêmico e experimental](#15-caráter-acadêmico-e-experimental)
@@ -81,6 +81,22 @@ Cada missão tem uma única solução, uma evidência decisiva e cadeias de desb
 início. Os dados ficam em `backend/src/database/seed/missions/`. O culpado, a evidência decisiva e
 a explicação **nunca** são enviados ao frontend antes da acusação (o campo `solution` não é
 selecionado por padrão no Mongoose).
+
+### Validação do cadastro
+
+Todas as regras são aplicadas no backend (`backend/src/validators/auth.validator.ts`); o
+frontend repete as mesmas regras (`frontend/src/utils/validation.ts`) apenas para avisar antes do
+envio.
+
+| Campo  | Regra                                                                                                                                                                                                                                                                    |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Nome   | 2 a 80 caracteres após remover espaços externos. Aceita letras Unicode (com acentos), espaços internos, hífens e apóstrofos (`'` ou `’`); começa e termina com letra. Recusa números, símbolos (`*`, `?`, `/`, vírgula…), emojis e caracteres de controle ou invisíveis. |
+| E-mail | Até 120 caracteres, formato de e-mail válido; espaços externos removidos e letras convertidas para minúsculas. Apóstrofos são aceitos, inclusive consecutivos (`mariansa''llaw@example.com`).                                                                            |
+| Senha  | 8 a 72 caracteres **e** no máximo 72 bytes (UTF-8), com letras e números. Nunca é alterada (sem remoção de espaços). O limite em bytes evita o truncamento silencioso do bcrypt; no login, senhas acima de 72 bytes são recusadas.                                       |
+
+Entradas estruturadas (objetos ou operadores como `{"$gt": ""}`) e campos extras são recusados com
+`400 VALIDATION_ERROR`, o que impede injeção de operadores do MongoDB. Os dados do usuário são
+exibidos pelo React como texto (sem `innerHTML`).
 
 ## 4. Tecnologias utilizadas
 
@@ -425,7 +441,7 @@ misteriobox/
 └── README.md
 ```
 
-## 12. Lint, Prettier e build
+## 12. Lint, Prettier, build e testes
 
 | Script                                         | Ação                                          |
 | ---------------------------------------------- | --------------------------------------------- |
@@ -435,6 +451,7 @@ misteriobox/
 | `npm run lint` / `npm run lint:fix`            | ESLint em backend e frontend                  |
 | `npm run format` / `npm run format:check`      | Prettier (corrigir / apenas verificar)        |
 | `npm run build`                                | Build de produção dos dois projetos           |
+| `npm test`                                     | Testes automatizados do backend e do frontend |
 | `npm start`                                    | Executa o build (API + `vite preview`)        |
 
 ```bash
@@ -449,7 +466,22 @@ npm run format:check
 npm run build
 ```
 
+```bash
+npm test
+```
+
 O build gera `backend/dist` (JavaScript compilado) e `frontend/dist` (site estático).
+
+Testes automatizados (Vitest):
+
+- **Backend** (`backend/tests/`): testes unitários das validações e do serviço de senha e testes de
+  integração da API com Supertest e MongoDB em memória — política do nome, normalização de
+  espaços externos (regressão do B03), limites de campos, limite de bytes do bcrypt, rejeição de
+  operadores do MongoDB e respostas sempre em JSON.
+- **Frontend** (`frontend/src/**/*.test.ts`): as mesmas regras de validação do cadastro, para
+  manter frontend e backend consistentes.
+
+Na primeira execução, os testes de integração baixam o binário do MongoDB (~70 MB).
 
 ## 13. Pipeline de integração contínua (CI)
 
@@ -461,13 +493,15 @@ cada `push` e `pull request` para a branch `main`:
 3. `npm run lint` — ESLint no backend e no frontend;
 4. `npm run format:check` — verificação de formatação com Prettier;
 5. `npm run build -w backend` — compilação TypeScript da API;
-6. `npm run build -w frontend` — type-check e build do Vite.
+6. `npm run build -w frontend` — type-check e build do Vite;
+7. `npm run test -w backend` — testes unitários e de integração da API (Vitest + Supertest);
+8. `npm run test -w frontend` — testes das validações do frontend (Vitest).
 
-O pipeline não depende de nenhuma aplicação hospedada. Como o build não usa o banco, a variável
-`MONGOMS_DISABLE_POSTINSTALL=1` evita baixar o binário do MongoDB durante o `npm ci`. O arquivo já
-indica o ponto de extensão para os futuros testes automatizados de API e frontend com
-**Playwright + TypeScript**, que poderão subir backend e frontend localmente dentro do próprio
-runner.
+O pipeline não depende de nenhuma aplicação hospedada: os testes de integração sobem a API e o
+MongoDB em memória dentro do próprio runner. A variável `MONGOMS_DISABLE_POSTINSTALL=1` evita
+baixar o binário do MongoDB no `npm ci`; ele é obtido pelos testes e guardado em cache entre
+execuções. O arquivo indica o ponto de extensão para os futuros testes de ponta a ponta com
+**Playwright + TypeScript**.
 
 ## 14. Limitações conhecidas
 
@@ -478,7 +512,8 @@ runner.
   navegador e novo login, **mas não são persistência permanente**.
 - Após reiniciar a API, um token salvo no navegador deixa de ser válido e o site pede novo login.
 - A primeira execução precisa de internet para baixar o binário do MongoDB.
-- Ainda não há testes automatizados no repositório; o CI verifica lint, formatação e build.
+- Os testes automatizados cobrem as validações do cadastro e a segurança de entrada; os demais
+  fluxos ainda são verificados manualmente (testes de ponta a ponta previstos com Playwright).
 - A aplicação não está hospedada: é executada apenas localmente.
 
 ### Preparação para testes (QA)
@@ -494,8 +529,8 @@ runner.
   `mission-last-report-missao-001`, `history-list`, `history-item-<id>`, `history-score-<id>`,
   `history-action-<id>`, `history-empty`).
 - A pasta [`artefatos_de_teste/`](artefatos_de_teste) reúne os artefatos de qualidade da equipe
-  de QA. O Plano e Estratégia de Testes é mantido apenas localmente até ser revisado para
-  publicação.
+  de QA. Os documentos `.docx` (plano, condições de teste, relatórios de sessão e de defeitos) são
+  mantidos apenas localmente até serem revisados para publicação.
 
 ## 15. Caráter acadêmico e experimental
 
