@@ -1,5 +1,5 @@
 # Integração contínua da MistérioBox.
-# Executa lint, verificação de formatação e build do backend e do frontend.
+# Executa lint, verificação de formatação, build e testes automatizados.
 # Não depende de nenhuma aplicação hospedada: tudo roda dentro do runner.
 name: CI
 
@@ -23,8 +23,8 @@ jobs:
     timeout-minutes: 15
 
     env:
-      # O build não usa o MongoDB; evita baixar o binário (~70 MB) no `npm ci`.
-      # Remova esta variável quando os testes de API precisarem do banco em memória.
+      # O binário do MongoDB não é baixado no `npm ci`; os testes de integração o
+      # obtêm sob demanda e ele fica em cache entre execuções (passo abaixo).
       MONGOMS_DISABLE_POSTINSTALL: '1'
 
     steps:
@@ -40,6 +40,13 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
+      - name: Cache do binário do MongoDB (testes de integração)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: mongodb-binaries-${{ runner.os }}-
+
       - name: ESLint (backend e frontend)
         run: npm run lint
 
@@ -52,9 +59,13 @@ jobs:
       - name: Build do frontend
         run: npm run build -w frontend
 
-      # Ponto de extensão para testes automatizados (Playwright + TypeScript).
-      # Quando os testes forem adicionados, incluir aqui, por exemplo:
+      - name: Testes automatizados do backend (Vitest + Supertest)
+        run: npm run test -w backend
+
+      - name: Testes automatizados do frontend (Vitest)
+        run: npm run test -w frontend
+
+      # Ponto de extensão para testes de ponta a ponta (Playwright + TypeScript):
       #   - npx playwright install --with-deps
-      #   - script de testes de API (backend iniciado localmente no runner)
-      #   - script de testes de frontend (backend + `vite preview` locais)
-      # e publicar o relatório com actions/upload-artifact.
+      #   - subir backend e `vite preview` localmente no runner e executar a suíte
+      #   - publicar o relatório com actions/upload-artifact

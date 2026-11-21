@@ -20,7 +20,8 @@
     "lint": "npm run lint -w backend && npm run lint -w frontend",
     "lint:fix": "npm run lint:fix -w backend && npm run lint:fix -w frontend",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "npm run test -w backend && npm run test -w frontend"
   },
   "devDependencies": {
     "concurrently": "^9.1.0",

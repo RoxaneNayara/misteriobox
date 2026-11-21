@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth-context';
+import { initialOf } from '../utils/labels';
 import { MagnifierIcon } from './Icons';
 
 export function AppLayout() {
@@ -36,9 +37,15 @@ export function AppLayout() {
           <nav className="app-header__nav" aria-label="Menu do usuário">
             <span className="app-header__user">
               <span className="app-header__badge" aria-hidden="true">
-                {user.name.charAt(0).toUpperCase()}
+                {initialOf(user.name)}
               </span>
-              <span data-testid="current-user-name">Detetive {user.name}</span>
+              <span
+                className="app-header__user-name"
+                title={`Detetive ${user.name}`}
+                data-testid="current-user-name"
+              >
+                Detetive {user.name}
+              </span>
             </span>
             <NavLink
               to="/"

@@ -6,6 +6,7 @@ import { ErrorAlert } from '../components/Feedback';
 import { FormField } from '../components/FormField';
 import { useAuth } from '../context/auth-context';
 import type { ValidationIssue } from '../types/api';
+import { validateName, validatePassword } from '../utils/validation';
 
 interface RegisterForm {
   name: string;
@@ -20,12 +21,11 @@ const EMPTY_FORM: RegisterForm = { name: '', email: '', password: '', passwordCo
 
 function validateRegister(form: RegisterForm): RegisterErrors {
   const errors: RegisterErrors = {};
-  if (form.name.trim().length < 2) errors.name = 'O nome deve ter pelo menos 2 caracteres.';
+  const nameError = validateName(form.name);
+  if (nameError) errors.name = nameError;
   if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) errors.email = 'Informe um e-mail válido.';
-  if (form.password.length < 8) errors.password = 'A senha deve ter pelo menos 8 caracteres.';
-  else if (!/[A-Za-z]/.test(form.password) || !/\d/.test(form.password)) {
-    errors.password = 'A senha deve conter letras e números.';
-  }
+  const passwordError = validatePassword(form.password);
+  if (passwordError) errors.password = passwordError;
   if (form.passwordConfirmation !== form.password) {
     errors.passwordConfirmation = 'As senhas não coincidem.';
   }
@@ -90,6 +90,7 @@ export function RegisterPage() {
             id="register-name"
             label="Nome"
             autoComplete="name"
+            hint="Letras (com ou sem acento), espaços, hífens e apóstrofos. Até 80 caracteres."
             value={form.name}
             onChange={(event) => updateField('name')(event.target.value)}
             error={fieldErrors.name}
@@ -112,7 +113,7 @@ export function RegisterPage() {
             label="Senha"
             type="password"
             autoComplete="new-password"
-            hint="Mínimo de 8 caracteres, com letras e números."
+            hint="De 8 a 72 caracteres, com letras e números."
             value={form.password}
             onChange={(event) => updateField('password')(event.target.value)}
             error={fieldErrors.password}

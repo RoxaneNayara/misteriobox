@@ -10,7 +10,7 @@ import { MissionCover } from '../components/MissionCover';
 import { useAuth } from '../context/auth-context';
 import type { InvestigationHistoryItem, MissionCatalogItem } from '../types/api';
 import { computeDetectiveStats } from '../utils/detective-stats';
-import { formatCaseNumber } from '../utils/labels';
+import { formatCaseNumber, initialOf } from '../utils/labels';
 
 function hasActiveAttempt(mission: MissionCatalogItem): boolean {
   return mission.investigation?.status === 'EM_ANDAMENTO';
@@ -202,7 +202,7 @@ export function CatalogPage() {
         >
           <div className="detective-panel__id">
             <span className="detective-panel__avatar" aria-hidden="true">
-              {user?.name.charAt(0).toUpperCase()}
+              {user ? initialOf(user.name) : ''}
             </span>
             <div>
               <p className="detective-panel__label">Credencial de detetive</p>

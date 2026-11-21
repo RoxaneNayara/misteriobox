@@ -264,6 +264,7 @@
 }
 
 .detective-panel__avatar {
+  flex-shrink: 0;
   display: grid;
   place-items: center;
   width: 3.2rem;
@@ -286,8 +287,14 @@
   color: var(--color-gold);
 }
 
+.detective-panel__id > div {
+  min-width: 0;
+}
+
+/* B02: nomes longos sem espaços quebram dentro da credencial, sem vazar. */
 .detective-panel__name {
   margin: 0;
+  overflow-wrap: anywhere;
   font-size: 1.45rem;
   color: var(--color-paper);
 }
@@ -303,7 +310,7 @@
   display: flex;
   flex-direction: column-reverse;
   gap: 0.15rem;
-  padding: 0.7rem 0.5rem;
+  padding: 0.7rem 0.25rem;
   text-align: center;
   background: var(--color-surface-raised);
   border: 1px solid var(--color-border);
@@ -381,6 +388,15 @@
 @media (max-width: 480px) {
   .detective-panel {
     padding: 1.1rem;
+  }
+
+  .detective-panel__id {
+    align-items: flex-start;
+  }
+
+  .detective-panel__name {
+    font-size: 1.15rem;
+    line-height: 1.3;
   }
 
   .detective-panel__stats {
