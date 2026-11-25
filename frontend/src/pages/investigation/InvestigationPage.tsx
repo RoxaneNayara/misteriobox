@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { getErrorMessage } from '../../api/client';
 import { investigationsApi } from '../../api/investigations.api';
@@ -8,6 +8,8 @@ import { ErrorAlert, LoadingState, StatusMessage } from '../../components/Feedba
 import { ArrowLeftIcon, ClockIcon, FlagIcon } from '../../components/Icons';
 import { MissionCover } from '../../components/MissionCover';
 import { ProgressBar } from '../../components/ProgressBar';
+import { useActiveSection } from '../../hooks/useActiveSection';
+import { useCssHeightVariable } from '../../hooks/useCssHeightVariable';
 import type { Evidence, InvestigationProgress } from '../../types/api';
 import { formatCaseNumber, formatDateTime } from '../../utils/labels';
 import { AccusationForm, type AccusationDraft } from './AccusationForm';
@@ -26,6 +28,9 @@ const CASE_SECTIONS = [
   { id: 'secao-acusacao', label: 'Acusação' },
 ] as const;
 
+const CASE_SECTION_IDS = CASE_SECTIONS.map((section) => section.id);
+const SECTION_SCROLL_ANIMATION_MS = 1200;
+
 export function InvestigationPage() {
   const { investigationId = '' } = useParams();
   const navigate = useNavigate();
@@ -38,6 +43,39 @@ export function InvestigationPage() {
   const [analyzingEvidenceId, setAnalyzingEvidenceId] = useState<string | null>(null);
   const [openDialog, setOpenDialog] = useState<OpenDialog>(null);
   const [accusationDraft, setAccusationDraft] = useState<AccusationDraft | null>(null);
+
+  // B05: altura real do menu fixo e destaque da seção em exibição.
+  const caseNavRef = useRef<HTMLElement>(null);
+  const showsCaseNav = investigation?.status === 'EM_ANDAMENTO';
+  useCssHeightVariable(caseNavRef, '--case-nav-height', showsCaseNav);
+  const { activeId: activeSectionId, select: selectSection } = useActiveSection(
+    CASE_SECTION_IDS,
+    showsCaseNav,
+  );
+
+  /**
+   * Leva à seção escolhida mesmo que a âncora já esteja na URL, respeitando a
+   * preferência de movimento reduzido, e move o foco para a seção (teclado e
+   * leitores de tela continuam a partir dela).
+   */
+  const lastSectionJumpAt = useRef(0);
+  const goToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    selectSection(sectionId);
+    const now = Date.now();
+    // Um novo clique durante a animação anterior salta direto: a última escolha prevalece.
+    const jumpInProgress = now - lastSectionJumpAt.current < SECTION_SCROLL_ANIMATION_MS;
+    lastSectionJumpAt.current = now;
+    // O foco vem antes da rolagem: no Chromium, focar durante uma rolagem suave a interrompe.
+    section.focus({ preventScroll: true });
+    window.history.replaceState(window.history.state, '', `#${sectionId}`);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    section.scrollIntoView({
+      behavior: reduceMotion || jumpInProgress ? 'instant' : 'smooth',
+      block: 'start',
+    });
+  };
 
   const loadInvestigation = useCallback(() => {
     setLoadError(null);
@@ -188,11 +226,26 @@ export function InvestigationPage() {
         </div>
       </header>
 
-      <nav className="case-nav" aria-label="Seções do dossiê">
+      <nav
+        ref={caseNavRef}
+        className="case-nav"
+        aria-label="Seções do dossiê"
+        data-testid="case-nav"
+      >
         <ul>
           {CASE_SECTIONS.map((section) => (
             <li key={section.id}>
-              <a href={`#${section.id}`}>{section.label}</a>
+              <a
+                href={`#${section.id}`}
+                aria-current={activeSectionId === section.id ? 'location' : undefined}
+                onClick={(event) => {
+                  event.preventDefault();
+                  goToSection(section.id);
+                }}
+                data-testid={`case-nav-${section.id}`}
+              >
+                {section.label}
+              </a>
             </li>
           ))}
         </ul>
@@ -201,7 +254,7 @@ export function InvestigationPage() {
       {actionError && <ErrorAlert message={actionError} testId="investigation-action-error" />}
       <StatusMessage message={successMessage} testId="investigation-feedback" />
 
-      <section id="secao-caso" className="case-section" aria-labelledby="story-title">
+      <section id="secao-caso" tabIndex={-1} className="case-section" aria-labelledby="story-title">
         <h2 id="story-title" className="case-section__title">
           <span className="case-section__index" aria-hidden="true">
             I
@@ -217,7 +270,12 @@ export function InvestigationPage() {
         </div>
       </section>
 
-      <section id="secao-suspeitos" className="case-section" aria-labelledby="suspects-title">
+      <section
+        id="secao-suspeitos"
+        tabIndex={-1}
+        className="case-section"
+        aria-labelledby="suspects-title"
+      >
         <h2 id="suspects-title" className="case-section__title">
           <span className="case-section__index" aria-hidden="true">
             II
@@ -227,7 +285,12 @@ export function InvestigationPage() {
         <SuspectList suspects={investigation.suspects} />
       </section>
 
-      <section id="secao-evidencias" className="case-section" aria-labelledby="evidences-title">
+      <section
+        id="secao-evidencias"
+        tabIndex={-1}
+        className="case-section"
+        aria-labelledby="evidences-title"
+      >
         <h2 id="evidences-title" className="case-section__title">
           <span className="case-section__index" aria-hidden="true">
             III
@@ -253,7 +316,12 @@ export function InvestigationPage() {
         />
       </section>
 
-      <section id="secao-dicas" className="case-section" aria-labelledby="hints-title">
+      <section
+        id="secao-dicas"
+        tabIndex={-1}
+        className="case-section"
+        aria-labelledby="hints-title"
+      >
         <h2 id="hints-title" className="case-section__title">
           <span className="case-section__index" aria-hidden="true">
             IV
@@ -269,6 +337,7 @@ export function InvestigationPage() {
 
       <section
         id="secao-acusacao"
+        tabIndex={-1}
         className="case-section case-section--warrant"
         aria-labelledby="accusation-title"
       >

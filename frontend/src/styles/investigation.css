@@ -83,17 +83,22 @@
 
 .case-nav {
   position: sticky;
-  top: 4.4rem;
+  /* B05: fica logo abaixo do cabeçalho fixo, com a altura real dele. */
+  top: var(--sticky-header-offset);
   z-index: 5;
-  overflow-x: auto;
-  background: rgba(15, 13, 12, 0.92);
+  background: rgba(15, 13, 12, 0.94);
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: 1.4rem;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(8px);
 }
 
+/* As opções quebram em mais de uma linha quando necessário: todas permanecem
+   visíveis, sem corte e sem rolagem horizontal. */
 .case-nav ul {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 0.25rem;
   margin: 0;
   padding: 0.3rem;
@@ -115,8 +120,15 @@
 }
 
 .case-nav a:hover {
+  color: var(--color-paper);
+  background: var(--color-surface-raised);
+}
+
+/* Seção em exibição (aria-current="location"). */
+.case-nav a[aria-current='location'] {
   color: var(--color-ink);
   background: var(--color-gold);
+  box-shadow: inset 0 0 0 1px var(--color-gold-bright);
 }
 
 /* ---------- Seções ---------- */
@@ -126,6 +138,14 @@
   background: rgba(26, 23, 20, 0.88);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+}
+
+.case-section:focus {
+  outline: none;
+}
+
+.case-section:focus-visible {
+  box-shadow: var(--focus-ring);
 }
 
 .case-section__title {
@@ -740,18 +760,13 @@
 }
 
 @media (max-width: 640px) {
-  .status-region {
-    top: 11rem;
-  }
-
   .case-hero__content,
   .case-section {
     padding: 1.25rem 1rem;
   }
 
-  .case-nav {
-    top: 7.6rem;
-    border-radius: var(--radius);
+  .case-nav a {
+    padding: 0.4rem 0.8rem;
   }
 
   .case-hero__actions .button,

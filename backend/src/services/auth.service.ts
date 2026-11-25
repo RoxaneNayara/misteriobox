@@ -14,7 +14,12 @@ export interface UserView {
 export interface AuthSession {
   token: string;
   tokenType: 'Bearer';
+  /** Segundos até este token expirar (renovado a cada atividade, até o limite absoluto). */
   expiresIn: number;
+  /** Tempo máximo sem renovação antes de a sessão expirar por inatividade. */
+  idleTimeoutSeconds: number;
+  /** Expiração absoluta da sessão, contada a partir do login. */
+  sessionExpiresAt: Date;
   user: UserView;
 }
 
@@ -38,11 +43,14 @@ function toUserView(user: UserRecord): UserView {
   };
 }
 
-function createSession(user: UserRecord): AuthSession {
+function createSession(user: UserRecord, authTime?: number): AuthSession {
+  const { token, expiresIn, sessionExpiresAt } = tokenService.issue(user._id.toString(), authTime);
   return {
-    token: tokenService.sign(user._id.toString()),
+    token,
     tokenType: 'Bearer',
-    expiresIn: tokenService.expiresInSeconds(),
+    expiresIn,
+    idleTimeoutSeconds: tokenService.idleTimeoutSeconds(),
+    sessionExpiresAt,
     user: toUserView(user),
   };
 }
@@ -68,6 +76,18 @@ export const authService = {
       throw HttpErrors.unauthorized('INVALID_CREDENTIALS', 'E-mail ou senha incorretos.');
     }
     return createSession(user);
+  },
+
+  /**
+   * B04: renova a janela de inatividade da sessão atual, mantendo o momento do
+   * login (a expiração absoluta não é estendida).
+   */
+  async refresh(userId: string, authTime: number): Promise<AuthSession> {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw HttpErrors.unauthorized('UNAUTHORIZED', 'Usuário da sessão não encontrado.');
+    }
+    return createSession(user, authTime);
   },
 
   async getAuthenticatedUser(userId: string): Promise<UserView> {

@@ -10,7 +10,21 @@ info:
     - Erro: `{ "error": { "code": "CODIGO", "message": "Mensagem legível", "details": ... } }`
 
     **Autenticação**: envie o token obtido em `/auth/login` ou `/auth/register` no cabeçalho
-    `Authorization: Bearer <token>`. O logout é feito pelo cliente, descartando o token.
+    `Authorization: Bearer <token>`.
+
+    **Sessão (inatividade e limite absoluto)**: cada token expira após **30 minutos** sem renovação
+    (`idleTimeoutSeconds`). Enquanto o jogador está ativo, o site chama `POST /auth/refresh`, que
+    emite um novo token deslizando a janela de inatividade, sem ultrapassar **8 horas** desde o
+    login (`sessionExpiresAt`). Token expirado: `401 SESSION_EXPIRED`. O logout é feito pelo
+    cliente, descartando o token; um token copiado antes do logout continua aceito até expirar
+    (no máximo 30 minutos sem renovação). Logout e expiração não abandonam investigações (RN06).
+
+    **Corpo das requisições**: requisições com corpo devem usar `Content-Type: application/json`
+    (com ou sem `charset`). Outros tipos de mídia recebem `415 UNSUPPORTED_MEDIA_TYPE` antes de
+    qualquer processamento, sem efeitos no banco. POSTs sem corpo (dica, abandono, análise,
+    renovação) não são afetados.
+
+    **Cache**: as respostas da API usam `Cache-Control: no-store`.
 
     **Segurança das soluções**: o suspeito culpado, a evidência decisiva e a explicação do caso
     só são retornados em `/investigations/{investigationId}/result` e na resposta da acusação,
@@ -59,6 +73,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/AuthSessionResponse' }
         '400': { $ref: '#/components/responses/ValidationError' }
+        '415': { $ref: '#/components/responses/UnsupportedMediaType' }
         '409':
           description: E-mail já cadastrado (`EMAIL_ALREADY_REGISTERED`)
           content:
@@ -87,13 +102,16 @@ paths:
                 data:
                   token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
                   tokenType: Bearer
-                  expiresIn: 28800
+                  expiresIn: 1800
+                  idleTimeoutSeconds: 1800
+                  sessionExpiresAt: '2026-11-18T20:00:00.000Z'
                   user:
                     id: 674b1f0c2a9d4e0012345678
                     name: Sofia Almeida
                     email: sofia@example.com
                     createdAt: '2026-11-18T12:00:00.000Z'
         '400': { $ref: '#/components/responses/ValidationError' }
+        '415': { $ref: '#/components/responses/UnsupportedMediaType' }
         '401':
           description: E-mail ou senha incorretos (`INVALID_CREDENTIALS`)
           content:
@@ -101,6 +119,24 @@ paths:
               schema: { $ref: '#/components/schemas/ErrorResponse' }
               example:
                 error: { code: INVALID_CREDENTIALS, message: E-mail ou senha incorretos. }
+
+  /auth/refresh:
+    post:
+      tags: [Autenticação]
+      summary: Renova a janela de inatividade da sessão
+      description: |
+        Emite um novo token para a sessão atual, com nova expiração por inatividade
+        (`idleTimeoutSeconds`, 30 min), mantendo o momento do login: a expiração absoluta
+        (`sessionExpiresAt`, 8 h após o login) nunca é estendida. Não exige corpo. O token
+        anterior continua válido até a própria expiração.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Sessão renovada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSessionResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
 
   /auth/me:
     get:
@@ -254,6 +290,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/InvestigationProgressResponse' }
         '400': { $ref: '#/components/responses/ValidationError' }
+        '415': { $ref: '#/components/responses/UnsupportedMediaType' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409':
@@ -396,6 +433,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/InvestigationResultResponse' }
         '400': { $ref: '#/components/responses/ValidationError' }
+        '415': { $ref: '#/components/responses/UnsupportedMediaType' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -470,12 +508,29 @@ components:
               message: Dados da requisição inválidos.
               details: [{ field: email, message: Informe um e-mail válido. }]
     Unauthorized:
-      description: Token ausente, inválido ou expirado (`UNAUTHORIZED`)
+      description: |
+        Token ausente ou inválido (`UNAUTHORIZED`) ou sessão expirada por inatividade ou pelo
+        limite absoluto (`SESSION_EXPIRED`)
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ErrorResponse' }
           example:
-            error: { code: UNAUTHORIZED, message: Autenticação necessária. }
+            error:
+              code: SESSION_EXPIRED
+              message: Sua sessão expirou por inatividade. Entre novamente.
+    UnsupportedMediaType:
+      description: |
+        O corpo não foi enviado como `application/json` (`UNSUPPORTED_MEDIA_TYPE`). Nada é
+        processado nem gravado. Refere-se ao cabeçalho `Content-Type` da requisição; a resposta
+        continua em JSON.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example:
+            error:
+              code: UNSUPPORTED_MEDIA_TYPE
+              message: 'Tipo de conteúdo não suportado. Envie o corpo em JSON com o cabeçalho Content-Type: application/json.'
+              details: { receivedContentType: text/plain }
     Forbidden:
       description: A investigação pertence a outro jogador (`FORBIDDEN`)
       content:
@@ -530,6 +585,8 @@ components:
                 - EVIDENCE_ALREADY_ANALYZED
                 - NO_HINTS_REMAINING
                 - CONCURRENT_UPDATE
+                - UNSUPPORTED_MEDIA_TYPE
+                - SESSION_EXPIRED
                 - EVIDENCE_LOCKED
                 - INSUFFICIENT_EVIDENCES
                 - INVALID_SUSPECT
@@ -575,7 +632,18 @@ components:
           properties:
             token: { type: string }
             tokenType: { type: string, enum: [Bearer] }
-            expiresIn: { type: integer, description: Validade do token em segundos }
+            expiresIn:
+              type: integer
+              description: Segundos até este token expirar (renovável, limitado à expiração absoluta)
+              example: 1800
+            idleTimeoutSeconds:
+              type: integer
+              description: Tempo máximo sem renovação antes de a sessão expirar por inatividade
+              example: 1800
+            sessionExpiresAt:
+              type: string
+              format: date-time
+              description: Expiração absoluta da sessão (8 horas após o login)
             user: { $ref: '#/components/schemas/User' }
 
     Difficulty:

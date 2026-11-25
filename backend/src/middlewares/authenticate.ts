@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { HttpErrors } from '../errors/app-error';
 import { userRepository } from '../repositories/user.repository';
-import { tokenService } from '../services/token.service';
+import { tokenService, type VerifiedSession } from '../services/token.service';
 
 function extractBearerToken(request: Request): string | null {
   const header = request.headers.authorization;
@@ -15,13 +15,18 @@ function extractBearerToken(request: Request): string | null {
   return token;
 }
 
-async function resolveUserId(token: string): Promise<string> {
-  const userId = tokenService.verify(token);
-  const user = await userRepository.findById(userId);
+async function resolveSession(token: string): Promise<VerifiedSession> {
+  const session = tokenService.verify(token);
+  const user = await userRepository.findById(session.userId);
   if (!user) {
     throw HttpErrors.unauthorized('UNAUTHORIZED', 'Usuário da sessão não encontrado.');
   }
-  return userId;
+  return session;
+}
+
+function attachSession(request: Request, session: VerifiedSession): void {
+  request.authenticatedUserId = session.userId;
+  request.sessionAuthTime = session.authTime;
 }
 
 /** Exige um token válido (RN01). */
@@ -34,7 +39,7 @@ export async function authenticate(
   if (!token) {
     throw HttpErrors.unauthorized();
   }
-  request.authenticatedUserId = await resolveUserId(token);
+  attachSession(request, await resolveSession(token));
   next();
 }
 
@@ -46,7 +51,7 @@ export async function optionalAuthenticate(
 ): Promise<void> {
   const token = extractBearerToken(request);
   if (token) {
-    request.authenticatedUserId = await resolveUserId(token);
+    attachSession(request, await resolveSession(token));
   }
   next();
 }
@@ -57,4 +62,12 @@ export function requireUserId(request: Request): string {
     throw HttpErrors.unauthorized();
   }
   return request.authenticatedUserId;
+}
+
+/** Momento do login da sessão atual, dentro de um controller protegido. */
+export function requireSessionAuthTime(request: Request): number {
+  if (request.sessionAuthTime === undefined) {
+    throw HttpErrors.unauthorized();
+  }
+  return request.sessionAuthTime;
 }

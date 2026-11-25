@@ -21,9 +21,12 @@
     "lint:fix": "npm run lint:fix -w backend && npm run lint:fix -w frontend",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npm run test -w backend && npm run test -w frontend"
+    "test": "npm run test -w backend && npm run test -w frontend",
+    "test:e2e": "playwright test",
+    "typecheck:e2e": "tsc -p e2e/tsconfig.json"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "concurrently": "^9.1.0",
     "prettier": "^3.4.2"
   }
