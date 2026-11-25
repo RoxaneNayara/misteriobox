@@ -1,5 +1,5 @@
 # Integração contínua da MistérioBox.
-# Executa lint, verificação de formatação, build e testes automatizados.
+# Executa lint, verificação de formatação, build, testes automatizados e de ponta a ponta.
 # Não depende de nenhuma aplicação hospedada: tudo roda dentro do runner.
 name: CI
 
@@ -20,7 +20,7 @@ jobs:
   quality-and-build:
     name: Lint, formatação e build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     env:
       # O binário do MongoDB não é baixado no `npm ci`; os testes de integração o
@@ -65,7 +65,22 @@ jobs:
       - name: Testes automatizados do frontend (Vitest)
         run: npm run test -w frontend
 
-      # Ponto de extensão para testes de ponta a ponta (Playwright + TypeScript):
-      #   - npx playwright install --with-deps
-      #   - subir backend e `vite preview` localmente no runner e executar a suíte
-      #   - publicar o relatório com actions/upload-artifact
+      - name: Verificação de tipos dos testes de ponta a ponta
+        run: npm run typecheck:e2e
+
+      - name: Instalar navegador do Playwright (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      # Sobe o build da API (porta 3400) e o `vite preview` (porta 4173) no próprio runner.
+      - name: Testes de ponta a ponta (Playwright)
+        run: npm run test:e2e
+
+      - name: Relatório do Playwright (em caso de falha)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

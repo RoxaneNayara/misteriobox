@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth-context';
+import { useCssHeightVariable } from '../hooks/useCssHeightVariable';
 import { initialOf } from '../utils/labels';
 import { MagnifierIcon } from './Icons';
 
@@ -8,6 +9,9 @@ export function AppLayout() {
   const { user, status, logout } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const headerRef = useRef<HTMLElement>(null);
+  // B05: elementos fixos da página usam a altura real do cabeçalho.
+  useCssHeightVariable(headerRef, '--app-header-height');
 
   // Cada nova tela começa do topo.
   useEffect(() => {
@@ -24,7 +28,7 @@ export function AppLayout() {
       <a href="#conteudo" className="skip-link">
         Pular para o conteúdo
       </a>
-      <header className="app-header">
+      <header ref={headerRef} className="app-header">
         <Link to="/" className="brand" data-testid="brand-link">
           <span className="brand__icon" aria-hidden="true">
             <MagnifierIcon />

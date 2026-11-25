@@ -18,6 +18,11 @@ export const authApi = {
     });
   },
 
+  /** Renova a janela de inatividade da sessão (B04). */
+  refresh(): Promise<AuthSession> {
+    return apiRequest('/auth/refresh', { method: 'POST' });
+  },
+
   me(): Promise<User> {
     return apiRequest('/auth/me', { handleUnauthorized: false });
   },

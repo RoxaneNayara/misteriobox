@@ -72,7 +72,8 @@ export function LoginPage() {
         )}
         {sessionExpired && (
           <p className="alert alert--info" data-testid="session-expired-message">
-            Sua sessão expirou. Entre novamente para continuar.
+            Sua sessão expirou por inatividade ou tempo máximo. Entre novamente para continuar —
+            suas investigações em andamento continuam salvas.
           </p>
         )}
         {submitError && <ErrorAlert message={submitError} testId="login-error" />}

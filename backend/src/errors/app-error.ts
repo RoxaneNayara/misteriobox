@@ -15,6 +15,8 @@ export type ErrorCode =
   | 'EVIDENCE_ALREADY_ANALYZED'
   | 'NO_HINTS_REMAINING'
   | 'CONCURRENT_UPDATE'
+  | 'UNSUPPORTED_MEDIA_TYPE'
+  | 'SESSION_EXPIRED'
   | 'EVIDENCE_LOCKED'
   | 'INSUFFICIENT_EVIDENCES'
   | 'INVALID_SUSPECT'
@@ -46,4 +48,11 @@ export const HttpErrors = {
     new AppError(409, code, message, details),
   businessRule: (code: ErrorCode, message: string, details?: unknown) =>
     new AppError(422, code, message, details),
+  unsupportedMediaType: (receivedContentType: string | null) =>
+    new AppError(
+      415,
+      'UNSUPPORTED_MEDIA_TYPE',
+      'Tipo de conteúdo não suportado. Envie o corpo em JSON com o cabeçalho Content-Type: application/json.',
+      { receivedContentType },
+    ),
 };
