@@ -17,7 +17,12 @@ export interface User {
 export interface AuthSession {
   token: string;
   tokenType: 'Bearer';
+  /** Segundos até este token expirar. */
   expiresIn: number;
+  /** Tempo de inatividade permitido antes de exigir novo login. */
+  idleTimeoutSeconds: number;
+  /** Expiração absoluta da sessão (ISO 8601). */
+  sessionExpiresAt: string;
   user: User;
 }
 

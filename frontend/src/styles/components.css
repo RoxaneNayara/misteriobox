@@ -136,7 +136,7 @@
 
 .status-region {
   position: sticky;
-  top: 8.25rem;
+  top: calc(var(--sticky-header-offset) + var(--case-nav-height) + 0.5rem);
   z-index: 6;
 }
 

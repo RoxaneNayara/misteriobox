@@ -35,6 +35,6 @@ Thumbs.db
 artefatos_de_teste/*.docx
 
 # Resultados e relatórios de testes automatizados
-test-results/
-playwright-report/
 blob-report/
+playwright-report/
+test-results/

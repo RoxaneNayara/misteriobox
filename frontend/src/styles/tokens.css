@@ -51,5 +51,18 @@
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   --duration: 0.45s;
 
+  /* Alturas medidas em tempo de execução (AppLayout e InvestigationPage). */
+  --app-header-height: 4.4rem;
+  --sticky-header-offset: var(--app-header-height);
+  --case-nav-height: 0px;
+
   color-scheme: dark;
+}
+
+/* B05: em telas estreitas o cabeçalho ocupa várias linhas; fixá-lo encobriria o
+   conteúdo e o menu da investigação. Abaixo de 768 px ele rola com a página. */
+@media (max-width: 767px) {
+  :root {
+    --sticky-header-offset: 0px;
+  }
 }

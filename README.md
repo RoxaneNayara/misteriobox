@@ -145,6 +145,7 @@ Base: `http://localhost:3333/api`. Rotas protegidas usam `Authorization: Bearer 
 | POST   | `/auth/register`                                       | Cadastro (retorna token)                                                         | —        |
 | POST   | `/auth/login`                                          | Login (retorna token)                                                            | —        |
 | GET    | `/auth/me`                                             | Jogador autenticado                                                              | ✔        |
+| POST   | `/auth/refresh`                                        | Renova a janela de inatividade da sessão                                         | ✔        |
 | GET    | `/missions`                                            | Catálogo (tentativa ativa ou mais recente e total de tentativas, se autenticado) | opcional |
 | GET    | `/missions/{missionId}`                                | Detalhes públicos da missão                                                      | —        |
 | GET    | `/investigations`                                      | Histórico do jogador autenticado                                                 | ✔        |
@@ -156,11 +157,24 @@ Base: `http://localhost:3333/api`. Rotas protegidas usam `Authorization: Bearer 
 | POST   | `/investigations/{id}/accusation`                      | Acusação (`{ "suspectId", "evidenceId" }`)                                       | ✔        |
 | GET    | `/investigations/{id}/result`                          | Relatório final                                                                  | ✔        |
 
-O logout é feito no cliente (o token é descartado); como o JWT não tem estado, não há rota de
-logout. Principais códigos HTTP: `400` dados inválidos, `401` não autenticado, `403` investigação
-de outro jogador, `404` recurso inexistente, `409` estado incompatível (investigação finalizada,
-já existente, sem dicas), `422` regra de negócio violada (evidência bloqueada, evidências
-insuficientes, evidência não analisada). A lista completa de códigos está no Swagger.
+Principais códigos HTTP: `400` dados inválidos, `401` não autenticado ou sessão expirada
+(`SESSION_EXPIRED`), `403` investigação de outro jogador, `404` recurso inexistente, `409` estado
+incompatível (investigação finalizada, já existente, sem dicas), `415` corpo que não é
+`application/json`, `422` regra de negócio violada (evidência bloqueada, evidências insuficientes,
+evidência não analisada). A lista completa de códigos está no Swagger. As respostas da API usam
+`Cache-Control: no-store`.
+
+### Sessão, inatividade e logout
+
+| Item                       | Comportamento                                                                                                                                                                                                                        |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Inatividade                | Sem atividade por **30 minutos** (`SESSION_IDLE_TIMEOUT_SECONDS`), a sessão expira e o site exige novo login antes de mostrar dados protegidos.                                                                                      |
+| Limite absoluto            | **8 horas** desde o login (`JWT_EXPIRES_IN_SECONDS`), mesmo com atividade contínua.                                                                                                                                                  |
+| Renovação                  | Cada token vale até 30 min. Enquanto há atividade real (clique, tecla, rolagem, toque), o site chama `POST /api/auth/refresh` no máximo a cada 5 min; o novo token mantém o momento do login, então o limite de 8 h não é estendido. |
+| Retorno à aba/aplicação    | A sessão é verificada ao abrir o site, ao voltar para a aba, ao receber foco, ao restaurar a página pelo histórico e a cada 15 s. Expirada, o site limpa a sessão local sem buscar dados protegidos.                                 |
+| Logout                     | Remove a sessão do navegador (inclusive nas outras abas). Não há revogação no servidor: um token copiado antes do logout continua aceito até expirar — no máximo 30 min sem renovação (antes, até 8 h).                              |
+| Investigações              | Fechar a página, expirar a sessão ou sair **não** abandona a investigação (RN06): após novo login, o jogador volta à página em que estava, com o progresso preservado.                                                               |
+| Armazenamento no navegador | `localStorage`: token, expiração local do token, último momento de atividade e tempo de inatividade. Tudo é apagado no logout ou na expiração.                                                                                       |
 
 ## 6. Como instalar e executar localmente
 
@@ -443,16 +457,17 @@ misteriobox/
 
 ## 12. Lint, Prettier, build e testes
 
-| Script                                         | Ação                                          |
-| ---------------------------------------------- | --------------------------------------------- |
-| `npm install` (ou `npm run setup`)             | Instala as dependências de backend e frontend |
-| `npm run dev`                                  | Backend + frontend em modo desenvolvimento    |
-| `npm run dev:backend` / `npm run dev:frontend` | Cada parte separadamente                      |
-| `npm run lint` / `npm run lint:fix`            | ESLint em backend e frontend                  |
-| `npm run format` / `npm run format:check`      | Prettier (corrigir / apenas verificar)        |
-| `npm run build`                                | Build de produção dos dois projetos           |
-| `npm test`                                     | Testes automatizados do backend e do frontend |
-| `npm start`                                    | Executa o build (API + `vite preview`)        |
+| Script                                         | Ação                                               |
+| ---------------------------------------------- | -------------------------------------------------- |
+| `npm install` (ou `npm run setup`)             | Instala as dependências de backend e frontend      |
+| `npm run dev`                                  | Backend + frontend em modo desenvolvimento         |
+| `npm run dev:backend` / `npm run dev:frontend` | Cada parte separadamente                           |
+| `npm run lint` / `npm run lint:fix`            | ESLint em backend e frontend                       |
+| `npm run format` / `npm run format:check`      | Prettier (corrigir / apenas verificar)             |
+| `npm run build`                                | Build de produção dos dois projetos                |
+| `npm test`                                     | Testes automatizados do backend e do frontend      |
+| `npm run test:e2e`                             | Testes de ponta a ponta (Playwright), após o build |
+| `npm start`                                    | Executa o build (API + `vite preview`)             |
 
 ```bash
 npm run lint
@@ -479,9 +494,26 @@ Testes automatizados (Vitest):
   espaços externos (regressão do B03), limites de campos, limite de bytes do bcrypt, rejeição de
   operadores do MongoDB e respostas sempre em JSON.
 - **Frontend** (`frontend/src/**/*.test.ts`): as mesmas regras de validação do cadastro, para
-  manter frontend e backend consistentes.
+  manter frontend e backend consistentes, e as regras de expiração da sessão.
+- Backend também cobre sessão (inatividade, renovação, limite de 8 h, preservação da investigação
+  após novo login) e o contrato de `Content-Type` (`415`, sem efeitos no banco).
 
 Na primeira execução, os testes de integração baixam o binário do MongoDB (~70 MB).
+
+Testes de ponta a ponta (Playwright, pasta `e2e/`) rodam em um navegador real contra o build da
+API (porta 3400) e o `vite preview` (porta 4173) — sem conflitar com `npm run dev`:
+
+```bash
+npx playwright install chromium
+```
+
+```bash
+npm run build && npm run test:e2e
+```
+
+Cobrem a sessão (expiração por inatividade, retorno pelo histórico e à aba, logout, logout em
+outra aba, retomada da investigação) e o menu da investigação em 320, 420, 441, 463, 647, 664,
+681, 768 e 1280 px de largura.
 
 ## 13. Pipeline de integração contínua (CI)
 
@@ -495,13 +527,15 @@ cada `push` e `pull request` para a branch `main`:
 5. `npm run build -w backend` — compilação TypeScript da API;
 6. `npm run build -w frontend` — type-check e build do Vite;
 7. `npm run test -w backend` — testes unitários e de integração da API (Vitest + Supertest);
-8. `npm run test -w frontend` — testes das validações do frontend (Vitest).
+8. `npm run test -w frontend` — testes das validações do frontend (Vitest);
+9. `npm run typecheck:e2e` — verificação de tipos dos testes de ponta a ponta;
+10. `npm run test:e2e` — testes de ponta a ponta com Playwright (Chromium); em caso de falha, o
+    relatório e os rastros ficam disponíveis como artefato da execução.
 
-O pipeline não depende de nenhuma aplicação hospedada: os testes de integração sobem a API e o
-MongoDB em memória dentro do próprio runner. A variável `MONGOMS_DISABLE_POSTINSTALL=1` evita
+O pipeline não depende de nenhuma aplicação hospedada: os testes sobem a API, o MongoDB em
+memória e o site dentro do próprio runner. A variável `MONGOMS_DISABLE_POSTINSTALL=1` evita
 baixar o binário do MongoDB no `npm ci`; ele é obtido pelos testes e guardado em cache entre
-execuções. O arquivo indica o ponto de extensão para os futuros testes de ponta a ponta com
-**Playwright + TypeScript**.
+execuções.
 
 ## 14. Limitações conhecidas
 
@@ -512,8 +546,10 @@ execuções. O arquivo indica o ponto de extensão para os futuros testes de pon
   navegador e novo login, **mas não são persistência permanente**.
 - Após reiniciar a API, um token salvo no navegador deixa de ser válido e o site pede novo login.
 - A primeira execução precisa de internet para baixar o binário do MongoDB.
-- Os testes automatizados cobrem as validações do cadastro e a segurança de entrada; os demais
-  fluxos ainda são verificados manualmente (testes de ponta a ponta previstos com Playwright).
+- Os testes automatizados cobrem validações do cadastro, segurança de entrada, sessão e o menu da
+  investigação; os demais fluxos ainda são verificados manualmente.
+- Logout sem revogação no servidor: um token copiado antes do logout vale até expirar (no máximo
+  30 min sem renovação).
 - A aplicação não está hospedada: é executada apenas localmente.
 
 ### Preparação para testes (QA)
@@ -527,7 +563,7 @@ execuções. O arquivo indica o ponto de extensão para os futuros testes de pon
   `abandon-dialog-confirm`, `result-score`, `result-classification`, `nav-history`,
   `detective-panel`, `stat-available`, `stat-in-progress`, `stat-solved`,
   `mission-last-report-missao-001`, `history-list`, `history-item-<id>`, `history-score-<id>`,
-  `history-action-<id>`, `history-empty`).
+  `history-action-<id>`, `history-empty`, `case-nav`, `case-nav-secao-<seção>`).
 - A pasta [`artefatos_de_teste/`](artefatos_de_teste) reúne os artefatos de qualidade da equipe
   de QA. Os documentos `.docx` (plano, condições de teste, relatórios de sessão e de defeitos) são
   mantidos apenas localmente até serem revisados para publicação.

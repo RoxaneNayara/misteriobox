@@ -33,7 +33,10 @@ function readJwtSecret(): string {
 export const env = {
   port: readInteger('PORT', 3333),
   jwtSecret: readJwtSecret(),
+  /** Expiração absoluta da sessão, contada a partir do login (8 horas). */
   jwtExpiresInSeconds: readInteger('JWT_EXPIRES_IN_SECONDS', 28800),
+  /** Expiração por inatividade (B04): sem renovação nesse intervalo, a sessão termina. */
+  sessionIdleTimeoutSeconds: readInteger('SESSION_IDLE_TIMEOUT_SECONDS', 1800),
   corsOrigin: process.env.CORS_ORIGIN?.trim() || 'http://localhost:5173',
   bcryptSaltRounds: readInteger('BCRYPT_SALT_ROUNDS', 10),
 } as const;
