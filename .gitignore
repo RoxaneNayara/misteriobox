@@ -34,6 +34,7 @@ Thumbs.db
 # Documentos de teste (DOCX) mantidos apenas localmente até revisão para publicação
 artefatos_de_teste/*.docx
 
-# Relatórios do Playwright
+# Resultados e relatórios de testes automatizados
+blob-report/
 playwright-report/
 test-results/
