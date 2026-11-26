@@ -60,25 +60,59 @@ executadas no backend; o frontend apenas exibe o que a API retorna.
 Complementos: **Meu histórico** (todas as tentativas do jogador, com resultado de cada uma) e
 **novas tentativas** de missões já encerradas, preservando as anteriores.
 
-### As três missões
+### Catálogo: 10 missões em três setores
 
-| ID           | Título              | Dificuldade | Tema                        | Suspeitos | Evidências | Dicas |
-| ------------ | ------------------- | ----------- | --------------------------- | --------- | ---------- | ----- |
-| `missao-001` | O Último Aplauso    | Fácil       | Roubo em um teatro          | 3         | 5          | 2     |
-| `missao-002` | O Quarto 307        | Médio       | Desaparecimento em um hotel | 4         | 8          | 3     |
-| `missao-003` | A Carta de Novembro | Difícil     | Segredo de família          | 5         | 12         | 3     |
+O catálogo gratuito tem **10 missões** — 3 fáceis, 3 médias e 4 difíceis —, exibidas na tela de
+casos em três setores da agência:
+
+| Setor                                        | ID           | Título                  | Tema                               | Suspeitos | Evidências | Dicas |
+| -------------------------------------------- | ------------ | ----------------------- | ---------------------------------- | --------- | ---------- | ----- |
+| Investigações iniciais (Fácil)               | `missao-001` | O Último Aplauso        | Roubo em um teatro                 | 3         | 5          | 2     |
+|                                              | `missao-004` | A Assinatura Falsa      | Fraude documental em leilão        | 3         | 5          | 2     |
+|                                              | `missao-005` | O Troféu Trocado        | Sabotagem em premiação             | 3         | 5          | 2     |
+| Investigações especiais (Médio)              | `missao-002` | O Quarto 307            | Desaparecimento em um hotel        | 4         | 8          | 3     |
+|                                              | `missao-006` | A Moldura Falsa         | Substituição de obra de arte       | 4         | 7          | 3     |
+|                                              | `missao-007` | O Voto Decisivo         | Fraude em assembleia empresarial   | 4         | 7          | 2     |
+| Investigações de alta complexidade (Difícil) | `missao-003` | A Carta de Novembro     | Segredo de família                 | 5         | 12         | 3     |
+|                                              | `missao-008` | Protocolo Zero          | Manipulação de evidências digitais | 5         | 11         | 3     |
+|                                              | `missao-009` | O Testamento Impossível | Fraude sucessória e falsificação   | 5         | 11         | 3     |
+|                                              | `missao-010` | O Arquivo 17            | Adulteração de testemunhos         | 5         | 11         | 3     |
+
+As três missões originais (`missao-001` a `missao-003`) mantêm ids, textos e solução; o progresso e
+o histórico já gravados continuam válidos.
 
 - **O Último Aplauso** — na noite de estreia, o violino histórico Aurora desaparece de uma sala
   trancada durante um apagão de sete minutos. Diretora, músico e chefe da segurança tinham acesso.
+- **A Assinatura Falsa** — um relógio de bolso é arrematado por um valor recorde graças a um
+  certificado assinado por um perito renomado. O certificado é falso.
+- **O Troféu Trocado** — na final de um concurso de gastronomia, o troféu sai com o nome errado.
+  Alguém trocou o resultado entre a apuração e a cerimônia.
 - **O Quarto 307** — um auditor desaparece de madrugada; os pertences ficam no quarto e os
   registros da portaria não batem com os registros automáticos do hotel.
+- **A Moldura Falsa** — uma pintura volta do restauro e, semanas depois, descobre-se que a tela e
+  a moldura são cópias. É preciso reconstruir o trajeto da obra.
+- **O Voto Decisivo** — uma fusão é aprovada pelo voto de uma acionista internada que havia
+  prometido votar contra.
 - **A Carta de Novembro** — após a morte de um empresário, uma carta de 1979 sugere que um
   incêndio na tecelagem da família foi atribuído ao funcionário errado. Alguém da casa tenta
   apagar o que restou da verdade.
+- **Protocolo Zero** — dados sigilosos vazam e os registros do sistema apontam um pesquisador
+  júnior; mas os registros não batem com o mundo físico.
+- **O Testamento Impossível** — um testamento com assinaturas verdadeiras surge numa data em que
+  a testadora não conseguia escrever.
+- **O Arquivo 17** — fitas encontradas numa caixa de arquivo contradizem as transcrições que
+  levaram à condenação de um motorista, dez anos antes.
+
+Abaixo dos setores, a seção **Divisões especializadas — Em breve** apresenta futuras áreas da
+agência (Arquivo Morto, Crimes Cibernéticos e Homicídios). É apenas informativa: não há páginas,
+cobrança, assinatura nem controle de acesso para essas divisões.
 
 Cada missão tem uma única solução, uma evidência decisiva e cadeias de desbloqueio entre evidências
 (sem ciclos). Todas podem ser resolvidas por dedução e liberam pelo menos três evidências desde o
-início. Os dados ficam em `backend/src/database/seed/missions/`. O culpado, a evidência decisiva e
+início. A dificuldade não depende só da quantidade de evidências: a validação de integridade
+(`backend/src/database/seed/mission-integrity.ts`) exige, por dificuldade, um número mínimo de
+suspeitos e dicas, a profundidade da cadeia até a evidência decisiva e, nas missões difíceis, que a
+evidência decisiva cruze pelo menos duas linhas de investigação. Os dados ficam em `backend/src/database/seed/missions/`. O culpado, a evidência decisiva e
 a explicação **nunca** são enviados ao frontend antes da acusação (o campo `solution` não é
 selecionado por padrão no Mongoose).
 
@@ -251,8 +285,9 @@ O frontend chama `/api`, e o Vite encaminha essas chamadas para `http://localhos
 Não há passo manual. Ao iniciar, o backend:
 
 1. sobe uma instância do MongoDB em memória;
-2. valida a integridade das missões (referências, ausência de dependências circulares);
-3. grava as três missões e os três usuários demonstrativos (senhas com hash bcrypt).
+2. valida a integridade do catálogo (10 missões na distribuição 3/3/4, ids únicos, referências,
+   ausência de dependências circulares, evidência decisiva alcançável e estrutura por dificuldade);
+3. grava as dez missões e os três usuários demonstrativos (senhas com hash bcrypt).
 
 Para voltar ao estado inicial, basta reiniciar o backend.
 
