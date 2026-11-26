@@ -21,15 +21,23 @@ async function layoutReport(page: Page) {
     const navBox = nav.getBoundingClientRect();
     const headerBox = header.getBoundingClientRect();
     const headerIsSticky = getComputedStyle(header).position === 'sticky';
-    const links = [...nav.querySelectorAll('a')].map((link) => {
-      const box = link.getBoundingClientRect();
-      const topmost = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
-      return {
-        label: link.textContent,
-        insideViewport: box.left >= 0 && box.right <= window.innerWidth,
-        clickable: topmost === link || link.contains(topmost),
-      };
-    });
+    const list = nav.querySelector('ul') as HTMLElement;
+    const listBox = list.getBoundingClientRect();
+    // Em telas estreitas o menu rola na horizontal: avalia as opções que estão à vista na faixa.
+    const links = [...nav.querySelectorAll('a')]
+      .map((link) => ({ link, box: link.getBoundingClientRect() }))
+      .filter(({ box }) => box.left >= listBox.left - 1 && box.right <= listBox.right + 1)
+      .map(({ link, box }) => {
+        const topmost = document.elementFromPoint(
+          box.left + box.width / 2,
+          box.top + box.height / 2,
+        );
+        return {
+          label: link.textContent,
+          insideViewport: box.left >= 0 && box.right <= window.innerWidth,
+          clickable: topmost === link || link.contains(topmost),
+        };
+      });
     return {
       pageOverflow: document.documentElement.scrollWidth - window.innerWidth,
       navOverflow: nav.scrollWidth - nav.clientWidth,
@@ -64,6 +72,22 @@ function headingVisibleBelowNav(page: Page, sectionId: string): Promise<boolean>
   }, sectionId);
 }
 
+function activeLinkFullyVisible(page: Page): Promise<boolean> {
+  return page.evaluate(() => {
+    const list = document.querySelector('[data-testid="case-nav"] ul')!.getBoundingClientRect();
+    const active = document
+      .querySelector('[data-testid="case-nav"] a[aria-current="location"]')
+      ?.getBoundingClientRect();
+    if (!active) return false;
+    return (
+      active.left >= list.left - 1 &&
+      active.right <= list.right + 1 &&
+      active.left >= 0 &&
+      active.right <= window.innerWidth
+    );
+  });
+}
+
 for (const width of WIDTHS) {
   test(`B05 — menu da investigação acessível em ${width}x818`, async ({ page, request }) => {
     const player = await createPlayer(request);
@@ -80,6 +104,7 @@ for (const width of WIDTHS) {
     expect(report.pageOverflow, 'rolagem horizontal da página').toBeLessThanOrEqual(0);
     expect(report.navOverflow, 'opções cortadas no menu').toBeLessThanOrEqual(0);
     expect(report.navBelowHeader, 'menu encoberto pelo cabeçalho').toBe(true);
+    expect(report.links.length, 'opções visíveis na faixa do menu').toBeGreaterThan(0);
     for (const link of report.links) {
       expect(link.insideViewport, `${link.label} fora da tela`).toBe(true);
       expect(link.clickable, `${link.label} encoberto`).toBe(true);
@@ -90,6 +115,8 @@ for (const width of WIDTHS) {
       const link = page.getByTestId(`case-nav-${sectionId}`);
       await link.click();
       await expect(link).toHaveAttribute('aria-current', 'location');
+      // A opção ativa permanece inteira à vista na faixa do menu e dentro da tela.
+      await expect.poll(() => activeLinkFullyVisible(page)).toBe(true);
       await expect
         .poll(() => headingVisibleBelowNav(page, sectionId), { message: `título de ${sectionId}` })
         .toBe(true);
