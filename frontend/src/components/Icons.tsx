@@ -97,6 +97,12 @@ export const ArrowLeftIcon = (props: IconProps) => (
   </BaseIcon>
 );
 
+export const ArrowUpIcon = (props: IconProps) => (
+  <BaseIcon {...props}>
+    <path d="M12 19V5M6 11l6-6 6 6" />
+  </BaseIcon>
+);
+
 export const FlagIcon = (props: IconProps) => (
   <BaseIcon {...props}>
     <path d="M5 21V4M5 4h11l-2 4 2 4H5" />
