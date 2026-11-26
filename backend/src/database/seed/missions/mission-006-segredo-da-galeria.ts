@@ -1,9 +1,9 @@
 import type { Mission } from '../../../models/mission.model';
 
-export const missionMolduraFalsa: Mission = {
+export const missionSegredoDaGaleria: Mission = {
   missionId: 'missao-006',
   order: 6,
-  title: 'A Moldura Falsa',
+  title: 'O Segredo da Galeria',
   theme: 'Substituição de obra de arte',
   difficulty: 'MEDIO',
   synopsis:
@@ -122,6 +122,16 @@ export const missionMolduraFalsa: Mission = {
         'contrato, pagaria multa se a obra fosse perdida sob sua guarda.',
       requires: [],
     },
+    {
+      evidenceId: 'ev-08',
+      title: 'Livro da portaria noturna',
+      content:
+        'Anotação do vigia em 28/05: "21h45 — Júlia Neves sai pela porta de serviço com uma caixa de ' +
+        'transporte plana, de cerca de 70 × 90 cm. Diz que é material de montagem para a exposição." Pelas ' +
+        'regras da galeria, nenhuma obra sai sem guia de transporte; não há guia emitida nesse dia além da ' +
+        'chegada das 15h05.',
+      requires: ['ev-04'],
+    },
   ],
   hints: [
     {
@@ -153,7 +163,8 @@ export const missionMolduraFalsa: Mission = {
       'paradas, e a própria Júlia conferiu e assinou que o lacre 4471 chegou intacto — o que desmonta a ' +
       'suspeita que ela tentou lançar sobre o transporte. A troca aconteceu depois da chegada: Júlia pediu ' +
       'o desligamento da câmera da reserva técnica um dia antes e entrou lá sozinha às 20h12, embora tenha ' +
-      'dito que nunca ficou sozinha com a obra fora do horário. A prova decisiva é o pedido 2210 do ateliê ' +
+      'dito que nunca ficou sozinha com a obra fora do horário. Às 21h45 saiu pela porta de serviço com uma ' +
+      'caixa plana do tamanho da tela, sem guia de transporte. A prova decisiva é o pedido 2210 do ateliê ' +
       'Ponto Fino: a moldura falsa foi encomendada e paga por Júlia em fevereiro, quase três meses antes do ' +
       'restauro, com as fotos do catálogo da galeria. Arnaldo não ganharia nada — o seguro paga apenas à ' +
       'fundação e a galeria ainda sofreria multa.',

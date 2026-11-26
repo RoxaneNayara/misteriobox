@@ -24,6 +24,8 @@ const DIFFICULTY_REQUIREMENTS: Record<
     minDecisiveAncestors: number;
     /** Pré-requisitos diretos da prova decisiva (cruzamento de linhas de investigação). */
     minDecisiveDirectRequirements: number;
+    /** Evidências iniciais distintas das quais a prova decisiva depende (linhas independentes). */
+    minDecisiveIndependentLines: number;
   }
 > = {
   FACIL: {
@@ -33,6 +35,7 @@ const DIFFICULTY_REQUIREMENTS: Record<
     minDecisiveDepth: 1,
     minDecisiveAncestors: 0,
     minDecisiveDirectRequirements: 0,
+    minDecisiveIndependentLines: 0,
   },
   MEDIO: {
     minSuspects: 4,
@@ -41,6 +44,7 @@ const DIFFICULTY_REQUIREMENTS: Record<
     minDecisiveDepth: 3,
     minDecisiveAncestors: 2,
     minDecisiveDirectRequirements: 1,
+    minDecisiveIndependentLines: 1,
   },
   DIFICIL: {
     minSuspects: 5,
@@ -49,6 +53,7 @@ const DIFFICULTY_REQUIREMENTS: Record<
     minDecisiveDepth: 3,
     minDecisiveAncestors: 3,
     minDecisiveDirectRequirements: 2,
+    minDecisiveIndependentLines: 2,
   },
 };
 
@@ -178,6 +183,11 @@ export function assertMissionIntegrity(mission: Mission): void {
     fail('a prova decisiva exige pouco cruzamento de evidências.');
   if (decisive.requires.length < rules.minDecisiveDirectRequirements)
     fail('a prova decisiva não cruza linhas de investigação diferentes.');
+  const decisiveLines = [...collectAncestors(mission, decisive.evidenceId)].filter(
+    (id) => mission.evidences.find((evidence) => evidence.evidenceId === id)?.requires.length === 0,
+  ).length;
+  if (decisiveLines < rules.minDecisiveIndependentLines)
+    fail('a prova decisiva depende de uma única linha de investigação.');
 }
 
 /** Valida o catálogo completo: ids e ordens únicos e a distribuição por dificuldade. */

@@ -15,7 +15,7 @@ export const missionTrofeuTrocado: Mission = {
     'vencedor à organização. Às 20h30, diante das câmeras, o apresentador abriu o envelope e anunciou o ' +
     'chef Paulo Rangel; o troféu já gravado com o nome dele foi entregue sob aplausos. Na manhã seguinte, ' +
     'a presidente do júri viu a reprise e telefonou indignada: a vencedora tinha sido a chef Irene Sato. ' +
-    'Entre a apuração e a cerimônia, três pessoas lidaram com o resultado ou com o troféu.',
+    'Entre a apuração e a cerimônia, quatro pessoas lidaram com o resultado ou com o troféu.',
   suspects: [
     {
       suspectId: 'paulo-rangel',
@@ -34,7 +34,7 @@ export const missionTrofeuTrocado: Mission = {
       description:
         'Produz o Colher de Ouro há seis edições e negocia pessoalmente os contratos de patrocínio.',
       testimony:
-        'Recebi o envelope lacrado do júri e o entreguei direto ao apresentador, sem abrir. Não falei com o ' +
+        'Recebi o envelope lacrado do júri e o entreguei ao apresentador, sem abrir. Não falei com o ' +
         'gravador do troféu em nenhum momento; ele trabalha sozinho nos bastidores.',
     },
     {
@@ -47,6 +47,16 @@ export const missionTrofeuTrocado: Mission = {
         'Eu gravo o nome que me mandam. Às 19h10 encontrei na minha bancada um bilhete escrito à mão, sem ' +
         'assinatura, com o nome do vencedor. É sempre assim: a organização deixa o bilhete e eu gravo.',
     },
+    {
+      suspectId: 'rogerio-lessa',
+      name: 'Rogério Lessa',
+      role: 'Apresentador da cerimônia',
+      description:
+        'Apresenta na TV um programa de culinária patrocinado pelo Grupo Rangel. Abriu o envelope no palco.',
+      testimony:
+        'Recebi o envelope fechado minutos antes de entrar no palco e abri ao vivo, diante das câmeras. Li o ' +
+        'nome que estava no cartão. Trabalho com o Grupo Rangel, sim, mas nunca mexeria num resultado.',
+    },
   ],
   evidences: [
     {
@@ -54,8 +64,8 @@ export const missionTrofeuTrocado: Mission = {
       title: 'Planilha de notas do júri',
       content:
         'Planilha assinada pelos cinco jurados às 18h40: Irene Sato — 47 pontos; Paulo Rangel — 45 pontos; ' +
-        'Caio Brandt — 41 pontos. Observação da presidente: "Resultado lacrado em envelope e entregue à ' +
-        'organizadora Denise Couto às 18h45. Cópia da planilha mantida pelo júri."',
+        'Caio Brandt — 41 pontos. Observação da presidente: "Resultado escrito à mão num cartão do júri, ' +
+        'lacrado com fita de segurança e entregue à organizadora Denise Couto às 18h45."',
       requires: [],
     },
     {
@@ -81,7 +91,8 @@ export const missionTrofeuTrocado: Mission = {
       content:
         'O perito comparou o bilhete com documentos escritos à mão por pessoas da produção. A inclinação, o ' +
         'traço do "R" maiúsculo e o espaçamento das letras coincidem com as anotações de Denise Couto no ' +
-        'roteiro da cerimônia. Não há semelhança com a letra de Paulo Rangel nem com a de Márcio Teles.',
+        'roteiro da cerimônia. Não há semelhança com a letra de Paulo Rangel, de Márcio Teles ou de ' +
+        'Rogério Lessa.',
       requires: ['ev-02'],
     },
     {
@@ -92,6 +103,16 @@ export const missionTrofeuTrocado: Mission = {
         'Grupo Rangel vença a edição deste ano, o patrocinador pagará à produtora um bônus de exposição de ' +
         'R$ 200 mil." Paulo Rangel não assina o contrato; quem assina pelo grupo é o diretor comercial.',
       requires: ['ev-04'],
+    },
+    {
+      evidenceId: 'ev-06',
+      title: 'Envelope e cartão lidos na cerimônia',
+      content:
+        'A fita de segurança do júri foi cortada e o envelope, fechado de novo com cola branca comum. O cartão ' +
+        'de dentro não é o cartão manuscrito do júri: foi impresso na impressora da produção. Livro do ' +
+        'diretor de palco: "20h28 — Denise entrega o envelope ao apresentador." A câmera do palco mostra ' +
+        'Rogério recebendo o envelope e abrindo-o ao vivo às 20h30, sem se afastar.',
+      requires: ['ev-01'],
     },
   ],
   hints: [
@@ -117,11 +138,12 @@ export const missionTrofeuTrocado: Mission = {
       'Denise Couto sabotou a premiação. O júri deu a vitória a Irene Sato e entregou o envelope lacrado a ' +
       'Denise às 18h45. Às 19h05 ela entrou na área do gravador — embora tenha dito que nunca falou com ' +
       'ele — e saiu três minutos depois com um envelope na mão. Às 19h10, Márcio encontrou o bilhete ' +
-      'mandando gravar o nome de Paulo Rangel. Como o envelope ficou com ela até a cerimônia, Denise ' +
-      'também trocou o cartão lido pelo apresentador. A prova decisiva é o exame grafotécnico: a letra do bilhete ' +
-      'é a de Denise, a mesma das anotações no roteiro da cerimônia. Paulo não poderia ter agido: a TV o ' +
-      'filmou no camarim durante todo o período. Márcio apenas gravou o nome que recebeu. O motivo de ' +
-      'Denise era o bônus de R$ 200 mil que o patrocinador pagaria à produtora se um chef do Grupo Rangel ' +
-      'vencesse.',
+      'mandando gravar o nome de Paulo Rangel. Como o envelope ficou com ela até 20h28, Denise também ' +
+      'cortou a fita do júri e trocou o cartão manuscrito por outro, impresso na produção. A prova decisiva ' +
+      'é o exame grafotécnico: a letra do bilhete é a de Denise, a mesma das anotações no roteiro da ' +
+      'cerimônia. Paulo não poderia ter agido: a TV o filmou no camarim durante todo o período. Márcio ' +
+      'apenas gravou o nome que recebeu. Rogério, apesar do vínculo com o patrocinador, recebeu o envelope ' +
+      'já adulterado e o abriu ao vivo, sem se afastar da câmera. O motivo de Denise era o bônus de ' +
+      'R$ 200 mil que o patrocinador pagaria à produtora se um chef do Grupo Rangel vencesse.',
   },
 };

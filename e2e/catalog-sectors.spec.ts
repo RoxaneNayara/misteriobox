@@ -82,7 +82,7 @@ test.describe('Catálogo por setores', () => {
     await page.goto('/');
     await page.getByTestId('mission-action-missao-008').click();
     await expect(page.getByTestId('investigation-title')).toHaveText('Protocolo Zero');
-    await expect(page.getByTestId('investigation-progress')).toContainText('0 de 11');
+    await expect(page.getByTestId('investigation-progress')).toContainText('0 de 13');
 
     await page.goto('/');
     await expect(page.getByTestId('mission-status-missao-008')).toContainText('Em andamento');

@@ -69,14 +69,14 @@ casos em três setores da agência:
 | -------------------------------------------- | ------------ | ----------------------- | ---------------------------------- | --------- | ---------- | ----- |
 | Investigações iniciais (Fácil)               | `missao-001` | O Último Aplauso        | Roubo em um teatro                 | 3         | 5          | 2     |
 |                                              | `missao-004` | A Assinatura Falsa      | Fraude documental em leilão        | 3         | 5          | 2     |
-|                                              | `missao-005` | O Troféu Trocado        | Sabotagem em premiação             | 3         | 5          | 2     |
+|                                              | `missao-005` | O Troféu Trocado        | Sabotagem em premiação             | 4         | 6          | 2     |
 | Investigações especiais (Médio)              | `missao-002` | O Quarto 307            | Desaparecimento em um hotel        | 4         | 8          | 3     |
-|                                              | `missao-006` | A Moldura Falsa         | Substituição de obra de arte       | 4         | 7          | 3     |
-|                                              | `missao-007` | O Voto Decisivo         | Fraude em assembleia empresarial   | 4         | 7          | 2     |
+|                                              | `missao-006` | O Segredo da Galeria    | Substituição de obra de arte       | 4         | 8          | 3     |
+|                                              | `missao-007` | O Voto Decisivo         | Fraude em assembleia empresarial   | 5         | 9          | 2     |
 | Investigações de alta complexidade (Difícil) | `missao-003` | A Carta de Novembro     | Segredo de família                 | 5         | 12         | 3     |
-|                                              | `missao-008` | Protocolo Zero          | Manipulação de evidências digitais | 5         | 11         | 3     |
-|                                              | `missao-009` | O Testamento Impossível | Fraude sucessória e falsificação   | 5         | 11         | 3     |
-|                                              | `missao-010` | O Arquivo 17            | Adulteração de testemunhos         | 5         | 11         | 3     |
+|                                              | `missao-008` | Protocolo Zero          | Manipulação de evidências digitais | 5         | 13         | 3     |
+|                                              | `missao-009` | O Testamento Impossível | Fraude sucessória e falsificação   | 6         | 12         | 4     |
+|                                              | `missao-010` | O Arquivo 17            | Adulteração de testemunhos         | 6         | 15         | 3     |
 
 As três missões originais (`missao-001` a `missao-003`) mantêm ids, textos e solução; o progresso e
 o histórico já gravados continuam válidos.
@@ -89,7 +89,7 @@ o histórico já gravados continuam válidos.
   Alguém trocou o resultado entre a apuração e a cerimônia.
 - **O Quarto 307** — um auditor desaparece de madrugada; os pertences ficam no quarto e os
   registros da portaria não batem com os registros automáticos do hotel.
-- **A Moldura Falsa** — uma pintura volta do restauro e, semanas depois, descobre-se que a tela e
+- **O Segredo da Galeria** — uma pintura volta do restauro e, semanas depois, descobre-se que a tela e
   a moldura são cópias. É preciso reconstruir o trajeto da obra.
 - **O Voto Decisivo** — uma fusão é aprovada pelo voto de uma acionista internada que havia
   prometido votar contra.
@@ -112,7 +112,10 @@ Cada missão tem uma única solução, uma evidência decisiva e cadeias de desb
 início. A dificuldade não depende só da quantidade de evidências: a validação de integridade
 (`backend/src/database/seed/mission-integrity.ts`) exige, por dificuldade, um número mínimo de
 suspeitos e dicas, a profundidade da cadeia até a evidência decisiva e, nas missões difíceis, que a
-evidência decisiva cruze pelo menos duas linhas de investigação. Os dados ficam em `backend/src/database/seed/missions/`. O culpado, a evidência decisiva e
+evidência decisiva cruze pelo menos dois pré-requisitos e dependa de pelo menos duas evidências
+iniciais distintas (linhas de investigação independentes).
+
+Os dados ficam em `backend/src/database/seed/missions/`. O culpado, a evidência decisiva e
 a explicação **nunca** são enviados ao frontend antes da acusação (o campo `solution` não é
 selecionado por padrão no Mongoose).
 

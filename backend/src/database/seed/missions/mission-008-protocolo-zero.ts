@@ -95,7 +95,7 @@ export const missionProtocoloZero: Mission = {
       title: 'Registro de conexões da VPN',
       content:
         'Nenhuma conexão das contas de Igor Sá ou de Paula Mendonça entre 13 e 14/09. Única sessão na ' +
-        'madrugada: das 02h05 às 02h40, dispositivo "NB-LF-02", endereço interno atribuído 10.8.4.22. O ' +
+        'madrugada: das 02h01 às 02h40, dispositivo "NB-LF-02", endereço interno atribuído 10.8.4.22. O ' +
         'certificado do dispositivo foi emitido pela equipe de segurança da informação.',
       requires: ['ev-02'],
     },
@@ -132,7 +132,7 @@ export const missionProtocoloZero: Mission = {
       title: 'Cópia de segurança imutável dos registros',
       content:
         'Cópia gravada às 06h01 em armazenamento que não permite edição. Linha original das 02h13: "cópia de ' +
-        '3,2 GB da pasta Projeto Íris — conta de serviço svc-backup — origem 10.8.4.22". As linhas de 02h05 a ' +
+        '3,2 GB da pasta Projeto Íris — conta de serviço svc-backup — origem 10.8.4.22". As linhas de 02h01 a ' +
         '02h40 que mencionam 10.8.4.22 foram as removidas do arquivo exportado; a menção à estação IG-07 e à ' +
         'credencial de Igor não existe na cópia imutável.',
       requires: ['ev-03', 'ev-06'],
@@ -173,6 +173,25 @@ export const missionProtocoloZero: Mission = {
         'atípica nas contas de Igor Sá, Hugo Carvalho ou Paula Mendonça.',
       requires: ['ev-08'],
     },
+    {
+      evidenceId: 'ev-12',
+      title: 'Histórico das regras de alerta',
+      content:
+        'O sistema de monitoramento tem uma regra que dispara um alarme imediato para qualquer cópia acima ' +
+        'de 1 GB. Histórico de configuração: 02h04 de 14/09 — regra "exfiltração" desativada pela conta ' +
+        '"lfaria-adm", com o comentário "falso positivo do backup"; 05h48 — regra reativada pela mesma conta. ' +
+        'O alerta das 5h50 foi gerado pela reativação, que reprocessou o evento das 02h13.',
+      requires: ['ev-06'],
+    },
+    {
+      evidenceId: 'ev-13',
+      title: 'Planilha reproduzida na patente do concorrente',
+      content:
+        'A patente registrada em outubro reproduz a tabela de resultados do lote 14 do Projeto Íris. Essa ' +
+        'tabela foi gerada no servidor por uma rotina automática às 23h20 de 13/09 e nunca foi impressa nem ' +
+        'enviada por e-mail. Quem a copiou teve acesso ao servidor depois das 23h20 daquela noite.',
+      requires: [],
+    },
   ],
   hints: [
     {
@@ -199,19 +218,22 @@ export const missionProtocoloZero: Mission = {
     culpritSuspectId: 'leandro-faria',
     decisiveEvidenceId: 'ev-08',
     explanation:
-      'Leandro Faria roubou os dados e manipulou os registros. Às 23h50 de 13/09 ele retirou do cofre a ' +
-      'senha da conta de serviço svc-backup e, das 02h05 às 02h40, conectou-se pela VPN com o próprio ' +
-      'notebook, NB-LF-02, que recebeu o endereço 10.8.4.22. Às 02h13 copiou os 3,2 GB do Projeto Íris. ' +
-      'Para ter um suspeito no prédio, ele mesmo abriu na véspera um chamado de manutenção que levou Hugo ' +
-      'ao datacenter de madrugada. Ao executar o Protocolo Zero, exportou os registros com a conta ' +
-      '"lfaria-adm", apagou as 14 linhas com o endereço 10.8.4.22 e trocou a origem pela estação IG-07 e ' +
-      'pela credencial de Igor — tanto que já acusava Igor às 06h30, antes de a exportação existir. As ' +
-      'contradições são verificáveis: Igor saiu às 19h02 e não tem VPN; a IG-07 estava desligada; Hugo não ' +
-      'saiu do datacenter, no subsolo; Paula estava em Lisboa e recusou a proposta. A cópia imutável, ' +
-      'gravada às 06h01, antes da edição, mostra que a cópia partiu do endereço 10.8.4.22, que a VPN ' +
-      'atribuiu ao dispositivo NB-LF-02. A prova decisiva é o cofre de senhas com o inventário de TI: ' +
-      'só Leandro retirou a senha da svc-backup naquela noite, e o NB-LF-02 é o notebook dele — o que ' +
-      'desmente seu depoimento de que estava dormindo e de que o notebook não acessa a rede de pesquisa. ' +
-      'O pagamento de R$ 450 mil recebido em outubro confirma o motivo.',
+      'Leandro Faria roubou os dados e manipulou os registros. A tabela reproduzida na patente só existiu ' +
+      'no servidor a partir das 23h20 de 13/09, o que situa o roubo naquela madrugada — e descarta um ' +
+      'vazamento anterior por Paula, que estava em Lisboa desde o dia 12 e não tem sessão de VPN. Às ' +
+      '23h50, Leandro retirou do cofre a senha da conta de serviço svc-backup. Às 02h01 conectou-se pela ' +
+      'VPN com o dispositivo NB-LF-02, que recebeu o endereço 10.8.4.22; às 02h04 desativou a regra de ' +
+      'alerta de exfiltração e, às 02h13, copiou os 3,2 GB do Projeto Íris. Às 05h48 reativou o ' +
+      'alerta, o que gerou o aviso das 5h50 e lhe deu o controle do Protocolo Zero. Para ter um suspeito ' +
+      'no prédio, ele mesmo abriu na véspera o chamado que levou Hugo ao datacenter de madrugada. Ao ' +
+      'exportar os registros com a conta "lfaria-adm", apagou as 14 linhas com o endereço 10.8.4.22 e ' +
+      'trocou a origem pela estação IG-07 e pela credencial de Igor — tanto que já acusava Igor às 06h30, ' +
+      'antes de a exportação existir. As contradições são verificáveis: Igor saiu às 19h02 e não tem VPN; ' +
+      'a IG-07 estava desligada; Hugo não saiu do datacenter, no subsolo. A cópia imutável, gravada às ' +
+      '06h01, mostra que a cópia partiu de 10.8.4.22, endereço que a VPN atribuiu ao NB-LF-02. A prova ' +
+      'decisiva é o cofre de senhas com o inventário de TI: só Leandro retirou a senha da svc-backup naquela ' +
+      'noite, e o NB-LF-02 é o notebook dele — o que desmente seu depoimento de que estava dormindo e de ' +
+      'que o notebook não acessa a rede de pesquisa. O pagamento de R$ 450 mil recebido em outubro ' +
+      'confirma o motivo.',
   },
 };

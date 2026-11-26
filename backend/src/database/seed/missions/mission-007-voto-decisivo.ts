@@ -15,7 +15,7 @@ export const missionVotoDecisivo: Mission = {
     'Atlas. A votação foi pela plataforma eletrônica da empresa, com senha e código enviado por SMS. ' +
     'Resultado: 50,6% a favor, 49,4% contra. O bloco que decidiu a votação — 3,2% das ações — pertence a ' +
     'dona Iolanda Reis, 84 anos, que estava internada naquela manhã e tinha dito a todos que votaria contra. ' +
-    'O voto dela foi registrado como "SIM". Quatro pessoas tinham motivo ou meio para interferir.',
+    'O voto dela foi registrado como "SIM". Cinco pessoas tinham motivo ou meio para interferir.',
   suspects: [
     {
       suspectId: 'otto-bergamo',
@@ -55,6 +55,16 @@ export const missionVotoDecisivo: Mission = {
       testimony:
         'Passei a manhã conversando com a minha avó no hospital. Ninguém mexeu no celular dela, que ficou o ' +
         'tempo todo na mesinha ao lado da cama. Eu não entendo nada dessa plataforma.',
+    },
+    {
+      suspectId: 'marcelo-antunes',
+      name: 'Marcelo Antunes',
+      role: 'Diretor de tecnologia',
+      description:
+        'Responsável pelos servidores da plataforma de votação. Tem acesso administrativo ao banco de dados.',
+      testimony:
+        'Acompanhei a votação da sala de TI, monitorando a estabilidade do sistema. Nenhum administrador ' +
+        'consegue alterar um voto: cada registro é assinado no momento em que é enviado. Não toquei em nada.',
     },
   ],
   evidences: [
@@ -121,6 +131,25 @@ export const missionVotoDecisivo: Mission = {
         'fusão, a diretoria comercial da nova empresa é sua, como combinamos. Conto com a sua família."',
       requires: ['ev-05'],
     },
+    {
+      evidenceId: 'ev-08',
+      title: 'Plano de retenção da fusão',
+      content:
+        'Anexo do acordo com o Grupo Atlas: "Bônus de permanência, pagos somente se a fusão for aprovada: ' +
+        'Otto Bergamo — 18 salários; Marcelo Antunes — 6 salários; Sílvia Kern — 6 salários." Nenhum ' +
+        'acionista pessoa física está na lista.',
+      requires: [],
+    },
+    {
+      evidenceId: 'ev-09',
+      title: 'Auditoria técnica da plataforma',
+      content:
+        'Perícia independente nos servidores: nenhum acesso administrativo ao banco de votos entre 8h e 12h ' +
+        'de 9/06; a conta de Marcelo Antunes só registrou consultas de monitoramento. O voto de Iolanda Reis ' +
+        'seguiu o fluxo comum de um acionista: redefinição de senha pelo link enviado ao e-mail cadastrado, ' +
+        'login e código SMS válido. A assinatura digital do registro está íntegra.',
+      requires: ['ev-03'],
+    },
   ],
   hints: [
     {
@@ -143,11 +172,14 @@ export const missionVotoDecisivo: Mission = {
       'Renato Reis votou no lugar da avó. Em maio, ele trocou o e-mail cadastrado de dona Iolanda por um ' +
       'endereço novo, usando um formulário com o próprio celular como contato. No dia da assembleia, pediu ' +
       'a redefinição da senha às 9h58, recebeu o link nesse e-mail e votou "SIM" às 10h32 por dados móveis. ' +
-      'O código SMS só poderia ser lido por quem estivesse com o celular da acionista. A prova decisiva é o ' +
-      'registro do hospital: das 9h40 às 11h o celular de dona Iolanda ficou com Renato, enquanto ela ' +
+      'A auditoria técnica descarta uma manipulação do sistema: o voto seguiu o fluxo comum e exigiu o ' +
+      'código SMS, que só poderia ser lido por quem estivesse com o celular da acionista. A prova decisiva ' +
+      'é o registro do hospital: das 9h40 às 11h o celular de dona Iolanda ficou com Renato, enquanto ela ' +
       'dormia sob sedação — o que desmente a versão de que o aparelho ficou na mesinha e de que os dois ' +
-      'passaram a manhã conversando. Ele tinha tudo o que era preciso para votar. Otto estava no palco e Sílvia na mesa de apuração, ambos ' +
-      'filmados; Sílvia aprovou a troca de e-mail de boa-fé, com documento da acionista. Daniela só chegou ' +
-      'às 10h38, depois do voto. O motivo de Renato era a diretoria prometida pelo Grupo Atlas.',
+      'passaram a manhã conversando. Otto, Sílvia e Marcelo ganhariam bônus com a fusão, mas nenhum deles ' +
+      'tinha o celular: Otto estava no palco e Sílvia na mesa de apuração, ambos filmados, e Marcelo não fez ' +
+      'nenhum acesso administrativo. Sílvia aprovou a troca de e-mail de boa-fé, com documento da acionista. ' +
+      'Daniela só chegou às 10h38, depois do voto. O motivo de Renato era a diretoria prometida pelo Grupo ' +
+      'Atlas.',
   },
 };

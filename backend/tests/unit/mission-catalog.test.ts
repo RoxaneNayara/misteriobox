@@ -50,11 +50,30 @@ describe('Catálogo de missões — integridade', () => {
     ).toEqual([
       ['missao-004', 'A Assinatura Falsa', 'FACIL'],
       ['missao-005', 'O Troféu Trocado', 'FACIL'],
-      ['missao-006', 'A Moldura Falsa', 'MEDIO'],
+      ['missao-006', 'O Segredo da Galeria', 'MEDIO'],
       ['missao-007', 'O Voto Decisivo', 'MEDIO'],
       ['missao-008', 'Protocolo Zero', 'DIFICIL'],
       ['missao-009', 'O Testamento Impossível', 'DIFICIL'],
       ['missao-010', 'O Arquivo 17', 'DIFICIL'],
+    ]);
+  });
+
+  it('dá a cada nova missão uma estrutura própria (evidências, suspeitos e dicas)', () => {
+    expect(
+      DEMO_MISSIONS.slice(3).map((mission) => [
+        mission.missionId,
+        mission.evidences.length,
+        mission.suspects.length,
+        mission.hints.length,
+      ]),
+    ).toEqual([
+      ['missao-004', 5, 3, 2],
+      ['missao-005', 6, 4, 2],
+      ['missao-006', 8, 4, 3],
+      ['missao-007', 9, 5, 2],
+      ['missao-008', 13, 5, 3],
+      ['missao-009', 12, 6, 4],
+      ['missao-010', 15, 6, 3],
     ]);
   });
 
@@ -105,6 +124,12 @@ describe('Catálogo de missões — integridade', () => {
       expect(decisive.requires.length).toBeGreaterThanOrEqual(2);
       expect(collectAncestors(mission, decisive.evidenceId).size).toBeGreaterThanOrEqual(3);
       expect(computeEvidenceDepths(mission).get(decisive.evidenceId)).toBeGreaterThanOrEqual(3);
+      // A prova decisiva depende de pelo menos duas linhas independentes (evidências iniciais distintas).
+      const initialAncestors = [...collectAncestors(mission, decisive.evidenceId)].filter(
+        (id) =>
+          mission.evidences.find((evidence) => evidence.evidenceId === id)!.requires.length === 0,
+      );
+      expect(initialAncestors.length, mission.missionId).toBeGreaterThanOrEqual(2);
     }
   });
 });
@@ -158,6 +183,12 @@ describe('Validação de integridade — casos inválidos', () => {
     const mission = base();
     mission.evidences[2].requires = ['ev-01'];
     expect(() => assertMissionIntegrity(mission)).toThrow(/evidências livres/);
+  });
+
+  it('recusa missão difícil cuja prova decisiva depende de uma única linha de investigação', () => {
+    const mission = clone(byId('missao-010'));
+    mission.evidences.find((evidence) => evidence.evidenceId === 'ev-04')!.requires = ['ev-01'];
+    expect(() => assertMissionIntegrity(mission)).toThrow(/única linha/);
   });
 
   it('recusa catálogo com distribuição diferente de 3/3/4', () => {

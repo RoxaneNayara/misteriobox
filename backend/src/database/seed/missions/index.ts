@@ -4,7 +4,7 @@ import { missionQuarto307 } from './mission-002-quarto-307';
 import { missionCartaDeNovembro } from './mission-003-carta-de-novembro';
 import { missionAssinaturaFalsa } from './mission-004-assinatura-falsa';
 import { missionTrofeuTrocado } from './mission-005-trofeu-trocado';
-import { missionMolduraFalsa } from './mission-006-moldura-falsa';
+import { missionSegredoDaGaleria } from './mission-006-segredo-da-galeria';
 import { missionVotoDecisivo } from './mission-007-voto-decisivo';
 import { missionProtocoloZero } from './mission-008-protocolo-zero';
 import { missionTestamentoImpossivel } from './mission-009-testamento-impossivel';
@@ -17,7 +17,7 @@ export const DEMO_MISSIONS: Mission[] = [
   missionCartaDeNovembro,
   missionAssinaturaFalsa,
   missionTrofeuTrocado,
-  missionMolduraFalsa,
+  missionSegredoDaGaleria,
   missionVotoDecisivo,
   missionProtocoloZero,
   missionTestamentoImpossivel,

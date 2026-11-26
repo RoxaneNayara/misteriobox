@@ -16,7 +16,7 @@ export const missionTestamentoImpossivel: Mission = {
     'cuidadora. Em 26 de julho, porém, o administrador da fazenda entregou ao advogado da família um ' +
     'testamento particular, datado de 15 de junho, que deixa tudo para o filho Márcio e nomeia o próprio ' +
     'administrador como gestor da fazenda por dez anos. O documento tem a assinatura de dona Celeste e de ' +
-    'três testemunhas. A filha Regina contestou na Justiça. Cinco pessoas aparecem nessa história, e as ' +
+    'três testemunhas. A filha Regina contestou na Justiça. Seis pessoas aparecem nessa história, e as ' +
     'assinaturas, por mais estranho que pareça, são verdadeiras.',
   suspects: [
     {
@@ -69,6 +69,16 @@ export const missionTestamentoImpossivel: Mission = {
         'dia seguinte. Em 15 de junho estávamos todos na sede da fazenda; foi ela quem pediu para assinarmos. ' +
         'A cláusula a meu respeito foi ideia dela.',
     },
+    {
+      suspectId: 'lauro-fontes',
+      name: 'Lauro Fontes',
+      role: 'Contador da fazenda',
+      description:
+        'Faz a contabilidade da fazenda há oito anos e trabalha no escritório da administração, ao lado de Jorge.',
+      testimony:
+        'Uso a impressora do escritório todos os dias, como todo mundo ali. Quem cuida das notas de venda ' +
+        'do café é o Jorge; eu só lanço o que ele me entrega. Não tenho nada a ver com testamento.',
+    },
   ],
   evidences: [
     {
@@ -97,7 +107,7 @@ export const missionTestamentoImpossivel: Mission = {
         'Fratura do punho direito em 2 de junho, com gesso até 30 de junho. Paciente destra. Anotação da ' +
         'fisioterapia em 14 de junho: "Não consegue segurar talheres nem escrever; dependente para atividades ' +
         'manuais." Nenhuma alteração de lucidez.',
-      requires: ['ev-01'],
+      requires: [],
     },
     {
       evidenceId: 'ev-04',
@@ -106,7 +116,7 @@ export const missionTestamentoImpossivel: Mission = {
         'As quatro assinaturas da página 3 são autênticas. A de dona Celeste tem traço firme, contínuo e sem ' +
         'tremor — incompatível com um punho imobilizado. O perito conclui: "A assinatura é verdadeira, mas ' +
         'dificilmente foi feita em junho."',
-      requires: ['ev-03'],
+      requires: ['ev-01', 'ev-03'],
     },
     {
       evidenceId: 'ev-05',
@@ -176,6 +186,16 @@ export const missionTestamentoImpossivel: Mission = {
         'escrivaninha." Nenhuma das outras testemunhas sabia da existência do documento.',
       requires: ['ev-08'],
     },
+    {
+      evidenceId: 'ev-12',
+      title: 'Planilha de vendas de café de 2025',
+      content:
+        'Planilha preparada por Lauro Fontes e enviada a Regina em 2 de julho, com o assunto "diferenças que ' +
+        'não consigo explicar": 1.900 sacas registradas na colheita e 1.420 nas notas de venda, todas ' +
+        'emitidas e assinadas por Jorge Moura. Diferença estimada: R$ 640 mil. Lauro anexou cópias das notas ' +
+        'e pediu a auditoria.',
+      requires: ['ev-10'],
+    },
   ],
   hints: [
     {
@@ -199,6 +219,11 @@ export const missionTestamentoImpossivel: Mission = {
         'vazia.',
       relatedEvidenceId: 'ev-08',
     },
+    {
+      hintId: 'dica-4',
+      text: 'Siga o dinheiro: descubra quem seria atingido pela auditoria marcada para agosto e quem a pediu.',
+      relatedEvidenceId: 'ev-10',
+    },
   ],
   solution: {
     culpritSuspectId: 'jorge-moura',
@@ -206,16 +231,19 @@ export const missionTestamentoImpossivel: Mission = {
     explanation:
       'Jorge Moura forjou o testamento. Em 10 de maio, antes da fratura, dona Celeste, o Dr. Fausto, Neide e ' +
       'Jorge assinaram o termo de vistoria do seguro da safra. Jorge enviou à seguradora só uma cópia ' +
-      'digitalizada e ficou com o original. Quando Regina marcou para agosto a auditoria das contas da ' +
-      'fazenda, ele separou a folha de assinaturas do termo, que tinha a parte de cima ' +
-      'em branco, e imprimiu nela a página final de um testamento que o mantinha no comando da fazenda por dez anos e completou o documento com duas ' +
-      'páginas novas, na impressora do escritório. Por isso o testamento é "impossível": as assinaturas são ' +
-      'verdadeiras, mas foram feitas antes do texto — o toner está sobre a tinta —, em maio, quando dona ' +
-      'Celeste ainda escrevia. Em 15 de junho ela estava engessada e o Dr. Fausto estava em Porto Alegre, o ' +
-      'que desmente o depoimento de Jorge de que todos assinaram juntos naquele dia. A gaveta onde ele diz ' +
-      'ter achado o documento estava vazia desde 21 de julho. Márcio estava no Canadá, queria vender a ' +
-      'fazenda e afastar Jorge da gestão; Neide perderia a casa; Regina contestou o documento; Fausto só reconheceu a própria ' +
-      'assinatura. A prova decisiva é o processo da seguradora: o termo de vistoria tem as quatro ' +
-      'assinaturas na mesma posição da página 3, e o original ficou com Jorge e nunca foi entregue.',
+      'digitalizada e ficou com o original. Em julho, o contador Lauro mostrou a Regina que faltavam 480 ' +
+      'sacas nas notas de venda emitidas por Jorge, e Regina marcou a auditoria para agosto. Jorge, então, ' +
+      'separou a folha de assinaturas do termo, que tinha a parte de cima em branco, e imprimiu nela a ' +
+      'página final de um testamento que o mantinha no comando da fazenda por dez anos, sem prestar contas; ' +
+      'completou o documento com duas páginas novas, na impressora do escritório. Por isso o testamento é ' +
+      '"impossível": as assinaturas são verdadeiras, mas foram feitas antes do texto — o toner está sobre a ' +
+      'tinta —, em maio, quando dona Celeste ainda escrevia. Em 15 de junho ela estava engessada e o Dr. ' +
+      'Fausto estava em Porto Alegre, o que desmente o depoimento de Jorge de que todos assinaram juntos ' +
+      'naquele dia. A gaveta onde ele diz ter achado o documento estava vazia desde 21 de julho. Márcio ' +
+      'estava no Canadá, queria vender a fazenda e afastar Jorge da gestão; Neide perderia a casa; Regina ' +
+      'contestou o documento; Fausto só reconheceu a própria assinatura; Lauro usava a mesma impressora, ' +
+      'mas foi quem denunciou as diferenças e não assina o termo do seguro. A prova decisiva é o processo da ' +
+      'seguradora: o termo de vistoria tem as quatro assinaturas na mesma posição da página 3, e o original ' +
+      'ficou com Jorge e nunca foi entregue.',
   },
 };

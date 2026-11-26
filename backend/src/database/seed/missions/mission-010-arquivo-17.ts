@@ -18,7 +18,7 @@ export const missionArquivo17: Mission = {
     'interna concluiu que Wellington trocou o dinheiro durante uma parada de doze minutos num posto de ' +
     'combustível, e a polícia usou essas conclusões; ele foi condenado. Em 2026, a caixa de arquivo nº 17 ' +
     'da empresa foi aberta para descarte, e dentro dela estavam as fitas com o áudio original dos ' +
-    'depoimentos. A Justiça pediu à agência uma revisão completa do caso. Cinco pessoas estiveram no ' +
+    'depoimentos. A Justiça pediu à agência uma revisão completa do caso. Seis pessoas estiveram no ' +
     'caminho do malote — ou dos papéis que contaram a sua história.',
   suspects: [
     {
@@ -70,6 +70,16 @@ export const missionArquivo17: Mission = {
         'Em março de 2016 eu estava de férias. Não sei como o meu nome foi parar no registro daquele malote. ' +
         'Ninguém nunca me perguntou nada.',
     },
+    {
+      suspectId: 'nilton-arruda',
+      name: 'Nilton Arruda',
+      role: 'Delegado do inquérito de 2016',
+      description:
+        'Conduziu o inquérito policial que levou à condenação de Wellington. Hoje está aposentado.',
+      testimony:
+        'Trabalhei com o que a empresa me entregou: o relatório da sindicância e as transcrições assinadas ' +
+        'pelas testemunhas. Pedi as gravações por ofício e me responderam que não existiam.',
+    },
   ],
   evidences: [
     {
@@ -107,7 +117,7 @@ export const missionArquivo17: Mission = {
         'Tacógrafo do carro-forte em 15/03/2016: saída às 9h00; parada das 9h15 às 9h18; chegada ao banco às ' +
         '9h40. Comprovante da máquina de cartão do Posto Serrano: pagamento às 9h17, assinado por Wellington ' +
         'Dias. Nenhuma parada de doze minutos.',
-      requires: ['ev-01'],
+      requires: ['ev-02'],
     },
     {
       evidenceId: 'ev-05',
@@ -171,6 +181,44 @@ export const missionArquivo17: Mission = {
         'informou que "não havia gravações".',
       requires: [],
     },
+    {
+      evidenceId: 'ev-12',
+      title: 'Câmera da portaria da empresa',
+      content:
+        'Gravação de 15/03/2016 recuperada do backup do sistema de segurança. 06h38 — Inês Corrêa chega com ' +
+        'uma mala de rodinhas, que carrega com uma só mão pelos degraus da entrada. 09h00 — o carro-forte ' +
+        'sai. 18h05 — Inês sai puxando a mesma mala com esforço e pede ao porteiro ajuda para colocá-la no ' +
+        'porta-malas do carro.',
+      requires: ['ev-07'],
+    },
+    {
+      evidenceId: 'ev-13',
+      title: 'Laudo do papel encontrado no malote',
+      content:
+        'O papel cortado no tamanho das cédulas é formulário contínuo de folha de pagamento, usado apenas ' +
+        'pela tesouraria da Serra Azul. As bordas têm a mesma marca de lâmina dentada da guilhotina da ' +
+        'tesouraria. Nenhum desses formulários era usado no carro-forte ou na agência bancária.',
+      requires: ['ev-05'],
+    },
+    {
+      evidenceId: 'ev-14',
+      title: 'Resposta da empresa ao ofício da polícia',
+      content:
+        'Ofício do delegado Nilton Arruda, de 28/03/2016: "Solicito o envio de todas as gravações dos ' +
+        'depoimentos colhidos na sindicância." Resposta da Serra Azul, de 30/03/2016, assinada por Inês ' +
+        'Corrêa: "Informamos que os depoimentos não foram gravados; as transcrições enviadas são o único ' +
+        'registro."',
+      requires: ['ev-03', 'ev-11'],
+    },
+    {
+      evidenceId: 'ev-15',
+      title: 'Situação financeira de Wellington em 2016',
+      content:
+        'O inquérito anexou dívidas de Wellington Dias: R$ 41 mil em cartões e um empréstimo atrasado. Foi ' +
+        'o principal argumento sobre o motivo. Busca em 2016: nenhum valor encontrado com ele, em casa ou em ' +
+        'contas; as dívidas continuaram sem pagamento até a prisão.',
+      requires: [],
+    },
   ],
   hints: [
     {
@@ -198,16 +246,19 @@ export const missionArquivo17: Mission = {
     decisiveEvidenceId: 'ev-07',
     explanation:
       'Inês Corrêa roubou o dinheiro e adulterou os testemunhos. No dia 15 de março de 2016 ela chegou à ' +
-      'tesouraria às 6h40, sozinha, montou o malote com papel cortado e o fechou com o lacre 55102, ' +
-      'imitando a assinatura da conferente Rita Saldanha, que estava de férias. O lacre chegou intacto ao ' +
-      'banco, então a troca não poderia ter acontecido no caminho: o tacógrafo e o comprovante do posto ' +
-      'mostram uma parada de apenas três minutos, e não de doze. Para sustentar a versão contra Wellington, ' +
-      'Inês conduziu a sindicância, gravou os depoimentos e digitou transcrições alteradas — no áudio, Fábio ' +
-      'diz que ficou no carro e o frentista fala em dois ou três minutos —, colheu as rubricas dizendo que era ' +
-      'formalidade e informou à polícia que não havia gravações. A prova decisiva é o ponto eletrônico: ele ' +
-      'mostra que Rita não esteve na tesouraria e que Inês estava sozinha com o dinheiro antes do lacre, o ' +
-      'que desmente seu depoimento sobre a conferência dupla. Wellington e Fábio nunca tiveram acesso aos ' +
-      'lacres; Aurélio abriu o malote intacto diante da câmera. A compra do apartamento em espécie, um mês ' +
-      'depois, confirma o destino de parte do dinheiro.',
+      'tesouraria às 6h40, sozinha, com uma mala vazia. Cortou formulários de folha de pagamento na ' +
+      'guilhotina da tesouraria, montou o malote com esse papel e o fechou com o lacre 55102, imitando a ' +
+      'assinatura da conferente Rita Saldanha, que estava de férias. Às 18h05 saiu com a mala pesada. O ' +
+      'lacre chegou intacto ao banco, e o papel só existia na tesouraria: a troca não poderia ter acontecido ' +
+      'no caminho. O tacógrafo e o comprovante do posto mostram uma parada de apenas três minutos, e não de ' +
+      'doze. Para sustentar a versão contra Wellington — cujas dívidas tornavam a acusação convincente, ' +
+      'embora nenhum valor tenha sido encontrado com ele —, Inês conduziu a sindicância, gravou os ' +
+      'depoimentos e digitou transcrições alteradas: no áudio, Fábio diz que ficou no carro e o frentista ' +
+      'fala em dois ou três minutos. Ela colheu as rubricas dizendo que era formalidade e respondeu, por ' +
+      'escrito, ao ofício do delegado Nilton que não havia gravações. A prova decisiva é o ponto eletrônico: ' +
+      'ele mostra que Rita não esteve na tesouraria e que Inês estava sozinha com o dinheiro antes do lacre, ' +
+      'o que desmente seu depoimento sobre a conferência dupla. Wellington e Fábio nunca tiveram acesso aos ' +
+      'lacres; Aurélio abriu o malote intacto diante da câmera; Nilton pediu as gravações e foi enganado. A ' +
+      'compra do apartamento em espécie, um mês depois, confirma o destino de parte do dinheiro.',
   },
 };
