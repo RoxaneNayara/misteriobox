@@ -33,3 +33,8 @@ Thumbs.db
 
 # Documentos de teste (DOCX) mantidos apenas localmente até revisão para publicação
 artefatos_de_teste/*.docx
+
+# Resultados e relatórios de testes automatizados
+test-results/
+playwright-report/
+blob-report/
