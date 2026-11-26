@@ -73,7 +73,46 @@ jobs:
 
       # Sobe o build da API (porta 3400) e o `vite preview` (porta 4173) no próprio runner.
       - name: Testes de ponta a ponta (Playwright)
-        run: npm run test:e2e
+        run:
+          npm run test:e2e
+
+          # Suíte acadêmica de automação em JavaScript
+      - name: Testes QA JavaScript - API (Mocha, Chai e Supertest)
+        env:
+          PORT: '3333'
+          JWT_SECRET: 'segredo-exclusivo-dos-testes-qa'
+          BCRYPT_SALT_ROUNDS: '4'
+          DEMO_USER_SOFIA_PASSWORD: 'SenhaDemoQa01'
+          DEMO_USER_BRUNO_PASSWORD: 'SenhaDemoQa02'
+          DEMO_USER_LIVIA_PASSWORD: 'SenhaDemoQa03'
+        run: |
+          node backend/dist/server.js > /tmp/misteriobox-qa-api.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+
+          READY=0
+          for i in $(seq 1 60); do
+            if curl --silent --fail http://localhost:3333/api/health > /dev/null; then
+              READY=1
+              break
+            fi
+
+            if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+              break
+            fi
+
+            sleep 2
+          done
+
+          if [ "$READY" -ne 1 ]; then
+            cat /tmp/misteriobox-qa-api.log
+            exit 1
+          fi
+
+          npx mocha "tests/gestaodeusuarios/api/*.test.mjs"
+
+      - name: Testes QA JavaScript - UI (Playwright)
+        run: npx playwright test --config=playwright.qa.config.js
 
       - name: Relatório do Playwright (em caso de falha)
         if: failure()
