@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { useAuth } from '../context/auth-context';
 import { useCssHeightVariable } from '../hooks/useCssHeightVariable';
 import { initialOf } from '../utils/labels';
+import { BackToTop } from './BackToTop';
 import { MagnifierIcon } from './Icons';
 
 export function AppLayout() {
@@ -28,7 +29,10 @@ export function AppLayout() {
       <a href="#conteudo" className="skip-link">
         Pular para o conteúdo
       </a>
-      <header ref={headerRef} className="app-header">
+      <header
+        ref={headerRef}
+        className={`app-header ${user ? 'app-header--signed-in' : 'app-header--anonymous'}`}
+      >
         <Link to="/" className="brand" data-testid="brand-link">
           <span className="brand__icon" aria-hidden="true">
             <MagnifierIcon />
@@ -38,7 +42,7 @@ export function AppLayout() {
           </span>
         </Link>
         {user && (
-          <nav className="app-header__nav" aria-label="Menu do usuário">
+          <>
             <span className="app-header__user">
               <span className="app-header__badge" aria-hidden="true">
                 {initialOf(user.name)}
@@ -51,30 +55,32 @@ export function AppLayout() {
                 Detetive {user.name}
               </span>
             </span>
-            <NavLink
-              to="/"
-              end
-              className="button button--ghost button--small"
-              data-testid="nav-catalog"
-            >
-              Casos
-            </NavLink>
-            <NavLink
-              to="/historico"
-              className="button button--ghost button--small"
-              data-testid="nav-history"
-            >
-              Meu histórico
-            </NavLink>
+            <nav className="app-header__nav" aria-label="Navegação principal">
+              <NavLink
+                to="/"
+                end
+                className="button button--ghost button--small"
+                data-testid="nav-catalog"
+              >
+                Casos
+              </NavLink>
+              <NavLink
+                to="/historico"
+                className="button button--ghost button--small"
+                data-testid="nav-history"
+              >
+                Meu histórico
+              </NavLink>
+            </nav>
             <button
               type="button"
-              className="button button--ghost button--small"
+              className="button button--ghost button--small app-header__logout"
               onClick={handleLogout}
               data-testid="logout-button"
             >
               Sair
             </button>
-          </nav>
+          </>
         )}
         {status === 'anonymous' && (
           <nav className="app-header__nav" aria-label="Acesso">
@@ -100,6 +106,7 @@ export function AppLayout() {
           <Outlet />
         </div>
       </main>
+      <BackToTop />
       <footer className="app-footer">
         <span className="app-footer__line" aria-hidden="true" />
         <p className="app-footer__quote">Os fatos não mentem. As pessoas, às vezes.</p>

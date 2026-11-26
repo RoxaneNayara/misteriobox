@@ -12,11 +12,14 @@ export interface TestPlayer {
 let sequence = 0;
 
 /** Cadastra um jogador novo pela API (via proxy do site). */
-export async function createPlayer(request: APIRequestContext): Promise<TestPlayer> {
+export async function createPlayer(
+  request: APIRequestContext,
+  name = 'Detetive Teste',
+): Promise<TestPlayer> {
   sequence += 1;
   const email = `e2e.${Date.now()}.${sequence}@example.com`;
   const response = await request.post('/api/auth/register', {
-    data: { name: 'Detetive Teste', email, password: PASSWORD },
+    data: { name, email, password: PASSWORD },
   });
   expect(response.status()).toBe(201);
   const { data } = await response.json();

@@ -132,11 +132,12 @@ svg {
   position: sticky;
   top: 0;
   z-index: 10;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  /* Grade com áreas nomeadas: o botão Sair tem área própria, sempre na
+     extremidade direita, e nunca quebra sozinho para outra linha. */
+  display: grid;
   align-items: center;
-  justify-content: space-between;
+  column-gap: 1rem;
+  row-gap: 0.6rem;
   padding: 0.85rem clamp(1rem, 4vw, 3rem);
   background: linear-gradient(180deg, rgba(8, 7, 6, 0.96), rgba(8, 7, 6, 0.82));
   border-bottom: 1px solid var(--color-border);
@@ -150,7 +151,62 @@ svg {
   }
 }
 
+.app-header--signed-in {
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas: 'brand user nav logout';
+}
+
+.app-header--anonymous {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: 'brand nav';
+}
+
+.app-header__logout {
+  grid-area: logout;
+  justify-self: end;
+  white-space: nowrap;
+}
+
+/* Telas médias: logotipo e Sair na primeira linha; jogador e links na segunda. */
+@media (max-width: 899px) {
+  .app-header--signed-in {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'brand logout'
+      'user nav';
+  }
+}
+
+/* Telas estreitas: cada grupo ocupa a linha inteira, sempre abaixo de logotipo + Sair. */
+@media (max-width: 479px) {
+  .app-header--signed-in {
+    grid-template-areas:
+      'brand logout'
+      'user user'
+      'nav nav';
+  }
+
+  .app-header--anonymous {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'brand'
+      'nav';
+  }
+
+  .app-header--signed-in .app-header__nav {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 359px) {
+  .brand__name {
+    font-size: 1.25rem;
+  }
+}
+
 .brand {
+  grid-area: brand;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
@@ -181,6 +237,8 @@ svg {
 }
 
 .app-header__nav {
+  grid-area: nav;
+  justify-self: end;
   min-width: 0;
   display: flex;
   flex-wrap: wrap;
@@ -189,6 +247,8 @@ svg {
 }
 
 .app-header__user {
+  grid-area: user;
+  justify-self: end;
   min-width: 0;
   max-width: min(26rem, 100%);
   display: inline-flex;
@@ -359,4 +419,36 @@ svg {
 
 .not-found__title {
   font-size: 2rem;
+}
+
+@media (max-width: 899px) {
+  .app-header__user {
+    justify-self: start;
+  }
+}
+
+/* ---------- Voltar ao topo ---------- */
+
+.back-to-top {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  font-size: 1.35rem;
+  color: var(--color-ink);
+  background: linear-gradient(180deg, var(--color-gold-bright), var(--color-gold));
+  border: 1px solid var(--color-gold-deep);
+  border-radius: 50%;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.back-to-top:hover {
+  box-shadow:
+    var(--shadow),
+    0 0 0 4px var(--color-gold-glow);
 }
