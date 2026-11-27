@@ -130,14 +130,73 @@
   color: #dcebf5;
 }
 
-.status-region:empty {
-  display: none;
+/* ---------- Notificação temporária (toast) ----------
+   Âncora de altura zero, logo após o menu da investigação e fixa logo abaixo dele
+   (mesmo deslocamento do menu + a altura real do menu). A margem negativa anula o
+   espaçamento da coluna da investigação, para que a âncora não desloque o conteúdo.
+   A notificação fica pendurada na âncora e some sozinha após ~4 s (useToast). */
+.toast-region {
+  position: sticky;
+  top: calc(var(--sticky-header-offset) + var(--case-nav-height));
+  z-index: 4;
+  height: 0;
+  margin-top: -1.75rem;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
 }
 
-.status-region {
-  position: sticky;
-  top: calc(var(--sticky-header-offset) + var(--case-nav-height) + 0.5rem);
-  z-index: 6;
+.toast {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  width: min(30rem, 100%);
+  height: max-content;
+  margin-top: 0.5rem;
+  padding: 0.7rem 0.6rem 0.7rem 0.95rem;
+  color: #e1f1d9;
+  background: rgba(20, 26, 18, 0.96);
+  border: 1px solid var(--color-success-deep);
+  border-left: 4px solid var(--color-success);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  pointer-events: auto;
+}
+
+.toast__icon {
+  font-size: 1.15rem;
+  color: var(--color-success);
+}
+
+.toast__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.toast__close {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font-size: 1rem;
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.toast__close:hover {
+  border-color: var(--color-success-deep);
+}
+
+.toast__close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .loading {
