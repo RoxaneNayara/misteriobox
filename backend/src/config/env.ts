@@ -2,6 +2,9 @@ import { randomBytes } from 'node:crypto';
 
 type EnvSource = Record<string, string | undefined>;
 
+/** Bancos de prévia são identificados pelo nome (ex.: misteriobox-preview). */
+const PREVIEW_DB_PATTERN = /(^|[-_])preview($|[-_])/i;
+
 /** Tamanho mínimo do JWT_SECRET em ambientes publicados (32 bytes em hexadecimal = 64). */
 export const MIN_PRODUCTION_JWT_SECRET_LENGTH = 32;
 
@@ -68,6 +71,20 @@ export function loadEnv(source: EnvSource = process.env) {
     }
     if (readBooleanFrom(source, 'SEED_DEMO_USERS') === true) {
       problems.push('SEED_DEMO_USERS não pode ser true em ambiente publicado.');
+    }
+    // Isolamento dos dados dos jogadores: prévias e produção nunca usam o mesmo banco.
+    const vercelEnv = source.VERCEL_ENV;
+    const dbName = readStringFrom(source, 'MONGODB_DB_NAME');
+    if (vercelEnv === 'preview' || vercelEnv === 'production') {
+      if (!dbName) {
+        problems.push('MONGODB_DB_NAME é obrigatória na Vercel (bancos separados por ambiente).');
+      } else if (vercelEnv === 'preview' && !PREVIEW_DB_PATTERN.test(dbName)) {
+        problems.push(
+          'Em Preview, MONGODB_DB_NAME deve indicar um banco de prévia (ex.: misteriobox-preview).',
+        );
+      } else if (vercelEnv === 'production' && PREVIEW_DB_PATTERN.test(dbName)) {
+        problems.push('Em Production, MONGODB_DB_NAME não pode apontar para um banco de prévia.');
+      }
     }
     if (problems.length > 0) {
       throw new Error(`[config] Configuração de produção incompleta:\n- ${problems.join('\n- ')}`);

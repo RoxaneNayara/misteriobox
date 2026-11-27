@@ -1,4 +1,5 @@
 import { env } from '../../config/env';
+import { isDuplicateKeyError } from '../../errors/database-errors';
 import { missionRepository } from '../../repositories/mission.repository';
 import { userRepository } from '../../repositories/user.repository';
 import { passwordService } from '../../services/password.service';
@@ -14,7 +15,17 @@ import { DEMO_MISSIONS } from './missions';
  */
 async function seedMissions(): Promise<void> {
   assertCatalogIntegrity(DEMO_MISSIONS);
-  const { inserted, updated } = await missionRepository.upsertMany(DEMO_MISSIONS);
+  let result: { inserted: number; updated: number };
+  try {
+    result = await missionRepository.upsertMany(DEMO_MISSIONS);
+  } catch (error) {
+    // Duas instâncias da Vercel podem carregar o catálogo ao mesmo tempo: se ambas tentarem
+    // inserir a mesma missão, o índice único recusa uma delas. A segunda tentativa encontra a
+    // missão já criada e apenas a atualiza.
+    if (!isDuplicateKeyError(error)) throw error;
+    result = await missionRepository.upsertMany(DEMO_MISSIONS);
+  }
+  const { inserted, updated } = result;
   console.log(
     `[seed] Catálogo com ${DEMO_MISSIONS.length} missões (novas: ${inserted}, atualizadas: ${updated}).`,
   );

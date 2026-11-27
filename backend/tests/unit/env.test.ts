@@ -58,4 +58,33 @@ describe('Configuração por ambiente', () => {
         .corsOrigins,
     ).toEqual(['https://a.example', 'https://b.example']);
   });
+
+  describe('isolamento entre Preview e Production na Vercel', () => {
+    const vercel = (vercelEnv: string, dbName?: string) => ({
+      VERCEL: '1',
+      VERCEL_ENV: vercelEnv,
+      JWT_SECRET: STRONG_SECRET,
+      MONGODB_URI: ATLAS_URI,
+      ...(dbName ? { MONGODB_DB_NAME: dbName } : {}),
+    });
+
+    it('exige MONGODB_DB_NAME explícita na Vercel', () => {
+      expect(() => loadEnv(vercel('production'))).toThrow(/MONGODB_DB_NAME é obrigatória/);
+      expect(() => loadEnv(vercel('preview'))).toThrow(/MONGODB_DB_NAME é obrigatória/);
+    });
+
+    it('Preview só aceita banco de prévia', () => {
+      expect(() => loadEnv(vercel('preview', 'misteriobox'))).toThrow(/banco de prévia/);
+      expect(loadEnv(vercel('preview', 'misteriobox-preview')).mongodbDbName).toBe(
+        'misteriobox-preview',
+      );
+    });
+
+    it('Production recusa banco de prévia', () => {
+      expect(() => loadEnv(vercel('production', 'misteriobox-preview'))).toThrow(
+        /não pode apontar para um banco de prévia/,
+      );
+      expect(loadEnv(vercel('production', 'misteriobox')).mongodbDbName).toBe('misteriobox');
+    });
+  });
 });

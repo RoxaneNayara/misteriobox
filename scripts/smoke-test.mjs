@@ -22,6 +22,19 @@ const baseUrl = rawBaseUrl.replace(/\/+$/, '');
 const allowWrite = flags.includes('--write');
 
 const results = [];
+const warnings = [];
+
+/** Verificação recomendada, mas não obrigatória: falha vira aviso e não reprova o smoke test. */
+async function advisory(name, run) {
+  try {
+    await run();
+    console.log(`  ✓ ${name}`);
+  } catch (error) {
+    warnings.push(name);
+    console.log(`  ⚠ ${name}: ${error instanceof Error ? error.message : error}`);
+  }
+}
+
 async function check(name, run) {
   try {
     await run();
@@ -58,8 +71,13 @@ async function call(path, { method = 'GET', token, body } = {}) {
 
 console.log(`Smoke test em ${baseUrl}${allowWrite ? ' (com escrita)' : ' (somente leitura)'}\n`);
 
-await check('GET /api/health responde 200', async () => {
+await check('GET /api/health responde 200 (reescrita preserva o caminho original)', async () => {
   const { status, json } = await call('/api/health');
+  if (status === 404 && /\/api\/index/.test(json?.error?.message ?? '')) {
+    throw new Error(
+      'a função recebeu /api/index em vez do caminho original: revisar as reescritas do vercel.json',
+    );
+  }
   assert(status === 200 && json?.data?.status === 'ok', `status ${status}`);
 });
 
@@ -93,6 +111,15 @@ await check('Rota inexistente da API responde 404 em JSON', async () => {
   const { status, json } = await call('/api/rota-inexistente-smoke');
   assert(status === 404 && json?.error?.code === 'ROUTE_NOT_FOUND', `status ${status}`);
 });
+
+// Regra do vercel.json; servidores locais (ex.: vite preview) devolvem a página para qualquer caminho.
+await advisory(
+  'Arquivo estático inexistente em /assets responde 404 (não devolve a página)',
+  async () => {
+    const response = await fetch(`${baseUrl}/assets/arquivo-inexistente-smoke.js`);
+    assert(response.status === 404, `status ${response.status}`);
+  },
+);
 
 for (const path of ['/', '/login', '/historico']) {
   await check(`Página ${path} entrega o aplicativo (HTML)`, async () => {
@@ -189,4 +216,5 @@ if (allowWrite) {
 
 const failed = results.filter((result) => !result.ok).length;
 console.log(`\n${results.length - failed}/${results.length} verificações aprovadas.`);
+if (warnings.length > 0) console.log(`Avisos (não reprovam): ${warnings.length}.`);
 process.exit(failed === 0 ? 0 : 1);
