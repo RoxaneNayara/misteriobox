@@ -1,36 +1,44 @@
 # MistérioBox
 
-[![CI](https://github.com/RoxaneNayara/misteriobox/actions/workflows/ci.yml/badge.svg)](https://github.com/RoxaneNayara/misteriobox/actions/workflows/ci.yml)
+**Plataforma Web de investigação interativa.** O jogador assume o papel de detetive, examina
+evidências, confronta depoimentos e acusa o responsável por mistérios fictícios, recebendo uma
+pontuação e uma classificação de detetive.
 
-Plataforma Web de investigação interativa: o jogador assume o papel de detetive e soluciona
-mistérios fictícios analisando evidências, suspeitos, depoimentos e pistas.
+![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-339933?logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Express 5](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-4-6E9F18?logo=vitest&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-E2E-2EAD33?logo=playwright&logoColor=white)
 
-> Projeto **acadêmico e experimental**. Veja a seção
-> [15. Caráter acadêmico e experimental](#15-caráter-acadêmico-e-experimental).
+**Aplicação publicada:** [misteriobox.vercel.app](https://misteriobox.vercel.app) ·
+**Documentação detalhada:** [Wiki do projeto](../../wiki)
+
+![Tela de casos da MistérioBox: credencial do detetive, indicadores e Arquivo central de casos](docs/img/catalogo-misteriobox.png)
+
+> Projeto **acadêmico e experimental**. Histórias, personagens, nomes e empresas são fictícios. Veja
+> [Caráter acadêmico e experimental](#11-caráter-acadêmico-e-experimental).
 
 ---
 
 ## Sumário
 
-1. [Nome e descrição](#1-nome-e-descrição)
-2. [Objetivo da plataforma](#2-objetivo-da-plataforma)
-3. [Principais funcionalidades](#3-principais-funcionalidades)
-4. [Tecnologias utilizadas](#4-tecnologias-utilizadas)
-5. [Arquitetura geral](#5-arquitetura-geral)
-6. [Como instalar e executar localmente](#6-como-instalar-e-executar-localmente)
-7. [Acesso ao frontend, à API e ao Swagger](#7-acesso-ao-frontend-à-api-e-ao-swagger)
-8. [Dados de demonstração](#8-dados-de-demonstração)
-9. [Regras de negócio (RN01 a RN08)](#9-regras-de-negócio-rn01-a-rn08)
-10. [Histórico e reinício de missões](#10-histórico-e-reinício-de-missões)
-11. [Estrutura do projeto](#11-estrutura-do-projeto)
-12. [Lint, Prettier, build e testes](#12-lint-prettier-build-e-testes)
-13. [Pipeline de integração contínua (CI)](#13-pipeline-de-integração-contínua-ci)
-14. [Limitações conhecidas](#14-limitações-conhecidas)
-15. [Caráter acadêmico e experimental](#15-caráter-acadêmico-e-experimental)
+1. [Sobre o projeto](#1-sobre-o-projeto)
+2. [Funcionalidades](#2-funcionalidades)
+3. [Arquitetura e tecnologias](#3-arquitetura-e-tecnologias)
+4. [Regras de negócio (RN01 a RN08)](#4-regras-de-negócio-rn01-a-rn08)
+5. [Quality Engineering](#5-quality-engineering)
+6. [Como executar localmente](#6-como-executar-localmente)
+7. [Estrutura do projeto](#7-estrutura-do-projeto)
+8. [Implantação](#8-implantação)
+9. [Limitações conhecidas](#9-limitações-conhecidas)
+10. [Documentação e contribuição](#10-documentação-e-contribuição)
+11. [Caráter acadêmico e experimental](#11-caráter-acadêmico-e-experimental)
 
 ---
 
-## 1. Nome e descrição
+## 1. Sobre o projeto
 
 **MistérioBox** é composta por uma **API REST independente** (Node.js + Express + TypeScript) e um
 **site Web** (React + TypeScript + Vite) que consome essa API. O jogador cria sua conta, escolhe um
@@ -38,27 +46,36 @@ caso no catálogo, investiga e, ao final, faz uma acusação que gera uma pontua
 classificação de detetive. A interface tem identidade cinematográfica inspirada em arquivos
 confidenciais, dossiês e histórias de suspense.
 
-## 2. Objetivo da plataforma
-
-Oferecer uma experiência de investigação interativa e cinematográfica, com missões de diferentes
-níveis de dificuldade, em que o jogador deduz o responsável por cada mistério a partir de
+**Objetivo:** oferecer uma experiência de investigação interativa e cinematográfica, com missões de
+diferentes níveis de dificuldade, em que o jogador deduz o responsável por cada mistério a partir de
 evidências e depoimentos e é classificado conforme seu desempenho. Todas as regras de negócio são
 executadas no backend; o frontend apenas exibe o que a API retorna.
 
-## 3. Principais funcionalidades
+**Destaques técnicos**
 
-1. **Login e cadastro** — cadastro (nome, e-mail, senha), login, logout e identificação do jogador.
+- Regras de negócio executadas e validadas no servidor, incluindo a pontuação e a revelação da
+  solução.
+- Solução e evidências bloqueadas nunca são enviadas ao navegador antes da hora.
+- Ambientes separados: MongoDB em memória localmente e nos testes; MongoDB Atlas na Vercel, com
+  bancos distintos para Production e Preview.
+- Testes unitários, de integração da API, de ponta a ponta e suítes de QA por história de usuário,
+  executados a cada pull request no GitHub Actions.
+
+## 2. Funcionalidades
+
+1. **Cadastro, login e logout** — cadastro (nome, e-mail, senha), login, logout e identificação do
+   jogador; sessão com expiração por inatividade.
 2. **Catálogo de missões** — painel da agência com a credencial do detetive e indicadores reais
    (casos disponíveis, em andamento e solucionados) e o "Arquivo central de casos" com título,
    sinopse, dificuldade, quantidade de evidências, status e botão para iniciar, continuar ou
    **jogar novamente**.
 3. **Investigação interativa** — história, suspeitos e depoimentos, análise de evidências,
    desbloqueio de evidências dependentes, dicas, progresso, retomada e abandono.
-4. **Resolução e classificação** — acusação (suspeito + evidência), resultado, pontuação,
-   classificação e solução completa do caso.
-
-Complementos: **Meu histórico** (todas as tentativas do jogador, com resultado de cada uma) e
-**novas tentativas** de missões já encerradas, preservando as anteriores.
+4. **Resolução e classificação** — acusação (suspeito + evidência), resultado, pontuação e
+   classificação. A **solução completa do caso só é revelada a partir de 50 pontos** (RN08).
+5. **Meu histórico** — todas as tentativas do jogador, com o resultado de cada uma.
+6. **Novas tentativas** — missões já encerradas podem ser jogadas de novo, preservando as tentativas
+   anteriores.
 
 ### Catálogo: 10 missões em três setores
 
@@ -81,6 +98,9 @@ casos em três setores da agência:
 As três missões originais (`missao-001` a `missao-003`) mantêm ids, textos e solução; o progresso e
 o histórico já gravados continuam válidos.
 
+<details>
+<summary><strong>Sinopses das missões</strong> (sem spoilers)</summary>
+
 - **O Último Aplauso** — na noite de estreia, o violino histórico Aurora desaparece de uma sala
   trancada durante um apagão de sete minutos. Diretora, músico e chefe da segurança tinham acesso.
 - **A Assinatura Falsa** — um relógio de bolso é arrematado por um valor recorde graças a um
@@ -89,8 +109,8 @@ o histórico já gravados continuam válidos.
   Alguém trocou o resultado entre a apuração e a cerimônia.
 - **O Quarto 307** — um auditor desaparece de madrugada; os pertences ficam no quarto e os
   registros da portaria não batem com os registros automáticos do hotel.
-- **O Segredo da Galeria** — uma pintura volta do restauro e, semanas depois, descobre-se que a tela e
-  a moldura são cópias. É preciso reconstruir o trajeto da obra.
+- **O Segredo da Galeria** — uma pintura volta do restauro e, semanas depois, descobre-se que a tela
+  e a moldura são cópias. É preciso reconstruir o trajeto da obra.
 - **O Voto Decisivo** — uma fusão é aprovada pelo voto de uma acionista internada que havia
   prometido votar contra.
 - **A Carta de Novembro** — após a morte de um empresário, uma carta de 1979 sugere que um
@@ -102,6 +122,8 @@ o histórico já gravados continuam válidos.
   a testadora não conseguia escrever.
 - **O Arquivo 17** — fitas encontradas numa caixa de arquivo contradizem as transcrições que
   levaram à condenação de um motorista, dez anos antes.
+
+</details>
 
 Abaixo dos setores, a seção **Divisões especializadas — Em breve** apresenta futuras áreas da
 agência (Arquivo Morto, Crimes Cibernéticos e Homicídios). É apenas informativa: não há páginas,
@@ -119,54 +141,39 @@ Os dados ficam em `backend/src/database/seed/missions/`. O culpado, a evidência
 a explicação **nunca** são enviados ao frontend antes da acusação (o campo `solution` não é
 selecionado por padrão no Mongoose).
 
-### Validação do cadastro
+## 3. Arquitetura e tecnologias
 
-Todas as regras são aplicadas no backend (`backend/src/validators/auth.validator.ts`); o
-frontend repete as mesmas regras (`frontend/src/utils/validation.ts`) apenas para avisar antes do
-envio.
+### Tecnologias
 
-| Campo  | Regra                                                                                                                                                                                                                                                                    |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Nome   | 2 a 80 caracteres após remover espaços externos. Aceita letras Unicode (com acentos), espaços internos, hífens e apóstrofos (`'` ou `’`); começa e termina com letra. Recusa números, símbolos (`*`, `?`, `/`, vírgula…), emojis e caracteres de controle ou invisíveis. |
-| E-mail | Até 120 caracteres, formato de e-mail válido; espaços externos removidos e letras convertidas para minúsculas. Apóstrofos são aceitos, inclusive consecutivos (`mariansa''llaw@example.com`).                                                                            |
-| Senha  | 8 a 72 caracteres **e** no máximo 72 bytes (UTF-8), com letras e números. Nunca é alterada (sem remoção de espaços). O limite em bytes evita o truncamento silencioso do bcrypt; no login, senhas acima de 72 bytes são recusadas.                                       |
+| Camada          | Tecnologias                                                       |
+| --------------- | ----------------------------------------------------------------- |
+| Frontend        | React 18, TypeScript, Vite 6, React Router 7, CSS responsivo      |
+| Backend         | Node.js, Express 5, TypeScript, Zod 4 (validação), JWT, bcryptjs  |
+| Banco de dados  | Mongoose 8 + MongoDB Atlas (produção) ou Memory Server (local)    |
+| Documentação    | OpenAPI 3 (`docs/openapi.yaml`) + Swagger UI                      |
+| Testes          | Vitest 4, Supertest, Playwright, Mocha e Chai                     |
+| Qualidade       | ESLint 9 (typescript-eslint, react-hooks, jsx-a11y), Prettier 3   |
+| CI e publicação | GitHub Actions; Vercel (site estático + função serverless da API) |
 
-Entradas estruturadas (objetos ou operadores como `{"$gt": ""}`) e campos extras são recusados com
-`400 VALIDATION_ERROR`, o que impede injeção de operadores do MongoDB. Os dados do usuário são
-exibidos pelo React como texto (sem `innerHTML`).
-
-## 4. Tecnologias utilizadas
-
-| Camada         | Tecnologias                                                     |
-| -------------- | --------------------------------------------------------------- |
-| Frontend       | React 18, TypeScript, Vite 6, React Router 6, CSS responsivo    |
-| Backend        | Node.js, Express 5, TypeScript, Zod (validação), JWT, bcryptjs  |
-| Banco de dados | Mongoose + MongoDB Atlas (produção) ou Memory Server (local)    |
-| Documentação   | OpenAPI 3 (`docs/openapi.yaml`) + Swagger UI                    |
-| Qualidade      | ESLint 9 (typescript-eslint, react-hooks, jsx-a11y), Prettier 3 |
-| CI             | GitHub Actions                                                  |
-
-## 5. Arquitetura geral
+### Visão geral
 
 ```
-┌──────────────────────────┐   HTTP /api (proxy do Vite)   ┌──────────────────────────────┐
-│  Frontend (React + Vite) │ ────────────────────────────► │  API REST (Express + TS)     │
-│  porta 5173              │ ◄──────────────────────────── │  porta 3333 · Swagger        │
-└──────────────────────────┘        JSON { data }          └──────────────┬───────────────┘
-                                                                          │ Mongoose
-                                                           ┌──────────────▼───────────────┐
-                                                           │ Local/testes: MongoDB em     │
-                                                           │ memória (temporário)         │
-                                                           │ Production/Preview: MongoDB  │
-                                                           │ Atlas (persistente)          │
-                                                           └──────────────────────────────┘
+              Production (Vercel)                                Desenvolvimento local
+┌──────────────────────────────────────────┐        ┌──────────────────────────────────────┐
+│ Site estático (React, frontend/dist)     │        │ Vite (5173) ── proxy /api ──► API    │
+│        │ /api/* e /api-docs/*            │        │                          (3333)      │
+│        ▼                                 │        │                            │         │
+│ Função serverless (api/index.ts)         │        │                  MongoDB em memória  │
+│ → app Express (backend/src)              │        │                     (temporário)     │
+└────────┬─────────────────────────────────┘        └──────────────────────────────────────┘
+         │ Mongoose (TLS)
+         ▼
+  MongoDB Atlas (persistente; Production e Preview em bancos separados)
 ```
-
-O diagrama mostra o ambiente local. Em Production e Preview, o site e a API rodam na Vercel (a API
-como função serverless) e usam o MongoDB Atlas — ver [docs/implantacao.md](docs/implantacao.md).
 
 - **Monorepo com npm workspaces**: `backend/` e `frontend/` são projetos independentes, com scripts
-  orquestrados pelo `package.json` da raiz.
+  orquestrados pelo `package.json` da raiz. Na Vercel, `api/index.ts` reaproveita o mesmo app
+  Express do backend.
 - **Backend em camadas**: `routes` → `controllers` (HTTP) → `services` (regras de negócio) →
   `repositories` (acesso a dados) → `models` (Mongoose). `validators` (Zod) e `middlewares`
   (autenticação, validação, erros) tratam as entradas; `mappers` montam as respostas e ocultam
@@ -177,9 +184,11 @@ como função serverless) e usam o MongoDB Atlas — ver [docs/implantacao.md](d
 - **Frontend** consome somente a API real (sem dados simulados), com rotas protegidas, contexto de
   sessão e componentes reutilizáveis.
 
-### Endpoints principais
+<details>
+<summary><strong>Endpoints principais</strong></summary>
 
-Base: `http://localhost:3333/api`. Rotas protegidas usam `Authorization: Bearer <token>`.
+Base local: `http://localhost:3333/api` (publicado: `https://misteriobox.vercel.app/api`). Rotas
+protegidas usam `Authorization: Bearer <token>`.
 
 | Método | Rota                                                   | Descrição                                                                        | Auth     |
 | ------ | ------------------------------------------------------ | -------------------------------------------------------------------------------- | -------- |
@@ -203,10 +212,13 @@ Principais códigos HTTP: `400` dados inválidos, `401` não autenticado ou sess
 (`SESSION_EXPIRED`), `403` investigação de outro jogador, `404` recurso inexistente, `409` estado
 incompatível (investigação finalizada, já existente, sem dicas), `415` corpo que não é
 `application/json`, `422` regra de negócio violada (evidência bloqueada, evidências insuficientes,
-evidência não analisada). A lista completa de códigos está no Swagger. As respostas da API usam
-`Cache-Control: no-store`.
+evidência não analisada), `503` banco de dados indisponível. A lista completa de códigos está no
+Swagger. As respostas da API usam `Cache-Control: no-store`.
 
-### Sessão, inatividade e logout
+</details>
+
+<details>
+<summary><strong>Sessão, inatividade e logout</strong></summary>
 
 | Item                       | Comportamento                                                                                                                                                                                                                        |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -214,127 +226,17 @@ evidência não analisada). A lista completa de códigos está no Swagger. As re
 | Limite absoluto            | **8 horas** desde o login (`JWT_EXPIRES_IN_SECONDS`), mesmo com atividade contínua.                                                                                                                                                  |
 | Renovação                  | Cada token vale até 30 min. Enquanto há atividade real (clique, tecla, rolagem, toque), o site chama `POST /api/auth/refresh` no máximo a cada 5 min; o novo token mantém o momento do login, então o limite de 8 h não é estendido. |
 | Retorno à aba/aplicação    | A sessão é verificada ao abrir o site, ao voltar para a aba, ao receber foco, ao restaurar a página pelo histórico e a cada 15 s. Expirada, o site limpa a sessão local sem buscar dados protegidos.                                 |
+| Login                      | Após entrar, o jogador volta à página protegida que tentou abrir; só caminhos internos do site são aceitos como destino.                                                                                                             |
 | Logout                     | Remove a sessão do navegador (inclusive nas outras abas). Não há revogação no servidor: um token copiado antes do logout continua aceito até expirar — no máximo 30 min sem renovação (antes, até 8 h).                              |
 | Investigações              | Fechar a página, expirar a sessão ou sair **não** abandona a investigação (RN06): após novo login, o jogador volta à página em que estava, com o progresso preservado.                                                               |
 | Armazenamento no navegador | `localStorage`: token, expiração local do token, último momento de atividade e tempo de inatividade. Tudo é apagado no logout ou na expiração.                                                                                       |
 
-## 6. Como instalar e executar localmente
+</details>
 
-### Pré-requisitos
+## 4. Regras de negócio (RN01 a RN08)
 
-- **Node.js 20 ou superior** (testado com Node 24) e **npm 10+**.
-- Conexão com a internet **apenas na primeira execução**: o MongoDB Memory Server baixa
-  automaticamente o binário do MongoDB (~70 MB) e o guarda em cache
-  (`~/.cache/mongodb-binaries`). Nenhum cadastro ou serviço externo é necessário.
-
-### Instalação
-
-Na raiz do projeto (o npm workspaces instala backend e frontend de uma vez):
-
-```bash
-npm install
-```
-
-Opcionalmente, crie os arquivos de ambiente a partir dos exemplos:
-
-```bash
-cp backend/.env.example backend/.env
-```
-
-```bash
-cp frontend/.env.example frontend/.env
-```
-
-Se `backend/.env` não existir (ou `JWT_SECRET` estiver vazio), a API usa valores padrão e gera um
-`JWT_SECRET` temporário a cada inicialização (os tokens deixam de valer quando a API reinicia). As
-senhas dos usuários demonstrativos também vêm do `backend/.env` (veja a seção
-[8. Dados de demonstração](#8-dados-de-demonstração)).
-
-### Execução (macOS, Linux ou Windows)
-
-Modo desenvolvimento (backend e frontend juntos, com recarga automática):
-
-```bash
-npm run dev
-```
-
-Ou em dois terminais separados:
-
-```bash
-npm run dev:backend
-```
-
-```bash
-npm run dev:frontend
-```
-
-Modo produção local (após `npm run build`):
-
-```bash
-npm start
-```
-
-O frontend chama `/api`, e o Vite encaminha essas chamadas para `http://localhost:3333`
-(proxy configurado em `frontend/vite.config.ts`). Para encerrar, use `Ctrl + C` no terminal.
-
-## 7. Acesso ao frontend, à API e ao Swagger
-
-| Serviço    | Desenvolvimento                | `npm start` (build)            |
-| ---------- | ------------------------------ | ------------------------------ |
-| Site Web   | http://localhost:5173          | http://localhost:4173          |
-| API REST   | http://localhost:3333/api      | http://localhost:3333/api      |
-| Swagger UI | http://localhost:3333/api-docs | http://localhost:3333/api-docs |
-
-- Documento OpenAPI em JSON: http://localhost:3333/api-docs/openapi.json
-- Arquivo versionado: [`docs/openapi.yaml`](docs/openapi.yaml)
-
-## 8. Dados de demonstração
-
-Não há passo manual. Ao iniciar, o backend:
-
-1. conecta ao banco persistente definido em `MONGODB_URI` ou, sem ela, sobe uma instância do
-   MongoDB em memória (padrão local e dos testes);
-2. valida a integridade do catálogo (10 missões na distribuição 3/3/4, ids únicos, referências,
-   ausência de dependências circulares, evidência decisiva alcançável e estrutura por dificuldade);
-3. grava as dez missões de forma idempotente (insere as que faltam e atualiza as existentes, sem
-   apagar nada) e, somente fora de produção, os três usuários demonstrativos (senhas com hash bcrypt).
-
-Com o banco em memória, para voltar ao estado inicial basta reiniciar o backend. Para publicar com
-banco persistente, veja o [guia de implantação](docs/implantacao.md).
-
-> Usuários de uso **exclusivamente local**. São dados fictícios de demonstração, com e-mails do
-> domínio reservado `example.com`. **Nenhuma senha fica no código ou neste README.**
-
-| Nome           | E-mail              | Variável da senha (em `backend/.env`) |
-| -------------- | ------------------- | ------------------------------------- |
-| Sofia Almeida  | `sofia@example.com` | `DEMO_USER_SOFIA_PASSWORD`            |
-| Bruno Carvalho | `bruno@example.com` | `DEMO_USER_BRUNO_PASSWORD`            |
-| Lívia Rocha    | `livia@example.com` | `DEMO_USER_LIVIA_PASSWORD`            |
-
-Como definir as senhas demonstrativas (configuração reproduzível):
-
-1. Copie o exemplo, se ainda não tiver o arquivo:
-
-   ```bash
-   cp backend/.env.example backend/.env
-   ```
-
-2. Em `backend/.env`, preencha as três variáveis com senhas de sua escolha (mínimo de 8
-   caracteres, com letras e números — a mesma política do cadastro). O arquivo `.env` não é
-   versionado.
-3. Inicie o backend e entre com o e-mail do usuário e a senha que você definiu.
-
-Se uma variável ficar vazia, o usuário correspondente **não é criado**: nenhuma senha é gerada nem
-exibida no terminal, em logs ou em capturas de tela (o aviso `[seed]` cita só o nome da variável).
-Uma senha definida
-fora da política interrompe a inicialização com uma mensagem indicando a variável. Também é
-possível criar uma conta própria pela tela de cadastro.
-
-Nenhum usuário começa com investigações; todos partem do mesmo estado.
-
-## 9. Regras de negócio (RN01 a RN08)
-
-A aplicação possui exatamente oito regras de negócio, todas validadas no backend.
+A aplicação possui exatamente oito regras de negócio, todas validadas no backend. Os critérios de
+aceitação e os testes de cada regra estão na Wiki, em "Regras de negócio e critérios de aceitação".
 
 ### RN01 — Acesso autenticado e isolamento das investigações
 
@@ -401,9 +303,10 @@ _Implementação:_ `services/scoring.service.ts`.
 O progresso é salvo automaticamente no banco após cada ação confirmada pela API: missão iniciada,
 evidências analisadas, evidências desbloqueadas, dicas utilizadas e status da investigação. Após
 logout, fechamento do navegador ou novo login, o jogador retoma a missão de onde parou.
-**Logout não é abandono.** A duração dos dados depende do banco (seção
-[14](#14-limitações-conhecidas)): em Production e Preview (MongoDB Atlas) ficam preservados entre
-deploys e reinicializações; no ambiente local padrão (MongoDB em memória) duram até a API reiniciar.
+**Logout não é abandono.** A duração dos dados depende do banco (ver
+[Banco em memória × MongoDB Atlas](#banco-em-memória--mongodb-atlas)): em Production e Preview
+(MongoDB Atlas) ficam preservados entre deploys e reinicializações; no ambiente local padrão
+(MongoDB em memória) duram até a API reiniciar.
 _Implementação:_ `investigation.service.ts`, `investigation.repository.ts`.
 
 ### RN07 — Abandono voluntário da investigação
@@ -434,9 +337,9 @@ _Implementação:_ `investigation.service.ts` (`ensureInProgress`, `start`), `in
 (índices), `investigation.mapper.ts` e `scoring.service.ts` (`canRevealSolution`,
 `SOLUTION_REVEAL_MIN_SCORE`).
 
-## 10. Histórico e reinício de missões
+### Histórico e novas tentativas (detalhes da RN08)
 
-### Novas tentativas (RN08)
+**Novas tentativas**
 
 - Cada missão aceita **várias tentativas** por jogador, numeradas em sequência (`attemptNumber`
   1, 2, 3...), mas **no máximo uma `EM_ANDAMENTO`** por jogador e missão.
@@ -451,7 +354,7 @@ _Implementação:_ `investigation.service.ts` (`ensureInProgress`, `start`), `in
 - No catálogo, missões com tentativas encerradas e nenhuma ativa exibem **"Jogar novamente"** e o
   link "Ver último relatório".
 
-### Histórico individual
+**Histórico individual**
 
 - Tela **Meu histórico** (`/historico`) e endpoint `GET /api/investigations`, que usa apenas o
   jogador do token: não há como consultar o histórico de outro jogador.
@@ -466,102 +369,64 @@ _Implementação:_ `investigation.service.ts` (`ensureInProgress`, `start`), `in
 - O indicador **Solucionados** do painel conta **missões distintas** resolvidas: resolver o mesmo
   caso duas vezes conta 1.
 
-## 11. Estrutura do projeto
+### Validação do cadastro
 
-```
-misteriobox/
-├── .github/
-│   └── workflows/
-│       └── ci.yml           # pipeline de integração contínua
-├── artefatos_de_teste/      # artefatos de qualidade da equipe de QA
-├── backend/
-│   ├── src/
-│   │   ├── config/          # variáveis de ambiente e caminhos
-│   │   ├── controllers/     # camada HTTP (sem regra de negócio)
-│   │   ├── database/
-│   │   │   ├── connection.ts        # MongoDB persistente (MONGODB_URI) ou em memória
-│   │   │   ├── ready.ts             # preparação única por instância (Vercel)
-│   │   │   └── seed/                # usuários, missões e validação de integridade
-│   │   ├── errors/          # AppError, códigos de erro e erros do banco
-│   │   ├── mappers/         # conversão de documentos em respostas (oculta segredos)
-│   │   ├── middlewares/     # autenticação, validação e tratamento de erros
-│   │   ├── models/          # schemas Mongoose
-│   │   ├── repositories/    # acesso a dados
-│   │   ├── routes/          # rotas da API e Swagger
-│   │   ├── services/        # regras de negócio (RN01–RN08)
-│   │   ├── types/           # extensões de tipos do Express
-│   │   ├── utils/           # respostas HTTP padronizadas
-│   │   ├── validators/      # schemas Zod de entrada
-│   │   ├── app.ts
-│   │   └── server.ts
-│   ├── .env.example
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── api/             # cliente HTTP e chamadas à API
-│   │   ├── components/      # layout, guardas de rota, diálogo, badges, capas, feedback
-│   │   ├── context/         # sessão do jogador
-│   │   ├── pages/           # login, cadastro, catálogo, histórico, investigação, resultado
-│   │   ├── styles/          # CSS responsivo organizado por área
-│   │   ├── types/           # tipos das respostas da API
-│   │   └── utils/
-│   ├── .env.example
-│   └── package.json
-├── docs/
-│   └── openapi.yaml         # especificação OpenAPI 3 (Swagger)
-├── .gitignore
-├── .prettierrc.json
-├── package.json             # scripts e workspaces
-└── README.md
-```
+Todas as regras são aplicadas no backend (`backend/src/validators/auth.validator.ts`); o
+frontend repete as mesmas regras (`frontend/src/utils/validation.ts`) apenas para avisar antes do
+envio.
 
-## 12. Lint, Prettier, build e testes
+| Campo  | Regra                                                                                                                                                                                                                                                                    |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Nome   | 2 a 80 caracteres após remover espaços externos. Aceita letras Unicode (com acentos), espaços internos, hífens e apóstrofos (`'` ou `’`); começa e termina com letra. Recusa números, símbolos (`*`, `?`, `/`, vírgula…), emojis e caracteres de controle ou invisíveis. |
+| E-mail | Até 120 caracteres, formato de e-mail válido; espaços externos removidos e letras convertidas para minúsculas. Apóstrofos são aceitos, inclusive consecutivos (`mariansa''llaw@example.com`).                                                                            |
+| Senha  | 8 a 72 caracteres **e** no máximo 72 bytes (UTF-8), com letras e números. Nunca é alterada (sem remoção de espaços). O limite em bytes evita o truncamento silencioso do bcrypt; no login, senhas acima de 72 bytes são recusadas.                                       |
 
-| Script                                         | Ação                                               |
-| ---------------------------------------------- | -------------------------------------------------- |
-| `npm install` (ou `npm run setup`)             | Instala as dependências de backend e frontend      |
-| `npm run dev`                                  | Backend + frontend em modo desenvolvimento         |
-| `npm run dev:backend` / `npm run dev:frontend` | Cada parte separadamente                           |
-| `npm run lint` / `npm run lint:fix`            | ESLint em backend e frontend                       |
-| `npm run format` / `npm run format:check`      | Prettier (corrigir / apenas verificar)             |
-| `npm run build`                                | Build de produção dos dois projetos                |
-| `npm test`                                     | Testes automatizados do backend e do frontend      |
-| `npm run test:e2e`                             | Testes de ponta a ponta (Playwright), após o build |
-| `npm start`                                    | Executa o build (API + `vite preview`)             |
+Entradas estruturadas (objetos ou operadores como `{"$gt": ""}`) e campos extras são recusados com
+`400 VALIDATION_ERROR`, o que impede injeção de operadores do MongoDB. Os dados do usuário são
+exibidos pelo React como texto (sem `innerHTML`).
 
-```bash
-npm run lint
-```
+## 5. Quality Engineering
 
-```bash
-npm run format:check
-```
+A qualidade da MistérioBox é tratada como parte do desenvolvimento, e não como uma etapa final.
 
-```bash
-npm run build
-```
+### Práticas aplicadas
 
-```bash
-npm test
-```
+| Prática                        | Como é aplicada                                                                                                                                     |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Planejamento e estratégia      | Plano e Estratégia de Testes baseados na ISO/IEC/IEEE 29119-3; defeitos de qualidade do produto classificados pela ISO/IEC 25010                    |
+| Regras e critérios de aceite   | RN01–RN08 com critérios _Dado / Quando / Então_ e matriz de cobertura por regra (Wiki)                                                              |
+| Testes em vários níveis        | Unitários, integração da API com banco real em memória, ponta a ponta no navegador e suítes de QA por história de usuário (US) e caso de teste (CT) |
+| Gestão de defeitos             | Registros `[Bxx]` com causa raiz, correção e reteste; o merge não encerra o defeito, só o reteste aprovado                                          |
+| Rastreabilidade                | Requisito → implementação → testes → defeitos; testes de regressão citam o defeito que protegem                                                     |
+| Integração contínua            | GitHub Actions a cada push e pull request para `main`, sem depender de aplicação hospedada                                                          |
+| Segurança verificada por teste | Isolamento entre jogadores, entradas estritas, sessão, separação de ambientes e logs sem dados sensíveis                                            |
 
-O build gera `backend/dist` (JavaScript compilado) e `frontend/dist` (site estático).
+### Automação de testes
 
-Testes automatizados (Vitest):
+| Nível               | Ferramentas                           | Onde                         | O que cobre (exemplos)                                                                                                                                                    |
+| ------------------- | ------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unitário (backend)  | Vitest                                | `backend/tests/unit/`        | Validação do cadastro, pontuação e revelação da solução, integridade do catálogo, configuração por ambiente, logs seguros                                                 |
+| Integração da API   | Vitest, Supertest, MongoDB em memória | `backend/tests/integration/` | Autenticação e segurança de entrada, sessão e `Content-Type`, isolamento entre jogadores, recusas da acusação, encerramento, concorrência, persistência, função da Vercel |
+| Unitário (frontend) | Vitest                                | `frontend/src/utils/`        | Regras de cadastro, expiração da sessão e destino seguro após o login                                                                                                     |
+| Ponta a ponta (E2E) | Playwright (Chromium)                 | `e2e/`                       | Sessão e logout, redirecionamentos, histórico, catálogo responsivo, menu da investigação, notificações, abandono, revelação da solução                                    |
+| QA por história     | Mocha, Chai, Supertest; Playwright    | `tests/gestaodeusuarios/`    | US01-CT01, US01-CT04, US02-CT01 e US03-CT02, pela API e pela interface                                                                                                    |
 
-- **Backend** (`backend/tests/`): testes unitários das validações e do serviço de senha e testes de
-  integração da API com Supertest e MongoDB em memória — política do nome, normalização de
-  espaços externos (regressão do B03), limites de campos, limite de bytes do bcrypt, rejeição de
-  operadores do MongoDB e respostas sempre em JSON.
-- **Frontend** (`frontend/src/**/*.test.ts`): as mesmas regras de validação do cadastro, para
-  manter frontend e backend consistentes, e as regras de expiração da sessão.
-- Backend também cobre sessão (inatividade, renovação, limite de 8 h, preservação da investigação
-  após novo login) e o contrato de `Content-Type` (`415`, sem efeitos no banco).
+Alguns exemplos do que é verificado:
+
+- **Backend:** política do nome, normalização de espaços externos (regressão do B03), limites de
+  campos, limite de bytes do bcrypt, rejeição de operadores do MongoDB e respostas sempre em JSON;
+  sessão (inatividade, renovação, limite de 8 h, preservação da investigação após novo login) e o
+  contrato de `Content-Type` (`415`, sem efeitos no banco).
+- **Frontend:** as mesmas regras de validação do cadastro, para manter frontend e backend
+  consistentes, e as regras de expiração da sessão.
+- **Ponta a ponta:** a sessão (expiração por inatividade, retorno pelo histórico e à aba, logout,
+  logout em outra aba, retomada da investigação) e o menu da investigação em 320, 420, 441, 463,
+  647, 664, 681, 768 e 1280 px de largura, entre outros fluxos.
 
 Na primeira execução, os testes de integração baixam o binário do MongoDB (~70 MB).
 
-Testes de ponta a ponta (Playwright, pasta `e2e/`) rodam em um navegador real contra o build da
-API (porta 3400) e o `vite preview` (porta 4173) — sem conflitar com `npm run dev`:
+Os testes de ponta a ponta rodam em um navegador real contra o build da API (porta 3400) e o
+`vite preview` (porta 4173) — sem conflitar com `npm run dev`:
 
 ```bash
 npx playwright install chromium
@@ -571,14 +436,24 @@ npx playwright install chromium
 npm run build && npm run test:e2e
 ```
 
-Cobrem a sessão (expiração por inatividade, retorno pelo histórico e à aba, logout, logout em
-outra aba, retomada da investigação) e o menu da investigação em 320, 420, 441, 463, 647, 664,
-681, 768 e 1280 px de largura.
+As suítes de QA rodam contra a API na porta 3333 e o site na porta 5173:
 
-## 13. Pipeline de integração contínua (CI)
+```bash
+npx mocha "tests/gestaodeusuarios/api/*.test.mjs"
+```
 
-O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda no **GitHub Actions** a
-cada `push` e `pull request` para a branch `main`:
+```bash
+npx playwright test --config=playwright.qa.config.js
+```
+
+A lista de arquivos de teste, a matriz de cobertura por regra e a rastreabilidade com os defeitos
+estão na Wiki ("Testes automatizados e ferramentas", "Regras de negócio e critérios de aceitação" e
+"Gestão de defeitos, riscos e rastreabilidade").
+
+### Integração contínua (GitHub Actions)
+
+O workflow `.github/workflows/ci.yml` roda a cada `push` e `pull request` para a branch `main`, com
+permissão somente de leitura do repositório:
 
 1. `ubuntu-latest` com **Node.js 24 (LTS)** e cache do npm;
 2. `npm ci` (instalação reprodutível a partir do `package-lock.json`);
@@ -587,41 +462,18 @@ cada `push` e `pull request` para a branch `main`:
 5. `npm run build -w backend` — compilação TypeScript da API;
 6. `npm run build -w frontend` — type-check e build do Vite;
 7. `npm run test -w backend` — testes unitários e de integração da API (Vitest + Supertest);
-8. `npm run test -w frontend` — testes das validações do frontend (Vitest);
+8. `npm run test -w frontend` — testes unitários do frontend (Vitest);
 9. `npm run typecheck:e2e` — verificação de tipos dos testes de ponta a ponta;
-10. `npm run test:e2e` — testes de ponta a ponta com Playwright (Chromium); em caso de falha, o
-    relatório e os rastros ficam disponíveis como artefato da execução.
+10. `npm run typecheck:api` — verificação de tipos da função da Vercel (`api/`);
+11. `npm run test:e2e` — testes de ponta a ponta com Playwright (Chromium);
+12. suítes de QA — API (Mocha, Chai e Supertest) e interface (Playwright);
+13. em caso de falha, o relatório e os rastros do Playwright ficam disponíveis como artefato da
+    execução.
 
 O pipeline não depende de nenhuma aplicação hospedada: os testes sobem a API, o MongoDB em
 memória e o site dentro do próprio runner. A variável `MONGOMS_DISABLE_POSTINSTALL=1` evita
 baixar o binário do MongoDB no `npm ci`; ele é obtido pelos testes e guardado em cache entre
 execuções.
-
-## 14. Limitações conhecidas
-
-- **Persistência depende do ambiente:**
-
-  | Ambiente                                      | Banco                         | Duração dos dados                                                               |
-  | --------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------- |
-  | Production e Preview (Vercel)                 | MongoDB Atlas (`MONGODB_URI`) | Persistentes: preservados entre deploys, reinicializações, logout e novo login. |
-  | Local com `MONGODB_URI`                       | MongoDB indicado na URI       | Persistentes, como acima.                                                       |
-  | Local sem `MONGODB_URI` (padrão), testes e CI | MongoDB em memória            | Temporários: cadastros, progresso e histórico somem quando a API reinicia.      |
-
-  Production e Preview usam bancos separados (ver
-  [docs/implantacao.md](docs/implantacao.md#32-isolamento-de-dados-entre-preview-e-production)).
-  Em qualquer ambiente, o salvamento automático e o histórico sobrevivem a logout, fechamento do
-  navegador e novo login. Não há backup automático no plano gratuito do Atlas (ver
-  [Rollback](docs/implantacao.md#6-rollback)).
-
-- Sem `JWT_SECRET` definido (padrão local), um token salvo no navegador deixa de valer quando a API
-  reinicia. Em produção o segredo é obrigatório e fixo.
-- A primeira execução precisa de internet para baixar o binário do MongoDB.
-- Os testes automatizados cobrem validações do cadastro, segurança de entrada, sessão e o menu da
-  investigação; os demais fluxos ainda são verificados manualmente.
-- Logout sem revogação no servidor: um token copiado antes do logout vale até expirar (no máximo
-  30 min sem renovação).
-- A aplicação está preparada para a Vercel (`vercel.json`, `api/index.ts`), mas ainda não foi
-  publicada; a publicação depende da configuração descrita em [docs/implantacao.md](docs/implantacao.md).
 
 ### Preparação para testes (QA)
 
@@ -629,17 +481,312 @@ execuções.
   services sem dependência da interface.
 - Dados demonstrativos previsíveis e recriados a cada inicialização.
 - Códigos de erro estáveis (`error.code`) em todas as respostas de falha.
-- Atributos `data-testid` nos elementos relevantes (ex.: `login-email`, `mission-card-missao-001`,
-  `mission-action-missao-001`, `evidence-analyze-ev-01`, `hint-request`, `accusation-submit`,
-  `abandon-dialog-confirm`, `result-score`, `result-classification`, `nav-history`,
-  `detective-panel`, `stat-available`, `stat-in-progress`, `stat-solved`,
-  `mission-last-report-missao-001`, `history-list`, `history-item-<id>`, `history-score-<id>`,
-  `history-action-<id>`, `history-empty`, `case-nav`, `case-nav-secao-<seção>`).
-- A pasta [`artefatos_de_teste/`](artefatos_de_teste) reúne os artefatos de qualidade da equipe
-  de QA. Os documentos `.docx` (plano, condições de teste, relatórios de sessão e de defeitos) são
-  mantidos apenas localmente até serem revisados para publicação.
+- A pasta `artefatos_de_teste/` reúne os artefatos de qualidade da equipe de QA. Os documentos
+  `.docx` (plano, condições de teste, relatórios de sessão e de defeitos) são mantidos apenas
+  localmente até serem revisados para publicação.
 
-## 15. Caráter acadêmico e experimental
+<details>
+<summary><strong>Atributos <code>data-testid</code> usados pelos testes</strong></summary>
+
+Exemplos: `login-email`, `mission-card-missao-001`, `mission-action-missao-001`,
+`evidence-analyze-ev-01`, `hint-request`, `accusation-submit`, `abandon-dialog-confirm`,
+`result-score`, `result-classification`, `nav-history`, `detective-panel`, `stat-available`,
+`stat-in-progress`, `stat-solved`, `mission-last-report-missao-001`, `history-list`,
+`history-item-<id>`, `history-score-<id>`, `history-action-<id>`, `history-empty`, `case-nav`,
+`case-nav-secao-<seção>`.
+
+</details>
+
+### Segurança e dependências
+
+- Senhas com hash bcrypt; sessão com expiração por inatividade e limite absoluto.
+- Isolamento entre jogadores (`403`), entradas estritas (`400`/`415`) e solução protegida no servidor.
+- Configuração validada por ambiente: em produção, `MONGODB_URI` e `JWT_SECRET` forte são
+  obrigatórios, usuários demonstrativos são recusados e Preview não pode usar o banco de Production.
+- Logs sem senhas, URIs ou dados enviados pelo jogador.
+- Auditoria de dependências com `npm audit` em 27/11/2026: os avisos encontrados (`zod`,
+  `react-router`, `vitest`/`tinypool`, `glob`/`minimatch`) foram corrigidos com atualizações e testes
+  de regressão, e a nova execução não apontou vulnerabilidades conhecidas. Esse resultado vale para
+  a data da verificação; a auditoria deve ser repetida periodicamente.
+
+Detalhes, limitações e melhorias planejadas estão na Wiki, em "Segurança e privacidade".
+
+## 6. Como executar localmente
+
+### Pré-requisitos
+
+- **Node.js 20 ou superior** (testado com Node 24) e **npm 10+**.
+- Conexão com a internet **apenas na primeira execução**: o MongoDB Memory Server baixa
+  automaticamente o binário do MongoDB (~70 MB) e o guarda em cache
+  (`~/.cache/mongodb-binaries`). Nenhum cadastro ou serviço externo é necessário.
+
+### Instalação
+
+Na raiz do projeto (o npm workspaces instala backend e frontend de uma vez):
+
+```bash
+npm install
+```
+
+Opcionalmente, crie os arquivos de ambiente a partir dos exemplos:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+```bash
+cp frontend/.env.example frontend/.env
+```
+
+Se `backend/.env` não existir (ou `JWT_SECRET` estiver vazio), a API usa valores padrão e gera um
+`JWT_SECRET` temporário a cada inicialização (os tokens deixam de valer quando a API reinicia). As
+senhas dos usuários demonstrativos também vêm do `backend/.env` (veja
+[Dados de demonstração](#dados-de-demonstração)).
+
+### Execução (macOS, Linux ou Windows)
+
+Modo desenvolvimento (backend e frontend juntos, com recarga automática):
+
+```bash
+npm run dev
+```
+
+Ou em dois terminais separados:
+
+```bash
+npm run dev:backend
+```
+
+```bash
+npm run dev:frontend
+```
+
+Modo produção local (após `npm run build`):
+
+```bash
+npm start
+```
+
+O frontend chama `/api`, e o Vite encaminha essas chamadas para `http://localhost:3333`
+(proxy configurado em `frontend/vite.config.ts`). Para encerrar, use `Ctrl + C` no terminal.
+
+| Serviço    | Desenvolvimento                | `npm start` (build)            |
+| ---------- | ------------------------------ | ------------------------------ |
+| Site Web   | http://localhost:5173          | http://localhost:4173          |
+| API REST   | http://localhost:3333/api      | http://localhost:3333/api      |
+| Swagger UI | http://localhost:3333/api-docs | http://localhost:3333/api-docs |
+
+- Documento OpenAPI em JSON: http://localhost:3333/api-docs/openapi.json
+- Arquivo versionado: [`docs/openapi.yaml`](docs/openapi.yaml)
+
+### Comandos principais
+
+| Script                                            | Ação                                                      |
+| ------------------------------------------------- | --------------------------------------------------------- |
+| `npm install` (ou `npm run setup`)                | Instala as dependências de backend e frontend             |
+| `npm run dev`                                     | Backend + frontend em modo desenvolvimento                |
+| `npm run dev:backend` / `npm run dev:frontend`    | Cada parte separadamente                                  |
+| `npm run lint` / `npm run lint:fix`               | ESLint em backend e frontend                              |
+| `npm run format` / `npm run format:check`         | Prettier (corrigir / apenas verificar)                    |
+| `npm run build`                                   | Build de produção dos dois projetos                       |
+| `npm test`                                        | Testes automatizados do backend e do frontend             |
+| `npm run test:e2e`                                | Testes de ponta a ponta (Playwright), após o build        |
+| `npm run typecheck:e2e` / `npm run typecheck:api` | Verificação de tipos dos testes E2E e da função da Vercel |
+| `npm run smoke -- <URL>`                          | Smoke test de uma URL publicada (somente leitura)         |
+| `npm start`                                       | Executa o build (API + `vite preview`)                    |
+
+O build gera `backend/dist` (JavaScript compilado) e `frontend/dist` (site estático).
+
+### Variáveis de ambiente
+
+Os valores de exemplo estão em `backend/.env.example` e `frontend/.env.example`. **Nunca grave
+valores reais no repositório.**
+
+| Variável                               | Onde     | Uso                                                                                         |
+| -------------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `PORT`                                 | backend  | Porta da API local (padrão 3333; não usada na Vercel)                                       |
+| `MONGODB_URI`                          | backend  | Banco persistente. Vazia: MongoDB em memória. Obrigatória em produção e na Vercel           |
+| `MONGODB_DB_NAME`                      | backend  | Nome do banco (padrão `misteriobox`); obrigatória na Vercel, com nome de prévia em Preview  |
+| `JWT_SECRET`                           | backend  | Segredo dos tokens. Vazio localmente: temporário. Obrigatório em produção (≥ 32 caracteres) |
+| `JWT_EXPIRES_IN_SECONDS`               | backend  | Limite absoluto da sessão (padrão 8 h)                                                      |
+| `SESSION_IDLE_TIMEOUT_SECONDS`         | backend  | Expiração por inatividade (padrão 30 min)                                                   |
+| `CORS_ORIGIN`                          | backend  | Origens autorizadas (local; na Vercel site e API ficam no mesmo domínio)                    |
+| `BCRYPT_SALT_ROUNDS`                   | backend  | Custo do hash das senhas (padrão 10)                                                        |
+| `SEED_DEMO_USERS`                      | backend  | Usuários demonstrativos (só local; recusado em produção)                                    |
+| `DEMO_USER_SOFIA/BRUNO/LIVIA_PASSWORD` | backend  | Senhas dos usuários demonstrativos (só local)                                               |
+| `VITE_API_BASE_URL`                    | frontend | URL base da API no navegador (padrão `/api`)                                                |
+| `VITE_API_PROXY_TARGET`                | frontend | Destino do proxy do Vite (padrão `http://localhost:3333`)                                   |
+
+### Banco em memória × MongoDB Atlas
+
+| Ambiente                                      | Banco                         | Duração dos dados                                                               |
+| --------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------- |
+| Production e Preview (Vercel)                 | MongoDB Atlas (`MONGODB_URI`) | Persistentes: preservados entre deploys, reinicializações, logout e novo login. |
+| Local com `MONGODB_URI`                       | MongoDB indicado na URI       | Persistentes, como acima.                                                       |
+| Local sem `MONGODB_URI` (padrão), testes e CI | MongoDB em memória            | Temporários: cadastros, progresso e histórico somem quando a API reinicia.      |
+
+Production e Preview usam bancos separados (ver
+[docs/implantacao.md](docs/implantacao.md#32-isolamento-de-dados-entre-preview-e-production)); o
+ambiente Preview só funciona depois que suas próprias variáveis de banco forem configuradas. Em
+qualquer ambiente, o salvamento automático e o histórico sobrevivem a logout, fechamento do
+navegador e novo login. Não há backup automático no plano gratuito do Atlas (ver
+[Rollback](docs/implantacao.md#6-rollback)).
+
+### Dados de demonstração
+
+Não há passo manual. Ao iniciar, o backend:
+
+1. conecta ao banco persistente definido em `MONGODB_URI` ou, sem ela, sobe uma instância do
+   MongoDB em memória (padrão local e dos testes);
+2. valida a integridade do catálogo (10 missões na distribuição 3/3/4, ids únicos, referências,
+   ausência de dependências circulares, evidência decisiva alcançável e estrutura por dificuldade);
+3. grava as dez missões de forma idempotente (insere as que faltam e atualiza as existentes, sem
+   apagar nada) e, somente fora de produção, os três usuários demonstrativos (senhas com hash bcrypt).
+
+Com o banco em memória, para voltar ao estado inicial basta reiniciar o backend. Para publicar com
+banco persistente, veja o [guia de implantação](docs/implantacao.md).
+
+> Usuários de uso **exclusivamente local**. São dados fictícios de demonstração, com e-mails do
+> domínio reservado `example.com`. **Nenhuma senha fica no código ou neste README.**
+
+| Nome           | E-mail              | Variável da senha (em `backend/.env`) |
+| -------------- | ------------------- | ------------------------------------- |
+| Sofia Almeida  | `sofia@example.com` | `DEMO_USER_SOFIA_PASSWORD`            |
+| Bruno Carvalho | `bruno@example.com` | `DEMO_USER_BRUNO_PASSWORD`            |
+| Lívia Rocha    | `livia@example.com` | `DEMO_USER_LIVIA_PASSWORD`            |
+
+Como definir as senhas demonstrativas (configuração reproduzível):
+
+1. Copie o exemplo, se ainda não tiver o arquivo:
+
+   ```bash
+   cp backend/.env.example backend/.env
+   ```
+
+2. Em `backend/.env`, preencha as três variáveis com senhas de sua escolha (mínimo de 8
+   caracteres, com letras e números — a mesma política do cadastro). O arquivo `.env` não é
+   versionado.
+3. Inicie o backend e entre com o e-mail do usuário e a senha que você definiu.
+
+Se uma variável ficar vazia, o usuário correspondente **não é criado**: nenhuma senha é gerada nem
+exibida no terminal, em logs ou em capturas de tela (o aviso `[seed]` cita só o nome da variável).
+Uma senha definida fora da política interrompe a inicialização com uma mensagem indicando a
+variável. Também é possível criar uma conta própria pela tela de cadastro.
+
+Nenhum usuário começa com investigações; todos partem do mesmo estado.
+
+## 7. Estrutura do projeto
+
+<details>
+<summary><strong>Árvore de pastas</strong></summary>
+
+```
+misteriobox/
+├── .github/workflows/ci.yml     # pipeline de integração contínua
+├── api/index.ts                 # função serverless da Vercel (reaproveita o app Express)
+├── artefatos_de_teste/          # artefatos de qualidade da equipe de QA
+├── backend/
+│   ├── src/
+│   │   ├── config/              # variáveis de ambiente e caminhos
+│   │   ├── controllers/         # camada HTTP (sem regra de negócio)
+│   │   ├── database/
+│   │   │   ├── connection.ts    # MongoDB persistente (MONGODB_URI) ou em memória
+│   │   │   ├── ready.ts         # preparação única por instância (Vercel)
+│   │   │   └── seed/            # usuários, missões e validação de integridade
+│   │   ├── errors/              # AppError, códigos de erro e erros do banco
+│   │   ├── mappers/             # conversão de documentos em respostas (oculta segredos)
+│   │   ├── middlewares/         # autenticação, validação e tratamento de erros
+│   │   ├── models/              # schemas Mongoose
+│   │   ├── repositories/        # acesso a dados
+│   │   ├── routes/              # rotas da API e Swagger
+│   │   ├── scripts/             # carga do catálogo em banco persistente
+│   │   ├── services/            # regras de negócio (RN01–RN08)
+│   │   ├── types/               # extensões de tipos do Express
+│   │   ├── utils/               # respostas HTTP padronizadas
+│   │   ├── validators/          # schemas Zod de entrada
+│   │   ├── app.ts
+│   │   └── server.ts
+│   ├── tests/                   # unitários e integração (Vitest + Supertest)
+│   ├── .env.example
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── api/                 # cliente HTTP e chamadas à API
+│   │   ├── components/          # layout, guardas de rota, diálogo, badges, capas, feedback
+│   │   ├── context/             # sessão do jogador
+│   │   ├── hooks/               # hooks reutilizáveis (notificações, medidas de layout)
+│   │   ├── pages/               # login, cadastro, catálogo, histórico, investigação, resultado
+│   │   ├── styles/              # CSS responsivo organizado por área
+│   │   ├── types/               # tipos das respostas da API
+│   │   └── utils/               # validação, sessão, redirecionamento (com testes)
+│   ├── .env.example
+│   └── package.json
+├── e2e/                         # testes de ponta a ponta (Playwright + TypeScript)
+├── tests/gestaodeusuarios/      # suítes de QA por história (API e interface)
+├── scripts/smoke-test.mjs       # smoke test pós-implantação
+├── docs/
+│   ├── implantacao.md           # guia de implantação (Vercel + MongoDB Atlas)
+│   ├── openapi.yaml             # especificação OpenAPI 3 (Swagger)
+│   ├── img/                     # imagens do README
+│   └── wiki/                    # rascunho das páginas da Wiki
+├── playwright.config.ts         # E2E
+├── playwright.qa.config.js      # suíte de QA de interface
+├── vercel.json                  # build, função e reescritas da Vercel
+├── .gitignore
+├── .prettierrc.json
+├── package.json                 # scripts e workspaces
+└── README.md
+```
+
+</details>
+
+## 8. Implantação
+
+A aplicação está publicada na **Vercel** em
+[misteriobox.vercel.app](https://misteriobox.vercel.app), com o site estático e a API como função
+serverless (`api/index.ts`), usando o **MongoDB Atlas** como banco persistente. Na primeira
+requisição de cada instância, a API conecta ao banco, cria apenas os índices que faltam e carrega o
+catálogo de forma idempotente.
+
+O passo a passo (Atlas, Vercel, variáveis por ambiente, smoke tests, rollback e diagnóstico de
+falhas) está em [docs/implantacao.md](docs/implantacao.md).
+
+## 9. Limitações conhecidas
+
+- **Persistência depende do ambiente** — ver [Banco em memória × MongoDB Atlas](#banco-em-memória--mongodb-atlas).
+- Sem `JWT_SECRET` definido (padrão local), um token salvo no navegador deixa de valer quando a API
+  reinicia. Em produção o segredo é obrigatório e fixo.
+- A primeira execução precisa de internet para baixar o binário do MongoDB.
+- Logout sem revogação no servidor: um token copiado antes do logout vale até expirar (no máximo
+  30 min sem renovação).
+- Não há limite de tentativas de login, exclusão de conta pelo próprio jogador nem backup automático
+  do banco no plano gratuito do Atlas.
+- O ambiente Preview da Vercel exige um banco próprio, ainda não configurado; sem ele, a API das
+  prévias não inicia (por segurança, nunca usa o banco de Production).
+- Algumas verificações continuam manuais: testes exploratórios de usabilidade e o reteste visual
+  dos defeitos antes do encerramento.
+
+## 10. Documentação e contribuição
+
+| Documento                                  | Conteúdo                                                                                                                   |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| [Wiki do projeto](../../wiki)              | Referência detalhada: fluxo do jogador, arquitetura, critérios de aceitação, testes, CI, defeitos, segurança e privacidade |
+| [docs/implantacao.md](docs/implantacao.md) | Guia de implantação na Vercel com MongoDB Atlas                                                                            |
+| [docs/openapi.yaml](docs/openapi.yaml)     | Contrato da API (também no Swagger UI, em `/api-docs`)                                                                     |
+
+**Como contribuir**
+
+1. Abra uma _issue_ descrevendo o problema ou a proposta.
+2. Crie uma branch a partir de `main` com prefixo de tipo (`feat/`, `fix/`, `test/`, `docs/`,
+   `chore/`).
+3. Inclua testes: toda correção de defeito ganha um teste de regressão que falha sem a correção.
+4. Antes do pull request, execute `npm run lint`, `npm run format:check`, `npm run build`,
+   `npm test` e `npm run test:e2e`.
+5. Não versione `.env`, URIs de banco, senhas, tokens, dados pessoais nem soluções de missões.
+
+Detalhes em "Execução local e contribuição", na Wiki.
+
+## 11. Caráter acadêmico e experimental
 
 A MistérioBox foi desenvolvida como **projeto acadêmico**, com fins de estudo de desenvolvimento
 Web, arquitetura de APIs REST, qualidade de software e testes. É um projeto **experimental**:

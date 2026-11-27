@@ -39,7 +39,7 @@ A seção **Divisões especializadas — Em breve** é apenas informativa: não 
 controle de acesso.
 
 A dificuldade não depende só do número de evidências. A validação de integridade
-([`mission-integrity.ts`](https://github.com/RoxaneNayara/misteriobox/blob/main/backend/src/database/seed/mission-integrity.ts))
+(`mission-integrity.ts`)
 exige, por nível, um mínimo de suspeitos e dicas e uma cadeia mínima até a evidência decisiva. Nas
 missões difíceis, a prova decisiva cruza linhas de investigação independentes.
 

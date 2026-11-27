@@ -30,9 +30,10 @@ exemplos de configuração estão em `backend/.env.example` e `frontend/.env.exa
 
 ### Usuários demonstrativos (só local)
 
-Três usuários fictícios (`@example.com`) são criados no ambiente local. As senhas vêm das variáveis
-`DEMO_USER_*_PASSWORD` do `backend/.env` (ver a
-[seção 8 do README](https://github.com/RoxaneNayara/misteriobox/blob/main/README.md#8-dados-de-demonstração)). Também é possível criar uma conta pela tela de cadastro. Em ambiente publicado esses
+Três usuários fictícios (`@example.com`) podem ser criados no ambiente local. As senhas vêm das
+variáveis `DEMO_USER_*_PASSWORD` do `backend/.env` (ver "Dados de demonstração" no `README.md`).
+Se uma variável ficar vazia, o usuário correspondente não é criado, e nenhuma senha é gerada ou
+exibida no terminal. Também é possível criar uma conta pela tela de cadastro. Em ambiente publicado esses
 usuários nunca são criados.
 
 ## Verificações antes de abrir um pull request

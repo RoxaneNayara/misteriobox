@@ -18,14 +18,28 @@ revisão pelo pull request, abra cada arquivo pelo nome.
 | `Execucao-Local-e-Contribuicao.md`               | Execução local e contribuição                |
 | `_Sidebar.md`, `_Footer.md`                      | Menu lateral e rodapé                        |
 
-## Publicação (após aprovação)
+## Política de links
 
-A Wiki do GitHub é um repositório separado (`misteriobox.wiki.git`). Em repositório privado, ela
-exige plano pago; em repositório público, basta ativá-la em _Settings → Features → Wikis_ e criar
-a primeira página pela interface. Depois:
+A Wiki será publicada no **repositório público de apresentação**, enquanto este repositório de
+desenvolvimento continua privado. Por isso:
 
-```bash
-git clone https://github.com/RoxaneNayara/misteriobox.wiki.git
-```
+- **Arquivos do código** aparecem como caminhos em texto (por exemplo, `backend/src/services/`), e
+  não como links: os caminhos são os mesmos no repositório de apresentação e não dependem do nome
+  que ele vier a ter.
+- **Issues e pull requests** do repositório privado não são linkados. Defeitos são citados pelo
+  identificador `Bxx`, que também aparece nos testes de regressão.
+- **Links externos** usados: apenas a aplicação publicada, `https://misteriobox.vercel.app`.
+- **Links internos** usam o nome da página da Wiki, sem extensão.
 
-Copie os arquivos desta pasta (exceto este `README.md`) para o clone, faça o commit e o push.
+## Antes de publicar (checklist)
+
+- [ ] Repositório de apresentação criado, com histórico novo e sem as soluções das missões.
+- [ ] Conferir se os caminhos citados nas páginas existem no repositório de apresentação. Os
+      testes que dependem das soluções (`solution-reveal`, `mission-catalog`, `published-catalog`,
+      `mission-catalog-flow`) podem ser adaptados ou omitidos na versão pública; nesse caso,
+      ajustar as tabelas de cobertura e de rastreabilidade.
+- [ ] Ativar a Wiki no repositório de apresentação (_Settings → Features → Wikis_) e criar a
+      primeira página pela interface.
+- [ ] Copiar os arquivos desta pasta (exceto este `README.md`) para o clone da Wiki
+      (`<repositório-de-apresentação>.wiki.git`), fazer o commit e o push.
+- [ ] Conferir o menu lateral e a navegação entre as páginas publicadas.

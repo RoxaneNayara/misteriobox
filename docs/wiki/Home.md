@@ -8,9 +8,9 @@ O projeto é **acadêmico e experimental**: foi construído para estudar desenvo
 arquitetura de APIs REST, qualidade de software e testes. Todas as histórias, personagens, nomes e
 empresas são fictícios.
 
-> Esta Wiki não revela soluções das missões. Para jogar sem spoilers, evite também ler os arquivos
-> de dados em `backend/src/database/seed/missions/` e alguns testes que exercitam partidas
-> completas.
+> Esta Wiki não revela soluções das missões.
+
+**Aplicação publicada:** [misteriobox.vercel.app](https://misteriobox.vercel.app)
 
 ## Visão rápida
 
@@ -38,9 +38,8 @@ empresas são fictícios.
 
 ## Documentos do repositório
 
-- [README](https://github.com/RoxaneNayara/misteriobox/blob/main/README.md) — referência completa
-  do projeto.
-- [Guia de implantação](https://github.com/RoxaneNayara/misteriobox/blob/main/docs/implantacao.md)
-  — Vercel e MongoDB Atlas.
-- [Especificação OpenAPI](https://github.com/RoxaneNayara/misteriobox/blob/main/docs/openapi.yaml)
-  — contrato da API.
+Na raiz do repositório de apresentação:
+
+- `README.md` — visão geral, regras de negócio e execução local.
+- `docs/implantacao.md` — guia de implantação na Vercel com MongoDB Atlas.
+- `docs/openapi.yaml` — contrato da API (também disponível no Swagger UI, em `/api-docs`).

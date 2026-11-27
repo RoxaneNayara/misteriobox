@@ -5,7 +5,7 @@
 
 ## Integração contínua (GitHub Actions)
 
-O workflow [`.github/workflows/ci.yml`](https://github.com/RoxaneNayara/misteriobox/blob/main/.github/workflows/ci.yml)
+O workflow `.github/workflows/ci.yml`
 roda a cada `push` e `pull request` para `main`, com permissão somente de leitura do repositório
 (`contents: read`) e sem segredos: tudo sobe dentro do próprio runner, com MongoDB em memória.
 
@@ -25,15 +25,19 @@ Um pull request só é integrado com o CI aprovado e a revisão da responsável 
 
 ## Implantação (Vercel + MongoDB Atlas)
 
-O guia completo, com passo a passo, checklist de variáveis, smoke tests e rollback, está em
-[`docs/implantacao.md`](https://github.com/RoxaneNayara/misteriobox/blob/main/docs/implantacao.md).
+A aplicação está publicada em **[misteriobox.vercel.app](https://misteriobox.vercel.app)**
+(ambiente Production). A implantação parte do repositório de desenvolvimento, que é privado; o
+repositório de apresentação e esta Wiki descrevem a mesma aplicação, sem as soluções das missões.
 
-| Peça                | Como funciona                                                                                                                          |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Site                | Build do Vite (`frontend/dist`) servido como estático; rotas do SPA reescritas para `index.html`                                       |
-| API                 | Função serverless [`api/index.ts`](https://github.com/RoxaneNayara/misteriobox/blob/main/api/index.ts) atende `/api/*` e `/api-docs/*` |
-| Preparação do banco | Na primeira requisição de cada instância: conexão, criação só dos índices que faltam e carga idempotente das missões                   |
-| Banco               | MongoDB Atlas, um banco por ambiente e um usuário com `readWrite` apenas no próprio banco                                              |
+O guia completo, com passo a passo, checklist de variáveis, smoke tests e rollback, está em
+`docs/implantacao.md`.
+
+| Peça                | Como funciona                                                                                                        |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Site                | Build do Vite (`frontend/dist`) servido como estático; rotas do SPA reescritas para `index.html`                     |
+| API                 | Função serverless `api/index.ts` atende `/api/*` e `/api-docs/*`                                                     |
+| Preparação do banco | Na primeira requisição de cada instância: conexão, criação só dos índices que faltam e carga idempotente das missões |
+| Banco               | MongoDB Atlas, um banco por ambiente e um usuário com `readWrite` apenas no próprio banco                            |
 
 ### Separação entre Production e Preview
 
@@ -41,7 +45,7 @@ O guia completo, com passo a passo, checklist de variáveis, smoke tests e rollb
   ambiente da Vercel.
 - A API recusa iniciar se Preview apontar para um banco que não seja de prévia, ou se Production
   apontar para um banco de prévia
-  ([`config/env.ts`](https://github.com/RoxaneNayara/misteriobox/blob/main/backend/src/config/env.ts)).
+  (`config/env.ts`).
 - Usuários demonstrativos nunca são criados em ambiente publicado.
 - Se as variáveis de Preview não estiverem cadastradas, as implantações de prévia sobem o site,
   mas a API não inicia (falha de configuração) — o que impede, por construção, o uso do banco de

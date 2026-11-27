@@ -28,28 +28,28 @@
 
 ## Backend em camadas
 
-| Camada        | Pasta                                                                                             | Responsabilidade                                    |
-| ------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| Rotas         | [`routes/`](https://github.com/RoxaneNayara/misteriobox/tree/main/backend/src/routes)             | Endereços da API e do Swagger                       |
-| Controladores | [`controllers/`](https://github.com/RoxaneNayara/misteriobox/tree/main/backend/src/controllers)   | Camada HTTP, sem regra de negócio                   |
-| Serviços      | [`services/`](https://github.com/RoxaneNayara/misteriobox/tree/main/backend/src/services)         | Regras RN01–RN08, pontuação e sessão                |
-| Repositórios  | [`repositories/`](https://github.com/RoxaneNayara/misteriobox/tree/main/backend/src/repositories) | Acesso a dados                                      |
-| Modelos       | [`models/`](https://github.com/RoxaneNayara/misteriobox/tree/main/backend/src/models)             | Schemas Mongoose e índices                          |
-| Validadores   | [`validators/`](https://github.com/RoxaneNayara/misteriobox/tree/main/backend/src/validators)     | Schemas Zod das entradas                            |
-| Middlewares   | [`middlewares/`](https://github.com/RoxaneNayara/misteriobox/tree/main/backend/src/middlewares)   | Autenticação, `Content-Type`, validação e erros     |
-| Mappers       | [`mappers/`](https://github.com/RoxaneNayara/misteriobox/tree/main/backend/src/mappers)           | Montam as respostas e ocultam dados secretos        |
-| Banco         | [`database/`](https://github.com/RoxaneNayara/misteriobox/tree/main/backend/src/database)         | Conexão, preparação e carga idempotente do catálogo |
+| Camada        | Pasta                       | Responsabilidade                                    |
+| ------------- | --------------------------- | --------------------------------------------------- |
+| Rotas         | `backend/src/routes/`       | Endereços da API e do Swagger                       |
+| Controladores | `backend/src/controllers/`  | Camada HTTP, sem regra de negócio                   |
+| Serviços      | `backend/src/services/`     | Regras RN01–RN08, pontuação e sessão                |
+| Repositórios  | `backend/src/repositories/` | Acesso a dados                                      |
+| Modelos       | `backend/src/models/`       | Schemas Mongoose e índices                          |
+| Validadores   | `backend/src/validators/`   | Schemas Zod das entradas                            |
+| Middlewares   | `backend/src/middlewares/`  | Autenticação, `Content-Type`, validação e erros     |
+| Mappers       | `backend/src/mappers/`      | Montam as respostas e ocultam dados secretos        |
+| Banco         | `backend/src/database/`     | Conexão, preparação e carga idempotente do catálogo |
 
 ## Tecnologias
 
 | Camada          | Tecnologias                                                            |
 | --------------- | ---------------------------------------------------------------------- |
-| Frontend        | React 18, TypeScript, Vite 6, React Router 6, CSS responsivo           |
-| Backend         | Node.js, Express 5, TypeScript, Zod, JSON Web Token, bcryptjs          |
+| Frontend        | React 18, TypeScript, Vite 6, React Router 7, CSS responsivo           |
+| Backend         | Node.js, Express 5, TypeScript, Zod 4, JSON Web Token, bcryptjs        |
 | Banco de dados  | Mongoose 8; MongoDB Atlas (publicado) ou MongoDB Memory Server (local) |
 | Documentação    | OpenAPI 3 + Swagger UI                                                 |
 | Qualidade       | ESLint 9 (typescript-eslint, react-hooks, jsx-a11y), Prettier 3        |
-| Testes          | Vitest, Supertest, Playwright, Mocha e Chai                            |
+| Testes          | Vitest 4, Supertest, Playwright, Mocha e Chai                          |
 | CI e publicação | GitHub Actions; Vercel                                                 |
 
 ## Decisões de segurança
@@ -61,16 +61,18 @@
   recusados com `400`; corpos que não são `application/json` recebem `415`.
 - **Senhas:** hash bcrypt, limite de 72 bytes sem truncamento silencioso.
 - **Configuração por ambiente:**
-  [`config/env.ts`](https://github.com/RoxaneNayara/misteriobox/blob/main/backend/src/config/env.ts)
+  `config/env.ts`
   exige `MONGODB_URI` e um `JWT_SECRET` de pelo menos 32 caracteres quando publicado, recusa
   usuários demonstrativos e impede que Preview use o banco de Production (e vice-versa).
-- **Logs seguros:** falhas de banco na função da Vercel registram só etapa, tipo e código do erro,
-  nunca a mensagem, a URI ou credenciais.
+- **Logs seguros:** falhas de banco na função da Vercel e erros inesperados em ambiente publicado
+  registram só etapa, tipo e código do erro, nunca a mensagem, a URI, credenciais ou dados enviados
+  pelo jogador. Senhas demonstrativas nunca são exibidas.
+- **Redirecionamento seguro:** depois do login, o site só navega para caminhos internos.
 
 ## Contrato da API
 
 O contrato completo está em
-[`docs/openapi.yaml`](https://github.com/RoxaneNayara/misteriobox/blob/main/docs/openapi.yaml) e
+`docs/openapi.yaml` e
 pode ser explorado no Swagger UI (`/api-docs`). Exemplo de resposta `422` ao tentar analisar uma
 evidência bloqueada:
 
