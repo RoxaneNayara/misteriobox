@@ -5,7 +5,11 @@
 
 A aplicação tem exatamente oito regras de negócio (RN01–RN08), todas validadas no backend. Cada
 regra abaixo traz critérios de aceitação no formato _Dado / Quando / Então_ e os testes que os
-verificam, ou a lacuna de automação quando ela existe. O texto normativo completo está na
+verificam, ou a lacuna de automação quando ela existe. Testes para todas as lacunas listadas aqui
+estão em revisão nos pull requests
+[#34](https://github.com/RoxaneNayara/misteriobox/pull/34) (API) e
+[#35](https://github.com/RoxaneNayara/misteriobox/pull/35) (interface); esta página será
+atualizada quando forem integrados. O texto normativo completo está na
 [seção 9 do README](https://github.com/RoxaneNayara/misteriobox/blob/main/README.md#9-regras-de-negócio-rn01-a-rn08).
 
 ## RN01 — Acesso autenticado e isolamento das investigações

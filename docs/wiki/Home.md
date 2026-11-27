@@ -14,15 +14,15 @@ empresas são fictícios.
 
 ## Visão rápida
 
-| Item              | Resumo                                                                                   |
-| ----------------- | ---------------------------------------------------------------------------------------- |
-| Produto           | Catálogo com 10 missões (3 fáceis, 3 médias, 4 difíceis), histórico e novas tentativas   |
-| Frontend          | React + TypeScript + Vite                                                                |
-| Backend           | API REST com Node.js, Express 5 e TypeScript, documentada em OpenAPI 3 (Swagger UI)      |
-| Banco             | MongoDB Atlas em Production e Preview; MongoDB em memória no ambiente local e nos testes |
-| Publicação        | Vercel (site estático + função serverless da API)                                        |
-| Qualidade         | ESLint, Prettier, Vitest, Supertest, Playwright, Mocha/Chai e GitHub Actions             |
-| Regras de negócio | RN01 a RN08, todas validadas no backend                                                  |
+| Item              | Resumo                                                                                                                |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Produto           | Catálogo com 10 missões (3 fáceis, 3 médias, 4 difíceis), histórico e novas tentativas                                |
+| Frontend          | React + TypeScript + Vite                                                                                             |
+| Backend           | API REST com Node.js, Express 5 e TypeScript, documentada em OpenAPI 3 (Swagger UI)                                   |
+| Banco             | MongoDB Atlas em Production; Preview exige um banco Atlas separado; MongoDB em memória no ambiente local e nos testes |
+| Publicação        | Vercel (site estático + função serverless da API)                                                                     |
+| Qualidade         | ESLint, Prettier, Vitest, Supertest, Playwright, Mocha/Chai e GitHub Actions                                          |
+| Regras de negócio | RN01 a RN08, todas validadas no backend                                                                               |
 
 ## Páginas
 
@@ -33,7 +33,8 @@ empresas são fictícios.
 5. [Testes automatizados e ferramentas](Testes-Automatizados-e-Ferramentas)
 6. [Integração contínua e implantação](Integracao-Continua-e-Implantacao)
 7. [Gestão de defeitos, riscos e rastreabilidade](Gestao-de-Defeitos-Riscos-e-Rastreabilidade)
-8. [Execução local e contribuição](Execucao-Local-e-Contribuicao)
+8. [Segurança e privacidade](Seguranca-e-Privacidade)
+9. [Execução local e contribuição](Execucao-Local-e-Contribuicao)
 
 ## Documentos do repositório
 

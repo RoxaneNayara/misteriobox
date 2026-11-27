@@ -43,6 +43,9 @@ O guia completo, com passo a passo, checklist de variáveis, smoke tests e rollb
   apontar para um banco de prévia
   ([`config/env.ts`](https://github.com/RoxaneNayara/misteriobox/blob/main/backend/src/config/env.ts)).
 - Usuários demonstrativos nunca são criados em ambiente publicado.
+- Se as variáveis de Preview não estiverem cadastradas, as implantações de prévia sobem o site,
+  mas a API não inicia (falha de configuração) — o que impede, por construção, o uso do banco de
+  Production.
 
 ### Diagnóstico de falhas
 

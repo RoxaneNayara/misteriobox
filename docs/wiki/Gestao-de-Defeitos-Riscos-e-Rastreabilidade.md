@@ -1,7 +1,7 @@
 # Gestão de defeitos, riscos e rastreabilidade
 
 [← Início](Home) · Anterior: [Integração contínua](Integracao-Continua-e-Implantacao) · Próxima:
-[Execução local e contribuição](Execucao-Local-e-Contribuicao)
+[Segurança e privacidade](Seguranca-e-Privacidade)
 
 ## Padrão de registro de defeitos
 

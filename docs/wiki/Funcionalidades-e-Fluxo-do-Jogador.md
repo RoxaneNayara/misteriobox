@@ -68,10 +68,11 @@ missões difíceis, a prova decisiva cruza linhas de investigação independente
 
 ## Persistência
 
-| Ambiente                                      | Banco              | Duração dos dados                                      |
-| --------------------------------------------- | ------------------ | ------------------------------------------------------ |
-| Production e Preview (Vercel)                 | MongoDB Atlas      | Persistentes; Preview e Production em bancos separados |
-| Local sem `MONGODB_URI` (padrão), testes e CI | MongoDB em memória | Somem quando a API reinicia                            |
+| Ambiente                                      | Banco                                          | Duração dos dados                                     |
+| --------------------------------------------- | ---------------------------------------------- | ----------------------------------------------------- |
+| Production (Vercel)                           | MongoDB Atlas                                  | Persistentes                                          |
+| Preview (Vercel)                              | Banco Atlas próprio, separado do de Production | Exigido pela API; sem ele, a API de prévia não inicia |
+| Local sem `MONGODB_URI` (padrão), testes e CI | MongoDB em memória                             | Somem quando a API reinicia                           |
 
 ## Acessibilidade e responsividade
 

@@ -1,6 +1,6 @@
 # Execução local e contribuição
 
-[← Início](Home) · Anterior: [Gestão de defeitos](Gestao-de-Defeitos-Riscos-e-Rastreabilidade)
+[← Início](Home) · Anterior: [Segurança e privacidade](Seguranca-e-Privacidade)
 
 ## Pré-requisitos
 
@@ -31,8 +31,8 @@ exemplos de configuração estão em `backend/.env.example` e `frontend/.env.exa
 ### Usuários demonstrativos (só local)
 
 Três usuários fictícios (`@example.com`) são criados no ambiente local. As senhas vêm das variáveis
-`DEMO_USER_*_PASSWORD` do `backend/.env`; sem elas, a API gera senhas temporárias e as mostra no
-console. Também é possível criar uma conta pela tela de cadastro. Em ambiente publicado esses
+`DEMO_USER_*_PASSWORD` do `backend/.env` (ver a
+[seção 8 do README](https://github.com/RoxaneNayara/misteriobox/blob/main/README.md#8-dados-de-demonstração)). Também é possível criar uma conta pela tela de cadastro. Em ambiente publicado esses
 usuários nunca são criados.
 
 ## Verificações antes de abrir um pull request

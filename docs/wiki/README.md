@@ -14,6 +14,7 @@ revisão pelo pull request, abra cada arquivo pelo nome.
 | `Testes-Automatizados-e-Ferramentas.md`          | Testes automatizados e ferramentas           |
 | `Integracao-Continua-e-Implantacao.md`           | Integração contínua e implantação            |
 | `Gestao-de-Defeitos-Riscos-e-Rastreabilidade.md` | Gestão de defeitos, riscos e rastreabilidade |
+| `Seguranca-e-Privacidade.md`                     | Segurança e privacidade                      |
 | `Execucao-Local-e-Contribuicao.md`               | Execução local e contribuição                |
 | `_Sidebar.md`, `_Footer.md`                      | Menu lateral e rodapé                        |
 
