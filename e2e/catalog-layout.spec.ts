@@ -12,6 +12,24 @@ async function openCatalog(page: Page, width: number) {
   await page.setViewportSize({ width, height: 900 });
   await page.goto('/');
   await expect(page.getByTestId('stat-available')).toHaveText(/\d+/);
+  await waitForEntranceAnimations(page);
+}
+
+/**
+ * A página entra com `fade-up` (`translateY(14px)` → 0). Medir posições durante a animação dá
+ * resultados que dependem do momento da leitura (falha intermitente no CI, 27/11/2026): as medidas
+ * só são feitas depois que as animações finitas terminam. Animações infinitas (decorativas) são
+ * ignoradas.
+ */
+async function waitForEntranceAnimations(page: Page) {
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
+        .map((animation) => animation.finished.catch(() => undefined)),
+    ),
+  );
 }
 
 async function statBoxes(page: Page) {
@@ -60,10 +78,23 @@ test.describe('Catálogo — alinhamento da credencial e do arquivo central', ()
   for (const width of [1920, 1440, 1280, 1024, 768, 390, 320]) {
     test(`texto do arquivo central abaixo do título (${width} px)`, async ({ page }) => {
       await openCatalog(page, width);
-      const title = (await page.locator('#archive-title').boundingBox())!;
-      const lead = (await page.locator('.case-archive__lead').boundingBox())!;
-      expect(lead.y).toBeGreaterThanOrEqual(title.y + title.height - 1);
-      expect(Math.abs(lead.x - title.x)).toBeLessThan(1);
+      // Título, texto e espaçamento lidos de uma só vez, no mesmo quadro.
+      const { title, lead, rowGap } = await page.evaluate(() => {
+        const rect = (selector: string) => {
+          const { top, bottom, left } = document.querySelector(selector)!.getBoundingClientRect();
+          return { top, bottom, left };
+        };
+        const header = document.querySelector('.case-archive__header')!;
+        return {
+          title: rect('#archive-title'),
+          lead: rect('.case-archive__lead'),
+          rowGap: parseFloat(getComputedStyle(header).rowGap),
+        };
+      });
+      // Abaixo do título, sem sobreposição, separado exatamente pelo espaçamento do cabeçalho.
+      expect(lead.top).toBeGreaterThanOrEqual(title.bottom);
+      expect(Math.abs(lead.top - title.bottom - rowGap)).toBeLessThan(1);
+      expect(Math.abs(lead.left - title.left)).toBeLessThan(1);
     });
   }
 
