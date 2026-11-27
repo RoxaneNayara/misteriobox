@@ -363,8 +363,8 @@ export function InvestigationPage() {
           Acusação
         </h2>
         <p className="case-section__lead">
-          Você tem direito a uma única acusação. Depois dela, a investigação é encerrada e a solução
-          é revelada.
+          Você tem direito a uma única acusação. Depois dela, a investigação é encerrada. A solução
+          do caso só é revelada no relatório se você alcançar 50 pontos ou mais.
         </p>
         <AccusationForm
           investigation={investigation}

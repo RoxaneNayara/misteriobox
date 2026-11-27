@@ -456,7 +456,10 @@ paths:
       summary: Consulta o resultado de uma investigação finalizada
       description: |
         Disponível para investigações `SOLUCIONADO`, `NAO_SOLUCIONADO` ou `ABANDONADO`.
-        A solução (`solution`) só é preenchida quando houve acusação.
+        A solução (`solution`) só é preenchida quando houve acusação **e** a pontuação alcançou
+        `solutionRevealMinScore` (50 pontos). Abaixo disso, `solution` é `null` e
+        `solutionRevealed` é `false`: o culpado, a evidência decisiva e a explicação não são
+        enviados (a pontuação, a classificação e a acusação do próprio jogador continuam).
       security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/InvestigationId'
@@ -912,10 +915,17 @@ components:
                 name: { type: string }
             evidence: { $ref: '#/components/schemas/EvidenceReference' }
             accusedAt: { type: string, format: date-time }
+        solutionRevealed:
+          type: boolean
+          description: Verdadeiro quando `solution` foi incluída (acusação com pelo menos `solutionRevealMinScore` pontos).
+        solutionRevealMinScore:
+          type: integer
+          example: 50
+          description: Pontuação mínima para revelar a solução no relatório.
         solution:
           type: object
           nullable: true
-          description: Revelada somente após a finalização por acusação.
+          description: Revelada somente após a finalização por acusação com pelo menos 50 pontos.
           properties:
             culprit:
               type: object
@@ -947,6 +957,8 @@ components:
             suspect: { id: clara-monteiro, name: Clara Monteiro }
             evidence: { id: ev-04, title: Registro de crachás da sala de segurança }
             accusedAt: '2026-11-18T12:20:00.000Z'
+          solutionRevealed: true
+          solutionRevealMinScore: 50
           solution:
             culprit: { id: clara-monteiro, name: Clara Monteiro }
             decisiveEvidence: { id: ev-04, title: Registro de crachás da sala de segurança }

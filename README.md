@@ -409,9 +409,19 @@ incorreto) ou `ABANDONADO` (abandono voluntário). **Uma investigação encerrad
 novas ações** (análises, dicas ou acusações — `409 INVESTIGATION_FINISHED`). Entretanto, o jogador
 pode iniciar uma **nova tentativa** da mesma missão, preservando o histórico das tentativas
 anteriores. A solução do mistério somente pode ser revelada nas tentativas finalizadas por
-acusação.
+acusação **que alcançaram 50 pontos ou mais**. Abaixo de 50 pontos, o relatório mostra a pontuação,
+a classificação e a acusação do jogador, mas o culpado, a evidência decisiva e a explicação
+continuam em sigilo — e a API não os envia (`solution: null`, `solutionRevealed: false`). A regra
+vale também para relatórios de tentativas anteriores, porque é aplicada a cada consulta.
+
+Pontuações possíveis (RN05): múltiplos de 10 entre 0 e 100. A maior abaixo do limite é **40**
+(suspeito correto, evidência não decisiva e 3 dicas); **50** é alcançada com suspeito correto,
+evidência não decisiva e 2 dicas. Acusar o suspeito errado resulta sempre em 0. Observação: 30 e
+40 pontos só ocorrem com o suspeito correto, e o status `SOLUCIONADO` continua informando ao
+jogador que a **própria** acusação estava certa.
 _Implementação:_ `investigation.service.ts` (`ensureInProgress`, `start`), `investigation.model.ts`
-(índices), `investigation.mapper.ts`.
+(índices), `investigation.mapper.ts` e `scoring.service.ts` (`canRevealSolution`,
+`SOLUTION_REVEAL_MIN_SCORE`).
 
 ## 10. Histórico e reinício de missões
 

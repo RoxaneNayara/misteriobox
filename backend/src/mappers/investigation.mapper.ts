@@ -11,7 +11,11 @@ import {
   type PublicMission,
 } from '../models/mission.model';
 import { MINIMUM_ANALYZED_EVIDENCES_FOR_ACCUSATION } from '../services/evidence-rules';
-import { SCORING_RULES } from '../services/scoring.service';
+import {
+  canRevealSolution,
+  SCORING_RULES,
+  SOLUTION_REVEAL_MIN_SCORE,
+} from '../services/scoring.service';
 import { toSuspectView, type SuspectView } from './mission.mapper';
 
 export type EvidenceState = 'ANALISADA' | 'DISPONIVEL' | 'BLOQUEADA';
@@ -84,6 +88,10 @@ export interface InvestigationResultView {
     accusedAt: Date;
   } | null;
   /** Revelada somente quando a investigação foi finalizada por acusação (RN08). */
+  /** Verdadeiro quando a solução foi incluída (acusação com pontuação mínima). */
+  solutionRevealed: boolean;
+  /** Pontuação mínima para revelar a solução (informativa para o frontend). */
+  solutionRevealMinScore: number;
   solution: {
     culprit: { id: string; name: string };
     decisiveEvidence: EvidenceReference;
@@ -213,6 +221,7 @@ export function toInvestigationResultView(
   const hintsUsed = investigation.usedHintIds.length;
   const isCorrectSuspect = accusation?.suspectId === mission.solution.culpritSuspectId;
   const isDecisiveEvidence = accusation?.evidenceId === mission.solution.decisiveEvidenceId;
+  const solutionRevealed = Boolean(accusation) && canRevealSolution(investigation.score);
 
   return {
     investigationId: investigation._id.toString(),
@@ -246,7 +255,10 @@ export function toInvestigationResultView(
           accusedAt: accusation.accusedAt,
         }
       : null,
-    solution: accusation
+    solutionRevealed,
+    solutionRevealMinScore: SOLUTION_REVEAL_MIN_SCORE,
+    // Abaixo da pontuação mínima, os dados secretos nem chegam à resposta da API.
+    solution: solutionRevealed
       ? {
           culprit: {
             id: mission.solution.culpritSuspectId,

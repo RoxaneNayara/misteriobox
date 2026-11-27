@@ -233,6 +233,25 @@ export function ResultPage() {
                 </p>
               </section>
             )}
+
+            {!solution && accusation && (
+              <section
+                className="report__section report__solution report__solution--locked"
+                aria-labelledby="solution-locked-title"
+                data-testid="result-solution-locked"
+              >
+                <h2 id="solution-locked-title" className="report__heading">
+                  A solução do caso
+                </h2>
+                <p className="report__redacted">Arquivo lacrado</p>
+                <p>
+                  Esta investigação não alcançou a pontuação necessária para revelar a verdade: é
+                  preciso fazer {result.solutionRevealMinScore} pontos ou mais, e esta tentativa fez{' '}
+                  {result.score ?? 0}. O responsável, a evidência decisiva e a explicação do caso
+                  continuam em sigilo. Você pode iniciar uma nova tentativa pelo catálogo de casos.
+                </p>
+              </section>
+            )}
           </>
         )}
 
