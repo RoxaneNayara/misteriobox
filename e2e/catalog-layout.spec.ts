@@ -57,7 +57,7 @@ test.describe('Catálogo — alinhamento da credencial e do arquivo central', ()
     expect(cards[2].top).toBeGreaterThan(cards[1].top);
   });
 
-  for (const width of [1440, 1280, 1024, 768, 390, 320]) {
+  for (const width of [1920, 1440, 1280, 1024, 768, 390, 320]) {
     test(`texto do arquivo central abaixo do título (${width} px)`, async ({ page }) => {
       await openCatalog(page, width);
       const title = (await page.locator('#archive-title').boundingBox())!;
@@ -67,7 +67,7 @@ test.describe('Catálogo — alinhamento da credencial e do arquivo central', ()
     });
   }
 
-  for (const width of [1440, 1280, 1024, 768, 390, 320]) {
+  for (const width of [1920, 1440, 1280, 1024, 768, 390, 320]) {
     test(`texto do arquivo central usa a largura do cabeçalho, sem estouro (${width} px)`, async ({
       page,
     }) => {
