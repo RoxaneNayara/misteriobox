@@ -116,7 +116,7 @@ export function HistoryPage() {
         </h1>
         <p className="page-header__lead">
           Todas as suas tentativas, da mais recente para a mais antiga. Os registros ficam
-          disponíveis enquanto o servidor da agência estiver em execução.
+          vinculados à sua conta e continuam disponíveis depois de sair e entrar novamente.
         </p>
       </header>
 
