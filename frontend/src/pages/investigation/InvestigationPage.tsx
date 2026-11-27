@@ -269,9 +269,10 @@ export function InvestigationPage() {
           ))}
         </ul>
       </nav>
+      {/* Logo abaixo do menu: a notificação acompanha o menu fixo durante a rolagem. */}
+      <Toast toast={toast} onDismiss={dismissToast} testId="investigation-feedback" />
 
       {actionError && <ErrorAlert message={actionError} testId="investigation-action-error" />}
-      <Toast toast={toast} onDismiss={dismissToast} testId="investigation-feedback" />
 
       <section id="secao-caso" tabIndex={-1} className="case-section" aria-labelledby="story-title">
         <h2 id="story-title" className="case-section__title">

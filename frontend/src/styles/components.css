@@ -131,14 +131,16 @@
 }
 
 /* ---------- Notificação temporária (toast) ----------
-   Fixa no rodapé da tela, fora do fluxo do conteúdo e acima do botão "Voltar ao topo"
-   (48 px + 1 rem da borda). Some sozinha após ~4 s (useToast). */
+   Âncora de altura zero, logo após o menu da investigação e fixa logo abaixo dele
+   (mesmo deslocamento do menu + a altura real do menu). A margem negativa anula o
+   espaçamento da coluna da investigação, para que a âncora não desloque o conteúdo.
+   A notificação fica pendurada na âncora e some sozinha após ~4 s (useToast). */
 .toast-region {
-  position: fixed;
-  left: max(1rem, env(safe-area-inset-left));
-  right: max(1rem, env(safe-area-inset-right));
-  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 48px + 0.75rem);
-  z-index: 25;
+  position: sticky;
+  top: calc(var(--sticky-header-offset) + var(--case-nav-height));
+  z-index: 4;
+  height: 0;
+  margin-top: -1.75rem;
   display: flex;
   justify-content: center;
   pointer-events: none;
@@ -150,6 +152,8 @@
   align-items: center;
   gap: 0.65rem;
   width: min(30rem, 100%);
+  height: max-content;
+  margin-top: 0.5rem;
   padding: 0.7rem 0.6rem 0.7rem 0.95rem;
   color: #e1f1d9;
   background: rgba(20, 26, 18, 0.96);

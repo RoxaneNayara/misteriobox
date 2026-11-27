@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { createPlayer, restoreSession, type TestPlayer } from './support/api';
 
 /**
- * Notificações de sucesso da investigação (toasts).
+ * Notificações de sucesso da investigação (toasts), exibidas logo abaixo do menu da investigação.
  * O relógio do navegador é controlado (page.clock): a contagem de ~4 s não depende
  * da velocidade da máquina, e o teste avança o tempo de forma explícita.
  */
@@ -132,8 +132,47 @@ test.describe('Notificações da investigação', () => {
     await expect(toast(page)).toHaveCount(0);
   });
 
-  for (const width of [320, 390, 768]) {
-    test(`em ${width}px cabe na tela, não cobre o "Voltar ao topo" e não deixa sobreposição`, async ({
+  /** Posição da notificação em relação ao menu da investigação, ao cabeçalho e ao "Voltar ao topo". */
+  async function toastLayout(page: Page) {
+    // Mede a posição final: espera a animação de entrada terminar (sem tempo fixo).
+    await toast(page).evaluate((element) =>
+      Promise.all(element.getAnimations().map((animation) => animation.finished)),
+    );
+    return page.evaluate(() => {
+      const box = document
+        .querySelector('[data-testid="investigation-feedback-message"]')!
+        .getBoundingClientRect();
+      const nav = document.querySelector('[data-testid="case-nav"]')!.getBoundingClientRect();
+      const header = document.querySelector('.app-header')!.getBoundingClientRect();
+      const backToTop = document
+        .querySelector('[data-testid="back-to-top"]')
+        ?.getBoundingClientRect();
+      const overlaps = (a: DOMRect, b: DOMRect) =>
+        a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+      return {
+        // Logo abaixo do menu: começa depois dele, com uma folga pequena.
+        belowMenu: box.top >= nav.bottom - 1 && box.top - nav.bottom <= 16,
+        coversMenu: overlaps(box, nav),
+        coversHeader: header.bottom > 0 && overlaps(box, header),
+        overlapsBackToTop: backToTop ? overlaps(box, backToTop) : false,
+        insideViewport: box.left >= 0 && box.right <= window.innerWidth && box.top >= 0,
+        pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        probe: { x: box.left + box.width / 2, y: box.top + box.height / 2 },
+      };
+    });
+  }
+
+  const EXPECTED_LAYOUT = {
+    belowMenu: true,
+    coversMenu: false,
+    coversHeader: false,
+    overlapsBackToTop: false,
+    insideViewport: true,
+    pageOverflow: 0,
+  };
+
+  for (const width of [320, 390, 768, 1280]) {
+    test(`em ${width}px aparece logo abaixo do menu, sem cobri-lo, e acompanha a rolagem`, async ({
       page,
       request,
     }) => {
@@ -142,32 +181,14 @@ test.describe('Notificações da investigação', () => {
 
       await page.getByTestId('evidence-analyze-ev-01').click();
       await expect(toast(page)).toBeVisible();
-      // Rola para que o botão "Voltar ao topo" também apareça.
+      expect(await toastLayout(page)).toMatchObject(EXPECTED_LAYOUT);
+
+      // Com o menu fixo no topo e o "Voltar ao topo" visível, continua logo abaixo do menu
+      // e independente do botão.
       await page.evaluate(() => window.scrollTo({ top: 1200, behavior: 'instant' }));
       await expect(page.getByTestId('back-to-top')).toBeVisible();
-
-      const layout = await page.evaluate(() => {
-        const box = document
-          .querySelector('[data-testid="investigation-feedback-message"]')!
-          .getBoundingClientRect();
-        const top = document.querySelector('[data-testid="back-to-top"]')!.getBoundingClientRect();
-        return {
-          insideViewport:
-            box.left >= 0 && box.right <= window.innerWidth && box.bottom <= window.innerHeight,
-          overlapsBackToTop:
-            box.left < top.right &&
-            top.left < box.right &&
-            box.top < top.bottom &&
-            top.top < box.bottom,
-          pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-          probe: { x: box.left + box.width / 2, y: box.top + box.height / 2 },
-        };
-      });
-      expect(layout).toMatchObject({
-        insideViewport: true,
-        overlapsBackToTop: false,
-        pageOverflow: 0,
-      });
+      const scrolled = await toastLayout(page);
+      expect(scrolled).toMatchObject(EXPECTED_LAYOUT);
 
       // Depois de expirar, o ponto que a mensagem ocupava volta a ser do conteúdo.
       await page.clock.runFor(TOAST_MS + 100);
@@ -175,11 +196,43 @@ test.describe('Notificações da investigação', () => {
       const topmost = await page.evaluate(
         ({ x, y }) =>
           document.elementFromPoint(x, y)?.closest('[data-testid="investigation-feedback"]'),
-        layout.probe,
+        scrolled.probe,
       );
       expect(topmost).toBeNull();
+      await expect(page.getByTestId('back-to-top')).toBeVisible();
     });
   }
+
+  test('no topo da página (menu ainda no fluxo), aparece abaixo do menu sem deslocar o conteúdo', async ({
+    page,
+    request,
+  }) => {
+    const player = await createPlayer(request);
+    await openFreshInvestigation(page, player, { width: 390, height: 844 });
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+
+    // Distância entre o menu e a primeira seção: só muda se a notificação ocupar espaço no fluxo.
+    // (A análise também atualiza o cabeçalho do caso, que pode mudar de altura.)
+    const sectionTop = () =>
+      page.evaluate(
+        () =>
+          document.getElementById('secao-caso')!.getBoundingClientRect().top -
+          document.querySelector('[data-testid="case-nav"]')!.getBoundingClientRect().bottom,
+      );
+    const before = await sectionTop();
+
+    // Dispara a ação sem rolar a página (clique programático no botão).
+    await page.evaluate(() =>
+      (
+        document.querySelector('[data-testid="evidence-analyze-ev-01"]') as HTMLButtonElement
+      ).click(),
+    );
+    await expect(toast(page)).toBeVisible();
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    expect(await toastLayout(page)).toMatchObject(EXPECTED_LAYOUT);
+    // A notificação fica sobreposta, fora do fluxo: o conteúdo não se move.
+    expect(await sectionTop()).toBe(before);
+  });
 
   test('é anunciada por região viva, sem tirar o foco, e pode ser fechada pelo teclado', async ({
     page,

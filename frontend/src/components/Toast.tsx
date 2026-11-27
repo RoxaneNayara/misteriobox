@@ -10,7 +10,9 @@ interface ToastProps {
 /**
  * Notificação temporária de sucesso. A região viva fica sempre no documento
  * (leitores de tela a registram desde o início) e anuncia cada nova mensagem sem
- * mover o foco. Fica fixa acima do botão "Voltar ao topo", fora do fluxo do conteúdo.
+ * mover o foco. Deve ser renderizada logo após o menu da investigação: a região é uma
+ * âncora de altura zero, fixa logo abaixo do menu, e a notificação fica pendurada nela,
+ * sem deslocar o conteúdo.
  */
 export function Toast({ toast, onDismiss, testId = 'toast' }: ToastProps) {
   return (
