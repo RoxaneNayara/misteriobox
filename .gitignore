@@ -31,8 +31,14 @@ Thumbs.db
 # Configuração local do Claude Code
 .claude/
 
+# Vínculo local com o projeto da Vercel (`vercel link`) e variáveis baixadas (`vercel env pull`)
+.vercel/
+
 # Documentos de teste (DOCX) mantidos apenas localmente até revisão para publicação
 artefatos_de_teste/*.docx
+# Evidências visuais e versões de publicação: locais (anexadas manualmente às Issues)
+artefatos_de_teste/evidencias_visuais/
+artefatos_de_teste/versoes_publicacao/
 
 # Resultados e relatórios de testes automatizados
 blob-report/
