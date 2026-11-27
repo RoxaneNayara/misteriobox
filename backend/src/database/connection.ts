@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import type { MongoMemoryServer } from 'mongodb-memory-server';
 import { env } from '../config/env';
+import { withSetupPhase } from '../errors/database-errors';
 import { InvestigationModel } from '../models/investigation.model';
 import { MissionModel } from '../models/mission.model';
 import { UserModel } from '../models/user.model';
@@ -36,12 +37,22 @@ export async function connectDatabase(options: ConnectOptions = {}): Promise<Dat
   const dbName = options.dbName ?? env.mongodbDbName;
 
   if (uri) {
-    await mongoose.connect(uri, {
-      dbName,
-      serverSelectionTimeoutMS: 10_000,
-      maxPoolSize: 10,
-    });
-    await Promise.all(MODELS.map((model) => model.createIndexes()));
+    await withSetupPhase('conexao', () =>
+      mongoose.connect(uri, {
+        dbName,
+        serverSelectionTimeoutMS: 10_000,
+        maxPoolSize: 10,
+      }),
+    );
+    try {
+      await withSetupPhase('indices', () =>
+        Promise.all(MODELS.map((model) => model.createIndexes())),
+      );
+    } catch (error) {
+      // Desfaz a conexão para que a próxima tentativa recomece do zero.
+      await mongoose.disconnect().catch(() => undefined);
+      throw error;
+    }
     currentMode = 'persistent';
     console.log(`[database] MongoDB persistente conectado (${describeHost()}).`);
     return currentMode;

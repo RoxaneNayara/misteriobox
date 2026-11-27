@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createApp } from '../backend/src/app';
 import { ensureDatabaseReady } from '../backend/src/database/ready';
+import { describeDatabaseError } from '../backend/src/errors/database-errors';
 
 /**
  * Função da Vercel que atende /api/* e /api-docs/* (ver vercel.json).
@@ -16,10 +17,10 @@ export default async function handler(
   try {
     await ensureDatabaseReady();
   } catch (error) {
-    // Registra só o tipo e a mensagem; a URI do banco nunca é exibida.
+    // Registra só metadados seguros (etapa, tipo, código); nunca a mensagem nem a URI.
     console.error(
       '[api] Banco de dados indisponível:',
-      error instanceof Error ? error.name : error,
+      JSON.stringify(describeDatabaseError(error)),
     );
     response.statusCode = 503;
     response.setHeader('Content-Type', 'application/json; charset=utf-8');
