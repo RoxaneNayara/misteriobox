@@ -241,6 +241,26 @@ abandono da tentativa de teste. Prefira rodar o modo `--write` na prévia.
 - [ ] `/api-docs` abre a documentação (se não abrir, ver seção 7).
 - [ ] Logs da função (Vercel → Logs) sem URI do banco, senhas ou tokens.
 
+### 5.1 Diagnóstico de 503 "Banco de dados indisponível"
+
+Quando a preparação do banco falha, a função responde **503 `SERVICE_UNAVAILABLE`** e registra
+nos logs da Vercel (_Deployments_ → implantação → _Logs_) uma linha só com metadados seguros —
+nunca a mensagem do driver, a URI, o usuário ou a senha:
+
+```
+[api] Banco de dados indisponível: {"phase":"indices","name":"MongoServerError","code":13,"codeName":"Unauthorized","category":"permissao"}
+```
+
+| `phase` / `category`                         | Causa provável                                                                                                      | O que conferir (sem expor a senha)                                                                                                                                                   |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `conexao` / `autenticacao` (código 8000, 18) | Usuário ou senha recusados                                                                                          | Nome do usuário na URI igual ao do Atlas (_Database Access_); senha atual (se trocada, atualizar `MONGODB_URI` e reimplantar); a URI não deve ter `authSource` diferente de `admin`. |
+| `indices` / `permissao` (código 13)          | Conexão aceita, mas o usuário não tem `readWrite` no banco usado. Em geral `MONGODB_DB_NAME` ≠ banco do privilégio. | `MONGODB_DB_NAME` exatamente igual ao banco do privilégio `readWrite` (ex.: `misteriobox` ↔ `readWrite@misteriobox`), sem espaços, maiúsculas diferentes ou sufixos como `-prod`.    |
+| `conexao` / `rede`                           | Cluster inacessível (Network Access, cluster pausado)                                                               | _Network Access_ com a entrada ativa; cluster não pausado.                                                                                                                           |
+| `conexao` / `uri-invalida`                   | `MONGODB_URI` mal formada                                                                                           | Formato `mongodb+srv://<usuário>:<senha>@<host>/?retryWrites=true&w=majority`; sem aspas ou espaços copiados junto.                                                                  |
+| `carga-inicial`                              | Falha ao gravar o catálogo                                                                                          | Mesmo critério de permissão acima; se persistir, abrir Issue com a linha do log.                                                                                                     |
+
+Variáveis alteradas na Vercel só valem após **novo deploy** (_Redeploy_).
+
 ## 6. Rollback
 
 - **Código:** na Vercel, _Deployments_ → escolher a implantação anterior estável →

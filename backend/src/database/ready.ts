@@ -1,3 +1,4 @@
+import { withSetupPhase } from '../errors/database-errors';
 import { connectDatabase } from './connection';
 import { seedDatabase } from './seed';
 
@@ -12,7 +13,7 @@ export function ensureDatabaseReady(): Promise<void> {
   if (!readiness) {
     readiness = (async () => {
       await connectDatabase();
-      await seedDatabase();
+      await withSetupPhase('carga-inicial', () => seedDatabase());
     })().catch((error: unknown) => {
       readiness = null;
       throw error;
