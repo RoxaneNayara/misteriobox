@@ -324,8 +324,9 @@ Como definir as senhas demonstrativas (configuração reproduzível):
    versionado.
 3. Inicie o backend e entre com o e-mail do usuário e a senha que você definiu.
 
-Se as variáveis ficarem vazias, o backend gera **senhas temporárias** a cada inicialização e as
-mostra no console do backend (linhas `[seed] ... Senha temporária de ...`). Uma senha definida
+Se uma variável ficar vazia, o usuário correspondente **não é criado**: nenhuma senha é gerada nem
+exibida no terminal, em logs ou em capturas de tela (o aviso `[seed]` cita só o nome da variável).
+Uma senha definida
 fora da política interrompe a inicialização com uma mensagem indicando a variável. Também é
 possível criar uma conta própria pela tela de cadastro.
 

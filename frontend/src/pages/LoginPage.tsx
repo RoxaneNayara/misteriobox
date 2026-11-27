@@ -5,6 +5,7 @@ import { AuthScene } from '../components/AuthScene';
 import { ErrorAlert } from '../components/Feedback';
 import { FormField } from '../components/FormField';
 import { useAuth } from '../context/auth-context';
+import { safeRedirectPath } from '../utils/redirect';
 
 interface LoginErrors {
   email?: string;
@@ -13,7 +14,6 @@ interface LoginErrors {
 
 interface LoginLocationState {
   from?: string;
-  loggedOut?: boolean;
 }
 
 function validateLogin(email: string, password: string): LoginErrors {
@@ -25,7 +25,7 @@ function validateLogin(email: string, password: string): LoginErrors {
 }
 
 export function LoginPage() {
-  const { login, sessionExpired } = useAuth();
+  const { login, sessionExpired, loggedOut } = useAuth();
   const navigate = useNavigate();
   const locationState = (useLocation().state ?? {}) as LoginLocationState;
 
@@ -45,7 +45,7 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       await login(email.trim(), password);
-      navigate(locationState.from ?? '/', { replace: true });
+      navigate(safeRedirectPath(locationState.from), { replace: true });
     } catch (error) {
       setSubmitError(getErrorMessage(error));
       setSubmitting(false);
@@ -65,7 +65,7 @@ export function LoginPage() {
           Identifique-se para acessar os arquivos confidenciais.
         </p>
 
-        {locationState.loggedOut && (
+        {loggedOut && (
           <p className="alert alert--info" data-testid="logout-message">
             Você saiu da plataforma. Suas investigações em andamento continuam salvas.
           </p>

@@ -7,6 +7,8 @@ export interface AuthContextValue {
   user: User | null;
   status: AuthStatus;
   sessionExpired: boolean;
+  /** Sessão encerrada pelo botão Sair (mensagem na tela de login). */
+  loggedOut: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;

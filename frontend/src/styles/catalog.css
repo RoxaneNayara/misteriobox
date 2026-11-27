@@ -369,9 +369,15 @@
   color: var(--color-paper);
 }
 
+/*
+ * Acompanha a largura do cabeçalho (o contêiner da página já define as margens). Um limite em
+ * `ch` deixava o texto em três linhas no desktop com metade da largura vazia; `text-wrap: pretty`
+ * evita palavra isolada na última linha.
+ */
 .case-archive__lead {
-  max-width: 68ch;
+  max-width: none;
   margin: 0;
+  text-wrap: pretty;
   font-size: 0.95rem;
   color: var(--color-text-muted);
 }

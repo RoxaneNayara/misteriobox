@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError, HttpErrors } from '../errors/app-error';
-import { isDuplicateKeyError } from '../errors/database-errors';
+import { env } from '../config/env';
+import { describeDatabaseError, isDuplicateKeyError } from '../errors/database-errors';
 import { sendError } from '../utils/http-response';
 
 function isJsonSyntaxError(error: unknown): boolean {
@@ -46,6 +47,14 @@ export function errorHandler(
     );
     return;
   }
-  console.error('[error]', error);
+  // Publicado (Vercel): só metadados seguros (tipo e código), pois mensagens de erro do banco
+  // podem conter valores enviados pelo jogador (por exemplo, o e-mail). Localmente, o erro
+  // completo ajuda na depuração.
+  if (env.deployed) {
+    const { name, code, codeName } = describeDatabaseError(error);
+    console.error('[error] Erro inesperado:', JSON.stringify({ name, code, codeName }));
+  } else {
+    console.error('[error]', error);
+  }
   sendError(response, new AppError(500, 'INTERNAL_ERROR', 'Erro interno do servidor.'));
 }
