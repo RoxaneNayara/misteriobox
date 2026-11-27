@@ -126,6 +126,9 @@ export interface InvestigationResult {
     evidence: EvidenceReference;
     accusedAt: string;
   } | null;
+  /** A solução só é enviada pela API quando a pontuação alcança `solutionRevealMinScore`. */
+  solutionRevealed: boolean;
+  solutionRevealMinScore: number;
   solution: {
     culprit: { id: string; name: string };
     decisiveEvidence: EvidenceReference;
