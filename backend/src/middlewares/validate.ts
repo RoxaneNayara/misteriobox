@@ -1,16 +1,16 @@
 import type { NextFunction, Request, Response } from 'express';
-import type { ZodError, ZodTypeAny } from 'zod';
+import type { ZodError, ZodType } from 'zod';
 import { HttpErrors } from '../errors/app-error';
 
 function toValidationDetails(error: ZodError): Array<{ field: string; message: string }> {
   return error.issues.map((issue) => ({
-    field: issue.path.join('.') || '(corpo)',
+    field: issue.path.map(String).join('.') || '(corpo)',
     message: issue.code === 'unrecognized_keys' ? 'Campo não permitido.' : issue.message,
   }));
 }
 
 /** Valida e normaliza o corpo da requisição. */
-export function validateBody(schema: ZodTypeAny) {
+export function validateBody(schema: ZodType) {
   return (request: Request, _response: Response, next: NextFunction): void => {
     const result = schema.safeParse(request.body ?? {});
     if (!result.success) {
@@ -26,7 +26,7 @@ export function validateBody(schema: ZodTypeAny) {
 }
 
 /** Valida os parâmetros de rota. */
-export function validateParams(schema: ZodTypeAny) {
+export function validateParams(schema: ZodType) {
   return (request: Request, _response: Response, next: NextFunction): void => {
     const result = schema.safeParse(request.params);
     if (!result.success) {

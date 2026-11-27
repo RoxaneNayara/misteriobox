@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { requiredString } from './required-string';
 import { BCRYPT_MAX_PASSWORD_BYTES, passwordByteLength } from '../services/password.service';
 
 /**
@@ -20,16 +21,14 @@ export const PASSWORD_BYTES_MESSAGE =
   `A senha deve ter no máximo ${BCRYPT_MAX_PASSWORD_BYTES} bytes. ` +
   'Letras acentuadas e símbolos ocupam mais de um byte.';
 
-const emailField = z
-  .string({ required_error: 'Informe o e-mail.' })
+const emailField = requiredString('Informe o e-mail.')
   .trim()
   .toLowerCase()
   .max(120, 'O e-mail deve ter no máximo 120 caracteres.')
   .email('Informe um e-mail válido.');
 
 /** Espaços externos são removidos (comportamento esperado, B03); os limites não mudam. */
-export const nameField = z
-  .string({ required_error: 'Informe o nome.' })
+export const nameField = requiredString('Informe o nome.')
   .trim()
   .min(2, 'O nome deve ter pelo menos 2 caracteres.')
   .max(80, 'O nome deve ter no máximo 80 caracteres.')
@@ -40,8 +39,7 @@ export const nameField = z
  * A senha nunca é alterada (sem trim). Além do limite de 72 caracteres, o
  * limite de 72 bytes impede o truncamento silencioso do bcrypt.
  */
-export const passwordField = z
-  .string({ required_error: 'Informe a senha.' })
+export const passwordField = requiredString('Informe a senha.')
   .min(8, 'A senha deve ter pelo menos 8 caracteres.')
   .max(72, 'A senha deve ter no máximo 72 caracteres.')
   .regex(/[A-Za-z]/, 'A senha deve conter pelo menos uma letra.')
@@ -62,6 +60,6 @@ export const registerSchema = z
 export const loginSchema = z
   .object({
     email: emailField,
-    password: z.string({ required_error: 'Informe a senha.' }).min(1, 'Informe a senha.'),
+    password: requiredString('Informe a senha.').min(1, 'Informe a senha.'),
   })
   .strict();
