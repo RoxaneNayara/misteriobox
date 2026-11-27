@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initialSession === 'valid' ? 'loading' : 'anonymous',
   );
   const [sessionExpired, setSessionExpired] = useState(initialSession === 'expired');
+  const [loggedOut, setLoggedOut] = useState(false);
 
   /** Remove a sessão local. Não afeta investigações: o progresso fica na API (RN06). */
   const clearSession = useCallback(() => {
@@ -38,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const expireSession = useCallback(() => {
+    setLoggedOut(false);
     setSessionExpired(true);
     clearSession();
   }, [clearSession]);
@@ -47,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(session.user);
     setStatus('authenticated');
     setSessionExpired(false);
+    setLoggedOut(false);
   }, []);
 
   // Restaura a sessão salva ao abrir o site — somente se ainda estiver dentro do prazo.
@@ -104,12 +107,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /** Logout não altera investigações: o progresso continua salvo na API (RN06). */
   const logout = useCallback(() => {
     setSessionExpired(false);
+    setLoggedOut(true);
     clearSession();
   }, [clearSession]);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, status, sessionExpired, login, register, logout }),
-    [user, status, sessionExpired, login, register, logout],
+    () => ({ user, status, sessionExpired, loggedOut, login, register, logout }),
+    [user, status, sessionExpired, loggedOut, login, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
