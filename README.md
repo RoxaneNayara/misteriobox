@@ -155,10 +155,15 @@ exibidos pelo React como texto (sem `innerHTML`).
 └──────────────────────────┘        JSON { data }          └──────────────┬───────────────┘
                                                                           │ Mongoose
                                                            ┌──────────────▼───────────────┐
-                                                           │ MongoDB Memory Server        │
-                                                           │ (iniciado pela própria API)  │
+                                                           │ Local/testes: MongoDB em     │
+                                                           │ memória (temporário)         │
+                                                           │ Production/Preview: MongoDB  │
+                                                           │ Atlas (persistente)          │
                                                            └──────────────────────────────┘
 ```
+
+O diagrama mostra o ambiente local. Em Production e Preview, o site e a API rodam na Vercel (a API
+como função serverless) e usam o MongoDB Atlas — ver [docs/implantacao.md](docs/implantacao.md).
 
 - **Monorepo com npm workspaces**: `backend/` e `frontend/` são projetos independentes, com scripts
   orquestrados pelo `package.json` da raiz.
@@ -394,8 +399,10 @@ _Implementação:_ `services/scoring.service.ts`.
 
 O progresso é salvo automaticamente no banco após cada ação confirmada pela API: missão iniciada,
 evidências analisadas, evidências desbloqueadas, dicas utilizadas e status da investigação. Após
-logout, fechamento do navegador ou novo login, o jogador retoma a missão enquanto os dados
-permanecerem no banco em memória. **Logout não é abandono.**
+logout, fechamento do navegador ou novo login, o jogador retoma a missão de onde parou.
+**Logout não é abandono.** A duração dos dados depende do banco (seção
+[14](#14-limitações-conhecidas)): em Production e Preview (MongoDB Atlas) ficam preservados entre
+deploys e reinicializações; no ambiente local padrão (MongoDB em memória) duram até a API reiniciar.
 _Implementação:_ `investigation.service.ts`, `investigation.repository.ts`.
 
 ### RN07 — Abandono voluntário da investigação
@@ -591,12 +598,20 @@ execuções.
 
 ## 14. Limitações conhecidas
 
-- **Sem `MONGODB_URI` (padrão local)**, os dados existem somente enquanto o backend estiver em
-  execução: ao reiniciar a API (inclusive quando o modo `dev` recarrega), cadastros, progresso e
-  histórico são perdidos. Com `MONGODB_URI` (MongoDB Atlas), os dados persistem entre
-  reinicializações — ver [docs/implantacao.md](docs/implantacao.md).
-- O salvamento automático e o **histórico de tentativas** sobrevivem a logout, fechamento do
-  navegador e novo login, **mas não são persistência permanente**.
+- **Persistência depende do ambiente:**
+
+  | Ambiente                                      | Banco                         | Duração dos dados                                                               |
+  | --------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------- |
+  | Production e Preview (Vercel)                 | MongoDB Atlas (`MONGODB_URI`) | Persistentes: preservados entre deploys, reinicializações, logout e novo login. |
+  | Local com `MONGODB_URI`                       | MongoDB indicado na URI       | Persistentes, como acima.                                                       |
+  | Local sem `MONGODB_URI` (padrão), testes e CI | MongoDB em memória            | Temporários: cadastros, progresso e histórico somem quando a API reinicia.      |
+
+  Production e Preview usam bancos separados (ver
+  [docs/implantacao.md](docs/implantacao.md#32-isolamento-de-dados-entre-preview-e-production)).
+  Em qualquer ambiente, o salvamento automático e o histórico sobrevivem a logout, fechamento do
+  navegador e novo login. Não há backup automático no plano gratuito do Atlas (ver
+  [Rollback](docs/implantacao.md#6-rollback)).
+
 - Sem `JWT_SECRET` definido (padrão local), um token salvo no navegador deixa de valer quando a API
   reinicia. Em produção o segredo é obrigatório e fixo.
 - A primeira execução precisa de internet para baixar o binário do MongoDB.
@@ -631,5 +646,6 @@ Web, arquitetura de APIs REST, qualidade de software e testes. É um projeto **e
 - todas as histórias, personagens, nomes e empresas são **fictícios**; qualquer semelhança é mera
   coincidência;
 - os usuários e credenciais de demonstração existem apenas para uso local;
-- não há garantia de funcionamento em produção, suporte ou persistência de dados;
+- não há garantia de disponibilidade, suporte ou backup dos dados (o plano gratuito do Atlas não
+  oferece backups automáticos);
 - contribuições e sugestões são bem-vindas por meio de _issues_ e _pull requests_.
