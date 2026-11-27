@@ -68,6 +68,9 @@ jobs:
       - name: Verificação de tipos dos testes de ponta a ponta
         run: npm run typecheck:e2e
 
+      - name: Verificação de tipos da função da Vercel (api/)
+        run: npm run typecheck:api
+
       - name: Instalar navegador do Playwright (Chromium)
         run: npx playwright install --with-deps chromium
 

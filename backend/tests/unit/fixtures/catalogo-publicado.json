@@ -1,0 +1,201 @@
+{
+  "missao-001": {
+    "suspects": ["helena-duarte", "ricardo-valenca", "clara-monteiro"],
+    "evidences": {
+      "ev-01": [],
+      "ev-02": [],
+      "ev-03": [],
+      "ev-04": ["ev-01"],
+      "ev-05": ["ev-04"]
+    },
+    "hints": ["dica-1", "dica-2"],
+    "culprit": "clara-monteiro",
+    "decisiveEvidence": "ev-04"
+  },
+  "missao-002": {
+    "suspects": ["vitor-salgado", "lucia-prado", "bernardo-kaiser", "joana-ferraz"],
+    "evidences": {
+      "ev-01": [],
+      "ev-02": [],
+      "ev-03": ["ev-02"],
+      "ev-04": ["ev-03"],
+      "ev-05": ["ev-01"],
+      "ev-06": [],
+      "ev-07": ["ev-05"],
+      "ev-08": ["ev-06"]
+    },
+    "hints": ["dica-1", "dica-2", "dica-3"],
+    "culprit": "vitor-salgado",
+    "decisiveEvidence": "ev-07"
+  },
+  "missao-003": {
+    "suspects": [
+      "beatriz-albuquerque",
+      "henrique-albuquerque",
+      "marta-albuquerque",
+      "augusto-paiva",
+      "rosa-matos"
+    ],
+    "evidences": {
+      "ev-01": [],
+      "ev-02": [],
+      "ev-03": [],
+      "ev-04": ["ev-03"],
+      "ev-05": ["ev-04"],
+      "ev-06": ["ev-07", "ev-08"],
+      "ev-07": [],
+      "ev-08": ["ev-02"],
+      "ev-09": ["ev-08"],
+      "ev-10": ["ev-01"],
+      "ev-11": ["ev-09"],
+      "ev-12": ["ev-10"]
+    },
+    "hints": ["dica-1", "dica-2", "dica-3"],
+    "culprit": "beatriz-albuquerque",
+    "decisiveEvidence": "ev-06"
+  },
+  "missao-004": {
+    "suspects": ["gloria-viana", "fernando-rocha", "tiago-nunes"],
+    "evidences": {
+      "ev-01": [],
+      "ev-02": [],
+      "ev-03": [],
+      "ev-04": ["ev-01"],
+      "ev-05": ["ev-04"]
+    },
+    "hints": ["dica-1", "dica-2"],
+    "culprit": "tiago-nunes",
+    "decisiveEvidence": "ev-05"
+  },
+  "missao-005": {
+    "suspects": ["paulo-rangel", "denise-couto", "marcio-teles", "rogerio-lessa"],
+    "evidences": {
+      "ev-01": [],
+      "ev-02": [],
+      "ev-03": [],
+      "ev-04": ["ev-02"],
+      "ev-05": ["ev-04"],
+      "ev-06": ["ev-01"]
+    },
+    "hints": ["dica-1", "dica-2"],
+    "culprit": "denise-couto",
+    "decisiveEvidence": "ev-04"
+  },
+  "missao-006": {
+    "suspects": ["arnaldo-solano", "vera-lins", "caio-mendes", "julia-neves"],
+    "evidences": {
+      "ev-01": [],
+      "ev-02": [],
+      "ev-03": ["ev-02"],
+      "ev-04": ["ev-03"],
+      "ev-05": ["ev-01"],
+      "ev-06": ["ev-05"],
+      "ev-07": [],
+      "ev-08": ["ev-04"]
+    },
+    "hints": ["dica-1", "dica-2", "dica-3"],
+    "culprit": "julia-neves",
+    "decisiveEvidence": "ev-06"
+  },
+  "missao-007": {
+    "suspects": [
+      "otto-bergamo",
+      "silvia-kern",
+      "daniela-freitas",
+      "renato-reis",
+      "marcelo-antunes"
+    ],
+    "evidences": {
+      "ev-01": [],
+      "ev-02": [],
+      "ev-03": ["ev-01"],
+      "ev-04": ["ev-03"],
+      "ev-05": ["ev-03"],
+      "ev-06": [],
+      "ev-07": ["ev-05"],
+      "ev-08": [],
+      "ev-09": ["ev-03"]
+    },
+    "hints": ["dica-1", "dica-2"],
+    "culprit": "renato-reis",
+    "decisiveEvidence": "ev-05"
+  },
+  "missao-008": {
+    "suspects": ["igor-sa", "paula-mendonca", "leandro-faria", "hugo-carvalho", "tania-oliveira"],
+    "evidences": {
+      "ev-01": [],
+      "ev-02": [],
+      "ev-03": ["ev-02"],
+      "ev-04": ["ev-02"],
+      "ev-05": ["ev-01"],
+      "ev-06": ["ev-05"],
+      "ev-07": ["ev-03", "ev-06"],
+      "ev-08": ["ev-03", "ev-07"],
+      "ev-09": ["ev-06"],
+      "ev-10": [],
+      "ev-11": ["ev-08"],
+      "ev-12": ["ev-06"],
+      "ev-13": []
+    },
+    "hints": ["dica-1", "dica-2", "dica-3"],
+    "culprit": "leandro-faria",
+    "decisiveEvidence": "ev-08"
+  },
+  "missao-009": {
+    "suspects": [
+      "marcio-amaral",
+      "regina-amaral",
+      "fausto-lemos",
+      "neide-prates",
+      "jorge-moura",
+      "lauro-fontes"
+    ],
+    "evidences": {
+      "ev-01": [],
+      "ev-02": [],
+      "ev-03": [],
+      "ev-04": ["ev-01", "ev-03"],
+      "ev-05": ["ev-04"],
+      "ev-06": ["ev-05", "ev-09"],
+      "ev-07": [],
+      "ev-08": ["ev-01"],
+      "ev-09": ["ev-03"],
+      "ev-10": ["ev-08"],
+      "ev-11": ["ev-08"],
+      "ev-12": ["ev-10"]
+    },
+    "hints": ["dica-1", "dica-2", "dica-3", "dica-4"],
+    "culprit": "jorge-moura",
+    "decisiveEvidence": "ev-06"
+  },
+  "missao-010": {
+    "suspects": [
+      "wellington-dias",
+      "fabio-lacerda",
+      "ines-correa",
+      "aurelio-nogueira",
+      "rita-saldanha",
+      "nilton-arruda"
+    ],
+    "evidences": {
+      "ev-01": [],
+      "ev-02": [],
+      "ev-03": ["ev-02"],
+      "ev-04": ["ev-02"],
+      "ev-05": ["ev-01"],
+      "ev-06": ["ev-05"],
+      "ev-07": ["ev-04", "ev-06"],
+      "ev-08": ["ev-03"],
+      "ev-09": ["ev-06"],
+      "ev-10": ["ev-07"],
+      "ev-11": [],
+      "ev-12": ["ev-07"],
+      "ev-13": ["ev-05"],
+      "ev-14": ["ev-03", "ev-11"],
+      "ev-15": []
+    },
+    "hints": ["dica-1", "dica-2", "dica-3"],
+    "culprit": "ines-correa",
+    "decisiveEvidence": "ev-07"
+  }
+}

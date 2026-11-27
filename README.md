@@ -141,7 +141,7 @@ exibidos pelo React como texto (sem `innerHTML`).
 | -------------- | --------------------------------------------------------------- |
 | Frontend       | React 18, TypeScript, Vite 6, React Router 6, CSS responsivo    |
 | Backend        | Node.js, Express 5, TypeScript, Zod (validação), JWT, bcryptjs  |
-| Banco de dados | MongoDB Memory Server + Mongoose                                |
+| Banco de dados | Mongoose + MongoDB Atlas (produção) ou Memory Server (local)    |
 | Documentação   | OpenAPI 3 (`docs/openapi.yaml`) + Swagger UI                    |
 | Qualidade      | ESLint 9 (typescript-eslint, react-hooks, jsx-a11y), Prettier 3 |
 | CI             | GitHub Actions                                                  |
@@ -287,12 +287,15 @@ O frontend chama `/api`, e o Vite encaminha essas chamadas para `http://localhos
 
 Não há passo manual. Ao iniciar, o backend:
 
-1. sobe uma instância do MongoDB em memória;
+1. conecta ao banco persistente definido em `MONGODB_URI` ou, sem ela, sobe uma instância do
+   MongoDB em memória (padrão local e dos testes);
 2. valida a integridade do catálogo (10 missões na distribuição 3/3/4, ids únicos, referências,
    ausência de dependências circulares, evidência decisiva alcançável e estrutura por dificuldade);
-3. grava as dez missões e os três usuários demonstrativos (senhas com hash bcrypt).
+3. grava as dez missões de forma idempotente (insere as que faltam e atualiza as existentes, sem
+   apagar nada) e, somente fora de produção, os três usuários demonstrativos (senhas com hash bcrypt).
 
-Para voltar ao estado inicial, basta reiniciar o backend.
+Com o banco em memória, para voltar ao estado inicial basta reiniciar o backend. Para publicar com
+banco persistente, veja o [guia de implantação](docs/implantacao.md).
 
 > Usuários de uso **exclusivamente local**. São dados fictícios de demonstração, com e-mails do
 > domínio reservado `example.com`. **Nenhuma senha fica no código ou neste README.**
@@ -468,7 +471,8 @@ misteriobox/
 │   │   ├── config/          # variáveis de ambiente e caminhos
 │   │   ├── controllers/     # camada HTTP (sem regra de negócio)
 │   │   ├── database/
-│   │   │   ├── connection.ts        # MongoDB Memory Server
+│   │   │   ├── connection.ts        # MongoDB persistente (MONGODB_URI) ou em memória
+│   │   │   ├── ready.ts             # preparação única por instância (Vercel)
 │   │   │   └── seed/                # usuários, missões e validação de integridade
 │   │   ├── errors/          # AppError, códigos de erro e erros do banco
 │   │   ├── mappers/         # conversão de documentos em respostas (oculta segredos)
@@ -587,18 +591,21 @@ execuções.
 
 ## 14. Limitações conhecidas
 
-- Os dados existem **somente enquanto o backend estiver em execução**. Ao reiniciar a API (inclusive
-  quando o modo `dev` recarrega após uma alteração de código), cadastros, progresso e histórico são
-  perdidos e os dados demonstrativos são recriados.
+- **Sem `MONGODB_URI` (padrão local)**, os dados existem somente enquanto o backend estiver em
+  execução: ao reiniciar a API (inclusive quando o modo `dev` recarrega), cadastros, progresso e
+  histórico são perdidos. Com `MONGODB_URI` (MongoDB Atlas), os dados persistem entre
+  reinicializações — ver [docs/implantacao.md](docs/implantacao.md).
 - O salvamento automático e o **histórico de tentativas** sobrevivem a logout, fechamento do
   navegador e novo login, **mas não são persistência permanente**.
-- Após reiniciar a API, um token salvo no navegador deixa de ser válido e o site pede novo login.
+- Sem `JWT_SECRET` definido (padrão local), um token salvo no navegador deixa de valer quando a API
+  reinicia. Em produção o segredo é obrigatório e fixo.
 - A primeira execução precisa de internet para baixar o binário do MongoDB.
 - Os testes automatizados cobrem validações do cadastro, segurança de entrada, sessão e o menu da
   investigação; os demais fluxos ainda são verificados manualmente.
 - Logout sem revogação no servidor: um token copiado antes do logout vale até expirar (no máximo
   30 min sem renovação).
-- A aplicação não está hospedada: é executada apenas localmente.
+- A aplicação está preparada para a Vercel (`vercel.json`, `api/index.ts`), mas ainda não foi
+  publicada; a publicação depende da configuração descrita em [docs/implantacao.md](docs/implantacao.md).
 
 ### Preparação para testes (QA)
 
