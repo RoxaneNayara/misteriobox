@@ -92,16 +92,16 @@ repetida periodicamente.
 
 ## Limitações conhecidas
 
-| Limitação                                                                   | Impacto                                                                     |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Acesso de rede do Atlas liberado para qualquer IP (`0.0.0.0/0`)             | Proteção depende das credenciais do usuário do banco e do TLS               |
-| Logout sem revogação do token no servidor                                   | Um token copiado vale até expirar (no máximo 30 min sem renovação)          |
-| Sem limite de tentativas de login ou cadastro                               | Tentativas repetidas de senha não são bloqueadas                            |
-| Cadastro informa quando um e-mail já existe (`409`)                         | Permite descobrir se um e-mail tem conta                                    |
-| `403` para investigação existente de outro jogador e `404` para inexistente | Permite inferir que um identificador existe (nenhum dado é exposto)         |
-| Sem exclusão de conta pelo jogador nem política de retenção automatizada    | A exclusão depende de ação manual no banco                                  |
-| Token guardado em `localStorage`                                            | Um script malicioso na página poderia lê-lo; não há Content Security Policy |
-| Plano gratuito do Atlas sem backup automático                               | Perda de dados em incidente                                                 |
+| Limitação                                                                   | Impacto                                                                                                        |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Acesso de rede do Atlas liberado para qualquer IP (`0.0.0.0/0`)             | Proteção depende das credenciais do usuário do banco e do TLS; risco aceito em 27/11/2026, para revisão futura |
+| Logout sem revogação do token no servidor                                   | Um token copiado vale até expirar (no máximo 30 min sem renovação)                                             |
+| Sem limite de tentativas de login ou cadastro                               | Tentativas repetidas de senha não são bloqueadas                                                               |
+| Cadastro informa quando um e-mail já existe (`409`)                         | Permite descobrir se um e-mail tem conta                                                                       |
+| `403` para investigação existente de outro jogador e `404` para inexistente | Permite inferir que um identificador existe (nenhum dado é exposto)                                            |
+| Sem exclusão de conta pelo jogador nem política de retenção automatizada    | A exclusão depende de ação manual no banco                                                                     |
+| Token guardado em `localStorage`                                            | Um script malicioso na página poderia lê-lo; não há Content Security Policy                                    |
+| Plano gratuito do Atlas sem backup automático                               | Perda de dados em incidente                                                                                    |
 
 ## Melhorias planejadas
 
