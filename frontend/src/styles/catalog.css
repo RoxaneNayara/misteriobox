@@ -415,3 +415,178 @@
     font-size: 1.6rem;
   }
 }
+
+/* ---------- Setores do arquivo (Entrega 2) ---------- */
+
+.case-sectors {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 3.5rem);
+}
+
+.case-sector__header {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'code count'
+    'title count'
+    'description description';
+  align-items: end;
+  gap: 0.2rem 1.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0.9rem 0 0.9rem 1.1rem;
+  border-left: 3px solid var(--color-gold-deep);
+  background: linear-gradient(90deg, rgba(201, 165, 74, 0.08), transparent 70%);
+}
+
+.case-sector--medio .case-sector__header {
+  border-left-color: var(--color-gold);
+}
+
+.case-sector--dificil .case-sector__header {
+  border-left-color: var(--color-gold-bright);
+  background: linear-gradient(90deg, rgba(230, 200, 115, 0.12), transparent 75%);
+}
+
+.case-sector__code {
+  grid-area: code;
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.case-sector__title {
+  grid-area: title;
+  margin: 0;
+  font-size: clamp(1.3rem, 2.6vw, 1.65rem);
+  color: var(--color-paper);
+}
+
+.case-sector__description {
+  grid-area: description;
+  max-width: 62ch;
+  margin: 0.25rem 0 0;
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+}
+
+.case-sector__count {
+  grid-area: count;
+  align-self: center;
+  margin: 0;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-gold-bright);
+}
+
+/* Os quatro dossiês difíceis ficam em 2 × 2 (ou 1 coluna em telas estreitas), sem sobrar um sozinho. */
+.case-sector--dificil .mission-grid {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(100%, max(330px, calc((100% - 1.75rem) / 2))), 1fr)
+  );
+}
+
+@media (max-width: 479px) {
+  .case-sector__header {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'code'
+      'title'
+      'description'
+      'count';
+  }
+
+  .case-sector__count {
+    justify-self: start;
+    margin-top: 0.5rem;
+  }
+}
+
+/* ---------- Divisões especializadas — Em breve ---------- */
+
+.upcoming-divisions {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: rgba(8, 7, 6, 0.55);
+}
+
+.upcoming-divisions__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.upcoming-divisions__title {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.4vw, 1.45rem);
+  color: var(--color-paper-shade);
+}
+
+.upcoming-divisions__badge {
+  padding: 0.2rem 0.65rem;
+  border: 1px solid var(--color-gold-deep);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.upcoming-divisions__lead {
+  margin: 0.5rem 0 1.25rem;
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+}
+
+.upcoming-divisions__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.upcoming-division {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.35rem 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  opacity: 0.85;
+}
+
+.upcoming-division__icon {
+  margin-top: 0.15rem;
+  font-size: 1.25rem;
+  color: var(--color-gold-deep);
+}
+
+.upcoming-division__name {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--color-paper-shade);
+}
+
+.upcoming-division__description {
+  margin: 0.2rem 0 0;
+  font-size: 0.86rem;
+  color: var(--color-text-muted);
+}

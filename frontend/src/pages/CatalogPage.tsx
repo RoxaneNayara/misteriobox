@@ -5,12 +5,59 @@ import { investigationsApi } from '../api/investigations.api';
 import { missionsApi } from '../api/missions.api';
 import { DifficultyBadge, StatusBadge } from '../components/Badges';
 import { ErrorAlert, LoadingState } from '../components/Feedback';
-import { DocumentIcon, LightbulbIcon, UsersIcon } from '../components/Icons';
+import { DocumentIcon, LightbulbIcon, LockIcon, UsersIcon } from '../components/Icons';
 import { MissionCover } from '../components/MissionCover';
 import { useAuth } from '../context/auth-context';
-import type { InvestigationHistoryItem, MissionCatalogItem } from '../types/api';
+import type { Difficulty, InvestigationHistoryItem, MissionCatalogItem } from '../types/api';
 import { computeDetectiveStats } from '../utils/detective-stats';
 import { formatCaseNumber, initialOf } from '../utils/labels';
+
+/** Setores da agência: cada dificuldade tem a sua sala no arquivo. */
+const CASE_SECTORS: ReadonlyArray<{
+  difficulty: Difficulty;
+  code: string;
+  title: string;
+  description: string;
+}> = [
+  {
+    difficulty: 'FACIL',
+    code: 'Setor 01',
+    title: 'Investigações iniciais',
+    description: 'Casos de entrada: poucas pistas cruzadas e um caminho claro até a verdade.',
+  },
+  {
+    difficulty: 'MEDIO',
+    code: 'Setor 02',
+    title: 'Investigações especiais',
+    description: 'Falsas pistas e versões em conflito. Confronte depoimentos antes de acusar.',
+  },
+  {
+    difficulty: 'DIFICIL',
+    code: 'Setor 03',
+    title: 'Investigações de alta complexidade',
+    description:
+      'Várias hipóteses plausíveis, cronologias a reconstruir e provas que só fazem sentido juntas.',
+  },
+];
+
+/** Divisões apresentadas apenas como novidade futura (sem páginas nem acesso). */
+const UPCOMING_DIVISIONS = [
+  {
+    id: 'arquivo-morto',
+    name: 'Arquivo Morto',
+    description: 'Casos antigos que nunca foram encerrados.',
+  },
+  {
+    id: 'crimes-ciberneticos',
+    name: 'Crimes Cibernéticos',
+    description: 'Rastros digitais, invasões e identidades falsas.',
+  },
+  {
+    id: 'homicidios',
+    name: 'Homicídios',
+    description: 'Investigações de alto risco para detetives experientes.',
+  },
+] as const;
 
 function hasActiveAttempt(mission: MissionCatalogItem): boolean {
   return mission.investigation?.status === 'EM_ANDAMENTO';
@@ -59,13 +106,13 @@ function MissionCard({ mission, index, isStarting, disabled, onAction }: Mission
 
       <div className="mission-card__body">
         <p className="mission-card__theme">{mission.theme}</p>
-        <h2
+        <h4
           id={`mission-title-${mission.id}`}
           className="mission-card__title"
           data-testid={`mission-title-${mission.id}`}
         >
           {mission.title}
-        </h2>
+        </h4>
         <p
           id={synopsisId}
           className={`mission-card__synopsis ${synopsisExpanded ? 'is-expanded' : ''}`}
@@ -237,8 +284,9 @@ export function CatalogPage() {
             Arquivo central de casos
           </h2>
           <p className="case-archive__lead">
-            Escolha um dossiê. Casos encerrados podem ser investigados novamente; as tentativas
-            anteriores continuam no seu histórico.
+            Os dossiês estão organizados por setor, conforme a complexidade da investigação. Casos
+            encerrados podem ser investigados novamente; as tentativas anteriores continuam no seu
+            histórico.
           </p>
         </header>
 
@@ -249,20 +297,82 @@ export function CatalogPage() {
         {!missions && !loadError && <LoadingState message="Abrindo o arquivo de casos..." />}
 
         {missions && (
-          <ul className="mission-grid" data-testid="mission-list">
-            {missions.map((mission, index) => (
-              <li key={mission.id}>
-                <MissionCard
-                  mission={mission}
-                  index={index}
-                  isStarting={startingMissionId === mission.id}
-                  disabled={startingMissionId !== null}
-                  onAction={handleAction}
-                />
-              </li>
-            ))}
-          </ul>
+          <div className="case-sectors" data-testid="mission-list">
+            {CASE_SECTORS.map((sector) => {
+              const sectorMissions = missions.filter(
+                (mission) => mission.difficulty === sector.difficulty,
+              );
+              if (sectorMissions.length === 0) return null;
+              const titleId = `sector-title-${sector.difficulty.toLowerCase()}`;
+              return (
+                <section
+                  key={sector.difficulty}
+                  className={`case-sector case-sector--${sector.difficulty.toLowerCase()}`}
+                  aria-labelledby={titleId}
+                  data-testid={`case-sector-${sector.difficulty}`}
+                >
+                  <header className="case-sector__header">
+                    <p className="case-sector__code">{sector.code}</p>
+                    <h3 id={titleId} className="case-sector__title">
+                      {sector.title}
+                    </h3>
+                    <p className="case-sector__description">{sector.description}</p>
+                    <p
+                      className="case-sector__count"
+                      data-testid={`case-sector-count-${sector.difficulty}`}
+                    >
+                      {sectorMissions.length} {sectorMissions.length === 1 ? 'dossiê' : 'dossiês'}
+                    </p>
+                  </header>
+                  <ul className="mission-grid">
+                    {sectorMissions.map((mission, index) => (
+                      <li key={mission.id}>
+                        <MissionCard
+                          mission={mission}
+                          index={index}
+                          isStarting={startingMissionId === mission.id}
+                          disabled={startingMissionId !== null}
+                          onAction={handleAction}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              );
+            })}
+          </div>
         )}
+      </section>
+
+      <section
+        className="upcoming-divisions"
+        aria-labelledby="upcoming-divisions-title"
+        data-testid="upcoming-divisions"
+      >
+        <header className="upcoming-divisions__header">
+          <h2 id="upcoming-divisions-title" className="upcoming-divisions__title">
+            Divisões especializadas
+          </h2>
+          <span className="upcoming-divisions__badge">Em breve</span>
+        </header>
+        <p className="upcoming-divisions__lead">
+          Novas salas da agência estão sendo preparadas para casos ainda mais exigentes.
+        </p>
+        <ul className="upcoming-divisions__list">
+          {UPCOMING_DIVISIONS.map((division) => (
+            <li
+              key={division.id}
+              className="upcoming-division"
+              data-testid={`upcoming-division-${division.id}`}
+            >
+              <LockIcon className="upcoming-division__icon" />
+              <div>
+                <h3 className="upcoming-division__name">{division.name}</h3>
+                <p className="upcoming-division__description">{division.description}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );
