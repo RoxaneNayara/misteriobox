@@ -9,15 +9,16 @@ import { createPlayer, restoreSession, type TestPlayer } from './support/api';
 const TOAST_MS = 4_000;
 const toast = (page: Page) => page.getByTestId('investigation-feedback-message');
 
-/** Inicia a missão 001 (5 evidências; ev-01, ev-02 e ev-03 livres desde o início). */
+/** Inicia uma missão (padrão: 001, com ev-01, ev-02 e ev-03 livres desde o início). */
 async function openFreshInvestigation(
   page: Page,
   player: TestPlayer,
   viewport = { width: 1280, height: 800 },
+  missionId = 'missao-001',
 ) {
   const started = await page.request.post('/api/investigations', {
     headers: { Authorization: `Bearer ${player.token}` },
-    data: { missionId: 'missao-001' },
+    data: { missionId },
   });
   expect(started.status()).toBe(201);
   const { data } = await started.json();
@@ -245,5 +246,37 @@ test.describe('Notificações da investigação', () => {
     await page.reload();
     await expect(page.getByTestId('investigation-progress')).toContainText('1 de 5');
     await expect(page.getByTestId('evidence-state-ev-01')).toContainText(/analisada/i);
+  });
+  test('caso relatado no reteste (missão 005): a mensagem some e não bloqueia a investigação', async ({
+    page,
+    request,
+  }) => {
+    const player = await createPlayer(request);
+    await openFreshInvestigation(page, player, { width: 390, height: 844 }, 'missao-005');
+
+    await page.getByTestId('evidence-analyze-ev-01').click();
+    await expect(toast(page)).toHaveText(
+      'Evidência "Planilha de notas do júri" analisada. Progresso salvo.',
+    );
+
+    // Com a mensagem visível, a investigação continua utilizável: outra evidência,
+    // a troca de seção e a dica respondem normalmente.
+    await page.getByTestId('evidence-analyze-ev-02').click();
+    await expect(page.getByTestId('evidence-state-ev-02')).toContainText(/analisada/i);
+    await page.getByTestId('case-nav-secao-dicas').click();
+    await page.getByTestId('hint-request').click();
+    await page.getByTestId('hint-dialog-confirm').click();
+    await expect(toast(page)).toHaveText('Nova dica revelada. Progresso salvo.');
+    await expect(toast(page)).toHaveCount(1);
+
+    // A faixa da região fora do cartão não intercepta cliques.
+    const blocksOutsideCard = await page.evaluate(() => {
+      const region = document.querySelector('[data-testid="investigation-feedback"]')!;
+      return getComputedStyle(region).pointerEvents !== 'none';
+    });
+    expect(blocksOutsideCard).toBe(false);
+
+    await page.clock.runFor(TOAST_MS + 100);
+    await expect(toast(page)).toHaveCount(0);
   });
 });
