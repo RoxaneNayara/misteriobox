@@ -20,8 +20,10 @@ export function AppLayout() {
   }, [pathname]);
 
   const handleLogout = () => {
+    // A mensagem de saída vem do contexto de autenticação (não do estado da navegação), para não
+    // depender de qual redirecionamento é aplicado primeiro.
     logout();
-    navigate('/login', { replace: true, state: { loggedOut: true } });
+    navigate('/login', { replace: true });
   };
 
   return (
