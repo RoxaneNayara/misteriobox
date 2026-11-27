@@ -1,8 +1,8 @@
 import { z } from 'zod';
+import { requiredString } from './required-string';
 
 const identifier = (fieldLabel: string) =>
-  z
-    .string({ required_error: `Informe ${fieldLabel}.` })
+  requiredString(`Informe ${fieldLabel}.`)
     .trim()
     .min(1, `Informe ${fieldLabel}.`)
     .max(64, `${fieldLabel} inválido.`);
