@@ -3,7 +3,7 @@
  *
  * Nenhuma senha fica no código: cada senha é lida da variável de ambiente
  * indicada em `passwordEnvVar` (ver `backend/.env.example`). Se a variável não
- * estiver definida, uma senha temporária é gerada a cada inicialização.
+ * estiver definida, o usuário não é criado (nenhuma senha é gerada nem exibida).
  * As senhas são convertidas em hash bcrypt antes de serem gravadas.
  */
 export const DEMO_USERS = [

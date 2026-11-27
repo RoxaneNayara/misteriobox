@@ -1,4 +1,3 @@
-import { randomBytes } from 'node:crypto';
 import { readOptionalString } from '../../config/env';
 import { passwordField } from '../../validators/auth.validator';
 
@@ -7,18 +6,14 @@ interface DemoPasswordSource {
   passwordEnvVar: string;
 }
 
-/** Senha temporária que respeita a política de senha (letras e números). */
-function generateTemporaryPassword(): string {
-  return `Demo-${randomBytes(6).toString('hex')}7`;
-}
-
 /**
- * Obtém a senha de um usuário demonstrativo a partir do ambiente.
+ * Obtém a senha de um usuário demonstrativo a partir do ambiente (somente uso local).
  * - Variável definida e válida: usa o valor (configuração reproduzível).
  * - Variável definida e inválida: interrompe a inicialização com mensagem clara.
- * - Variável ausente: gera uma senha temporária e a exibe apenas no console local.
+ * - Variável ausente: o usuário não é criado. Nenhuma senha é gerada nem exibida em logs,
+ *   terminais ou capturas de tela; o aviso cita apenas o nome da variável.
  */
-export function resolveDemoPassword({ email, passwordEnvVar }: DemoPasswordSource): string {
+export function resolveDemoPassword({ email, passwordEnvVar }: DemoPasswordSource): string | null {
   const configuredPassword = readOptionalString(passwordEnvVar);
   if (configuredPassword) {
     const validation = passwordField.safeParse(configuredPassword);
@@ -29,10 +24,9 @@ export function resolveDemoPassword({ email, passwordEnvVar }: DemoPasswordSourc
     }
     return configuredPassword;
   }
-  const temporaryPassword = generateTemporaryPassword();
   console.warn(
-    `[seed] ${passwordEnvVar} não definida. Senha temporária de ${email} ` +
-      `(válida até a API reiniciar): ${temporaryPassword}`,
+    `[seed] ${passwordEnvVar} não definida: usuário demonstrativo ${email} não criado. ` +
+      'Defina a senha em backend/.env para usá-lo.',
   );
-  return temporaryPassword;
+  return null;
 }

@@ -36,10 +36,12 @@ async function seedDemoUsers(): Promise<void> {
   let created = 0;
   for (const demoUser of DEMO_USERS) {
     if (await userRepository.existsByEmail(demoUser.email)) continue;
+    const password = resolveDemoPassword(demoUser);
+    if (password === null) continue;
     await userRepository.create({
       name: demoUser.name,
       email: demoUser.email,
-      passwordHash: await passwordService.hash(resolveDemoPassword(demoUser)),
+      passwordHash: await passwordService.hash(password),
     });
     created += 1;
   }
