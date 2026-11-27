@@ -105,8 +105,8 @@
   list-style: none;
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity;
-  scroll-padding-inline: 1.5rem;
+  /* Sem scroll-snap: o encaixe desfazia a rolagem que revela a opção focada. */
+  scroll-padding-inline: 2.5rem;
   scrollbar-width: none;
   border-radius: inherit;
 }
@@ -117,7 +117,6 @@
 
 .case-nav li {
   flex: 0 0 auto;
-  scroll-snap-align: start;
 }
 
 .case-nav li:first-child {
@@ -130,21 +129,15 @@
 
 /* Indicadores de continuação: esmaecem a borda onde há opções escondidas. */
 .case-nav--more-end ul {
-  mask-image: linear-gradient(90deg, #000 calc(100% - 2.5rem), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 2rem), transparent);
 }
 
 .case-nav--more-start ul {
-  mask-image: linear-gradient(90deg, transparent, #000 2.5rem);
+  mask-image: linear-gradient(90deg, transparent, #000 2rem);
 }
 
 .case-nav--more-start.case-nav--more-end ul {
-  mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 2.5rem,
-    #000 calc(100% - 2.5rem),
-    transparent
-  );
+  mask-image: linear-gradient(90deg, transparent, #000 2rem, #000 calc(100% - 2rem), transparent);
 }
 
 .case-nav a:focus-visible {

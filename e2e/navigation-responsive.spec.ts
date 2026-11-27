@@ -52,14 +52,22 @@ function navReport(page: Page) {
   });
 }
 
+/**
+ * A opção está inteira à vista: dentro da faixa do menu, dentro da tela e fora da área
+ * esmaecida das bordas (2rem) quando há mais opções naquele lado.
+ */
 function fullyVisibleInMenu(page: Page, selector: string): Promise<boolean> {
   return page.evaluate((linkSelector) => {
-    const list = document.querySelector('[data-testid="case-nav"] ul')!.getBoundingClientRect();
+    const nav = document.querySelector('[data-testid="case-nav"]')!;
+    const list = nav.querySelector('ul')!.getBoundingClientRect();
     const link = document.querySelector(linkSelector)?.getBoundingClientRect();
+    if (!link) return false;
+    const fade = parseFloat(getComputedStyle(document.documentElement).fontSize) * 2;
+    const left = list.left + (nav.classList.contains('case-nav--more-start') ? fade : 0);
+    const right = list.right - (nav.classList.contains('case-nav--more-end') ? fade : 0);
     return (
-      !!link &&
-      link.left >= list.left - 1 &&
-      link.right <= list.right + 1 &&
+      link.left >= left - 1 &&
+      link.right <= right + 1 &&
       link.left >= 0 &&
       link.right <= window.innerWidth
     );
@@ -126,38 +134,50 @@ test.describe('Menu da investigação', () => {
     });
   }
 
-  test('é navegável pelo teclado: cada opção focada fica inteira à vista', async ({
-    page,
-    request,
-  }) => {
-    const player = await createPlayer(request);
-    const investigationId = await startInvestigation(request, player, 'missao-003');
-    await restoreSession(page, player);
-    await page.setViewportSize({ width: 320, height: 844 });
-    await page.goto(`/investigacoes/${investigationId}`);
-    await expect(page.getByTestId('case-nav')).toBeVisible();
+  // Inclui larguras em que a opção seguinte ficava poucos pixels além da borda (falha do CI).
+  for (const width of [300, 320, 345, 375, 390, 415, 430]) {
+    test(`é navegável pelo teclado em ${width}px: cada opção focada fica inteira à vista`, async ({
+      page,
+      request,
+    }) => {
+      const player = await createPlayer(request);
+      const investigationId = await startInvestigation(request, player, 'missao-003');
+      await restoreSession(page, player);
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto(`/investigacoes/${investigationId}`);
+      await expect(page.getByTestId('case-nav')).toBeVisible();
 
-    await page.getByTestId('case-nav-secao-caso').focus();
-    const ids = [
-      'secao-caso',
-      'secao-suspeitos',
-      'secao-evidencias',
-      'secao-dicas',
-      'secao-acusacao',
-    ];
-    for (const [index, id] of ids.entries()) {
-      if (index > 0) await page.keyboard.press('Tab');
-      await expect(page.getByTestId(`case-nav-${id}`)).toBeFocused();
-      await expect
-        .poll(() => fullyVisibleInMenu(page, `[data-testid="case-nav-${id}"]`))
-        .toBe(true);
-    }
-    await page.keyboard.press('Enter');
-    await expect(page.getByTestId('case-nav-secao-acusacao')).toHaveAttribute(
-      'aria-current',
-      'location',
-    );
-  });
+      await page.getByTestId('case-nav-secao-caso').focus();
+      const ids = [
+        'secao-caso',
+        'secao-suspeitos',
+        'secao-evidencias',
+        'secao-dicas',
+        'secao-acusacao',
+      ];
+      for (const [index, id] of ids.entries()) {
+        if (index > 0) await page.keyboard.press('Tab');
+        await expect(page.getByTestId(`case-nav-${id}`)).toBeFocused();
+        await expect
+          .poll(() => fullyVisibleInMenu(page, `[data-testid="case-nav-${id}"]`))
+          .toBe(true);
+      }
+      // Shift+Tab percorre o caminho inverso com a mesma garantia.
+      for (const id of [...ids].reverse().slice(1)) {
+        await page.keyboard.press('Shift+Tab');
+        await expect(page.getByTestId(`case-nav-${id}`)).toBeFocused();
+        await expect
+          .poll(() => fullyVisibleInMenu(page, `[data-testid="case-nav-${id}"]`))
+          .toBe(true);
+      }
+      await page.getByTestId('case-nav-secao-acusacao').focus();
+      await page.keyboard.press('Enter');
+      await expect(page.getByTestId('case-nav-secao-acusacao')).toHaveAttribute(
+        'aria-current',
+        'location',
+      );
+    });
+  }
 
   test('o menu fixo não encobre um botão focado pelo teclado', async ({ page, request }) => {
     const player = await createPlayer(request);

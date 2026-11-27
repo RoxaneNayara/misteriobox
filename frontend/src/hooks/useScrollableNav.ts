@@ -8,6 +8,28 @@ interface ScrollEdges {
 }
 
 const EDGE_TOLERANCE_PX = 2;
+/**
+ * Folga mínima entre a opção revelada e a borda da faixa. É maior que o esmaecimento das
+ * bordas (2rem no CSS), para que a opção fique inteira e legível, não apenas dentro da caixa.
+ */
+export const NAV_REVEAL_PADDING_PX = 40;
+
+/** Rola somente a faixa do menu (nunca a página) até `item` ficar inteiro à vista. */
+function revealInList(list: HTMLElement, item: HTMLElement, behavior: ScrollBehavior): void {
+  const listBox = list.getBoundingClientRect();
+  const itemBox = item.getBoundingClientRect();
+  let delta = 0;
+  if (itemBox.left < listBox.left + NAV_REVEAL_PADDING_PX) {
+    delta = itemBox.left - listBox.left - NAV_REVEAL_PADDING_PX;
+  } else if (itemBox.right > listBox.right - NAV_REVEAL_PADDING_PX) {
+    delta = itemBox.right - listBox.right + NAV_REVEAL_PADDING_PX;
+  }
+  if (delta !== 0) list.scrollBy({ left: delta, behavior });
+}
+
+function preferredBehavior(): ScrollBehavior {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
+}
 
 function readEdges(list: HTMLElement): ScrollEdges {
   const maxScroll = list.scrollWidth - list.clientWidth;
@@ -55,20 +77,22 @@ export function useScrollableNav(
     const list = listRef.current;
     if (!enabled || !list || !activeKey) return;
     const active = list.querySelector<HTMLElement>(activeSelector);
-    if (!active) return;
-    // Rola somente a faixa do menu (nunca a página) até a opção ativa ficar inteira à vista.
-    const listBox = list.getBoundingClientRect();
-    const itemBox = active.getBoundingClientRect();
-    const padding = 24;
-    let delta = 0;
-    if (itemBox.left < listBox.left + padding) delta = itemBox.left - listBox.left - padding;
-    else if (itemBox.right > listBox.right - padding)
-      delta = itemBox.right - listBox.right + padding;
-    if (delta !== 0) {
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      list.scrollBy({ left: delta, behavior: reduceMotion ? 'instant' : 'smooth' });
-    }
+    if (active) revealInList(list, active, preferredBehavior());
   }, [listRef, activeSelector, activeKey, enabled]);
+
+  // Teclado: a opção que recebe o foco fica inteira à vista (WCAG 2.4.11, foco não encoberto).
+  // Imediato, para que o foco nunca fique parcialmente escondido durante uma animação.
+  useEffect(() => {
+    const list = listRef.current;
+    if (!enabled || !list) return;
+    const onFocusIn = (event: FocusEvent) => {
+      const target = event.target as HTMLElement | null;
+      const item = target?.closest<HTMLElement>('a, button');
+      if (item && list.contains(item)) revealInList(list, item, 'instant');
+    };
+    list.addEventListener('focusin', onFocusIn);
+    return () => list.removeEventListener('focusin', onFocusIn);
+  }, [listRef, enabled]);
 
   return edges;
 }
