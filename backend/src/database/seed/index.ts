@@ -3,12 +3,12 @@ import { userRepository } from '../../repositories/user.repository';
 import { passwordService } from '../../services/password.service';
 import { resolveDemoPassword } from './demo-passwords';
 import { DEMO_USERS } from './demo-users';
-import { assertMissionIntegrity } from './mission-integrity';
+import { assertCatalogIntegrity } from './mission-integrity';
 import { DEMO_MISSIONS } from './missions';
 
 async function seedMissions(): Promise<void> {
   if ((await missionRepository.count()) > 0) return;
-  DEMO_MISSIONS.forEach(assertMissionIntegrity);
+  assertCatalogIntegrity(DEMO_MISSIONS);
   await missionRepository.insertMany(DEMO_MISSIONS);
   console.log(`[seed] ${DEMO_MISSIONS.length} missões carregadas.`);
 }
