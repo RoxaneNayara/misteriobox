@@ -33,21 +33,3 @@ export function ErrorAlert({ message, testId = 'error-alert', onRetry }: ErrorAl
     </div>
   );
 }
-
-interface StatusMessageProps {
-  message: string | null;
-  testId?: string;
-}
-
-/** Mensagem de sucesso anunciada a leitores de tela. */
-export function StatusMessage({ message, testId = 'status-message' }: StatusMessageProps) {
-  return (
-    <div className="status-region" role="status" aria-live="polite" data-testid={testId}>
-      {message && (
-        <p className="alert alert--success" key={message}>
-          {message}
-        </p>
-      )}
-    </div>
-  );
-}

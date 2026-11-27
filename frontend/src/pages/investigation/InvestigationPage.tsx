@@ -4,13 +4,15 @@ import { getErrorMessage } from '../../api/client';
 import { investigationsApi } from '../../api/investigations.api';
 import { DifficultyBadge, StatusBadge } from '../../components/Badges';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
-import { ErrorAlert, LoadingState, StatusMessage } from '../../components/Feedback';
+import { ErrorAlert, LoadingState } from '../../components/Feedback';
 import { ArrowLeftIcon, ClockIcon, FlagIcon } from '../../components/Icons';
 import { MissionCover } from '../../components/MissionCover';
+import { Toast } from '../../components/Toast';
 import { ProgressBar } from '../../components/ProgressBar';
 import { useActiveSection } from '../../hooks/useActiveSection';
 import { useCssHeightVariable } from '../../hooks/useCssHeightVariable';
 import { useScrollableNav } from '../../hooks/useScrollableNav';
+import { useToast } from '../../hooks/useToast';
 import type { Evidence, InvestigationProgress } from '../../types/api';
 import { formatCaseNumber, formatDateTime } from '../../utils/labels';
 import { AccusationForm, type AccusationDraft } from './AccusationForm';
@@ -39,7 +41,8 @@ export function InvestigationPage() {
   const [investigation, setInvestigation] = useState<InvestigationProgress | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  // Confirmações de sucesso: notificação temporária (some em ~4 s; ver useToast).
+  const { toast, show: showToast, dismiss: dismissToast } = useToast();
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [analyzingEvidenceId, setAnalyzingEvidenceId] = useState<string | null>(null);
   const [openDialog, setOpenDialog] = useState<OpenDialog>(null);
@@ -104,11 +107,12 @@ export function InvestigationPage() {
   ) => {
     setPendingAction(action);
     setActionError(null);
-    setSuccessMessage(null);
     try {
       setInvestigation(await request());
-      setSuccessMessage(message);
+      showToast(message);
     } catch (error) {
+      // Uma confirmação anterior não deve continuar visível ao lado de um erro.
+      dismissToast();
       setActionError(getErrorMessage(error));
     } finally {
       setPendingAction(null);
@@ -265,9 +269,10 @@ export function InvestigationPage() {
           ))}
         </ul>
       </nav>
+      {/* Logo abaixo do menu: a notificação acompanha o menu fixo durante a rolagem. */}
+      <Toast toast={toast} onDismiss={dismissToast} testId="investigation-feedback" />
 
       {actionError && <ErrorAlert message={actionError} testId="investigation-action-error" />}
-      <StatusMessage message={successMessage} testId="investigation-feedback" />
 
       <section id="secao-caso" tabIndex={-1} className="case-section" aria-labelledby="story-title">
         <h2 id="story-title" className="case-section__title">
