@@ -10,6 +10,7 @@ import { MissionCover } from '../../components/MissionCover';
 import { ProgressBar } from '../../components/ProgressBar';
 import { useActiveSection } from '../../hooks/useActiveSection';
 import { useCssHeightVariable } from '../../hooks/useCssHeightVariable';
+import { useScrollableNav } from '../../hooks/useScrollableNav';
 import type { Evidence, InvestigationProgress } from '../../types/api';
 import { formatCaseNumber, formatDateTime } from '../../utils/labels';
 import { AccusationForm, type AccusationDraft } from './AccusationForm';
@@ -50,6 +51,14 @@ export function InvestigationPage() {
   useCssHeightVariable(caseNavRef, '--case-nav-height', showsCaseNav);
   const { activeId: activeSectionId, select: selectSection } = useActiveSection(
     CASE_SECTION_IDS,
+    showsCaseNav,
+  );
+  // Em telas estreitas o menu é uma faixa única com rolagem horizontal.
+  const caseNavListRef = useRef<HTMLUListElement>(null);
+  const caseNavEdges = useScrollableNav(
+    caseNavListRef,
+    'a[aria-current="location"]',
+    activeSectionId,
     showsCaseNav,
   );
 
@@ -228,11 +237,17 @@ export function InvestigationPage() {
 
       <nav
         ref={caseNavRef}
-        className="case-nav"
+        className={[
+          'case-nav',
+          caseNavEdges.canScrollStart ? 'case-nav--more-start' : '',
+          caseNavEdges.canScrollEnd ? 'case-nav--more-end' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
         aria-label="Seções do dossiê"
         data-testid="case-nav"
       >
-        <ul>
+        <ul ref={caseNavListRef} className="case-nav__list" data-testid="case-nav-list">
           {CASE_SECTIONS.map((section) => (
             <li key={section.id}>
               <a

@@ -93,16 +93,58 @@
   backdrop-filter: blur(8px);
 }
 
-/* As opções quebram em mais de uma linha quando necessário: todas permanecem
-   visíveis, sem corte e sem rolagem horizontal. */
+/* Uma única linha: centralizada quando cabe; em telas estreitas a faixa rola na
+   horizontal (sem cortar nem quebrar opções) e as bordas indicam que há mais itens.
+   As margens automáticas centralizam sem esconder o início quando há rolagem. */
 .case-nav ul {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-wrap: nowrap;
   gap: 0.25rem;
   margin: 0;
   padding: 0.3rem;
   list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  /* Sem scroll-snap: o encaixe desfazia a rolagem que revela a opção focada. */
+  scroll-padding-inline: 2.5rem;
+  scrollbar-width: none;
+  border-radius: inherit;
+}
+
+.case-nav ul::-webkit-scrollbar {
+  display: none;
+}
+
+.case-nav li {
+  flex: 0 0 auto;
+}
+
+.case-nav li:first-child {
+  margin-left: auto;
+}
+
+.case-nav li:last-child {
+  margin-right: auto;
+}
+
+/* Indicadores de continuação: esmaecem a borda onde há opções escondidas. */
+.case-nav--more-end ul {
+  mask-image: linear-gradient(90deg, #000 calc(100% - 2rem), transparent);
+}
+
+.case-nav--more-start ul {
+  mask-image: linear-gradient(90deg, transparent, #000 2rem);
+}
+
+.case-nav--more-start.case-nav--more-end ul {
+  mask-image: linear-gradient(90deg, transparent, #000 2rem, #000 calc(100% - 2rem), transparent);
+}
+
+.case-nav a:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 2px var(--color-gold-bright),
+    inset 0 0 0 4px var(--color-bg);
 }
 
 .case-nav a {

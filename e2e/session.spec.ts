@@ -42,18 +42,33 @@ test.describe('B04 — sessão e inatividade', () => {
     await page.clock.install();
     await loginThroughUi(page, player);
     await page.goto(`/investigacoes/${investigationId}`);
+    // O monitor de sessão começa a contar quando a página autenticada termina de carregar;
+    // o relógio só pode avançar depois disso.
+    await expect(page.getByTestId('investigation-title')).toBeVisible();
 
     const lastActivity = () =>
       page.evaluate(() => Number(localStorage.getItem('misteriobox.lastActivityAt')));
+    const tokenExpiresAt = () =>
+      page.evaluate(() => Number(localStorage.getItem('misteriobox.tokenExpiresAt')));
 
     // 3 × 20 min = 60 min no total, mas nunca 30 min seguidos sem atividade.
     for (let round = 0; round < 3; round += 1) {
       await page.clock.fastForward('20:00');
       const before = await lastActivity();
+      const expiresBefore = await tokenExpiresAt();
+      // A atividade renova o token (POST /api/auth/refresh). O relógio simulado só pode
+      // avançar de novo depois que a renovação terminar; antes disso o token antigo
+      // continua valendo apenas até 30 min, como no servidor.
+      const refreshed = page.waitForResponse(
+        (response) =>
+          response.url().endsWith('/api/auth/refresh') && response.request().method() === 'POST',
+      );
       await page.mouse.move(200, 300);
       await page.mouse.wheel(0, 200);
       // O evento de rolagem é entregue de forma assíncrona: espera ser registrado.
       await expect.poll(lastActivity).toBeGreaterThan(before);
+      expect((await refreshed).ok()).toBe(true);
+      await expect.poll(tokenExpiresAt).toBeGreaterThan(expiresBefore);
       await expect(page.getByTestId('investigation-title')).toBeVisible();
     }
     await expect(page).toHaveURL(new RegExp(`/investigacoes/${investigationId}$`));
