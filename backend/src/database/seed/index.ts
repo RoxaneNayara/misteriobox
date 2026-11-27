@@ -1,3 +1,4 @@
+import { env } from '../../config/env';
 import { missionRepository } from '../../repositories/mission.repository';
 import { userRepository } from '../../repositories/user.repository';
 import { passwordService } from '../../services/password.service';
@@ -6,27 +7,44 @@ import { DEMO_USERS } from './demo-users';
 import { assertCatalogIntegrity } from './mission-integrity';
 import { DEMO_MISSIONS } from './missions';
 
+/**
+ * Catálogo: validado e gravado a cada inicialização, de forma idempotente
+ * (insere o que falta e atualiza o conteúdo das missões existentes, sem duplicar,
+ * recriar ou apagar registros e sem tocar nas investigações dos jogadores).
+ */
 async function seedMissions(): Promise<void> {
-  if ((await missionRepository.count()) > 0) return;
   assertCatalogIntegrity(DEMO_MISSIONS);
-  await missionRepository.insertMany(DEMO_MISSIONS);
-  console.log(`[seed] ${DEMO_MISSIONS.length} missões carregadas.`);
+  const { inserted, updated } = await missionRepository.upsertMany(DEMO_MISSIONS);
+  console.log(
+    `[seed] Catálogo com ${DEMO_MISSIONS.length} missões (novas: ${inserted}, atualizadas: ${updated}).`,
+  );
 }
 
-async function seedUsers(): Promise<void> {
-  if ((await userRepository.count()) > 0) return;
+/** Usuários demonstrativos: somente fora de produção; cria apenas os que ainda não existem. */
+async function seedDemoUsers(): Promise<void> {
+  let created = 0;
   for (const demoUser of DEMO_USERS) {
+    if (await userRepository.existsByEmail(demoUser.email)) continue;
     await userRepository.create({
       name: demoUser.name,
       email: demoUser.email,
       passwordHash: await passwordService.hash(resolveDemoPassword(demoUser)),
     });
+    created += 1;
   }
-  console.log(`[seed] ${DEMO_USERS.length} usuários demonstrativos criados.`);
+  if (created > 0) console.log(`[seed] ${created} usuário(s) demonstrativo(s) criado(s).`);
 }
 
-/** Carrega os dados demonstrativos no banco em memória (executado a cada inicialização). */
-export async function seedDatabase(): Promise<void> {
+export interface SeedOptions {
+  /** Padrão: SEED_DEMO_USERS (sempre falso em ambiente publicado). */
+  demoUsers?: boolean;
+}
+
+export async function seedDatabase({
+  demoUsers = env.seedDemoUsers,
+}: SeedOptions = {}): Promise<void> {
   await seedMissions();
-  await seedUsers();
+  if (demoUsers) {
+    await seedDemoUsers();
+  }
 }

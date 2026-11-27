@@ -16,8 +16,23 @@ export const missionRepository = {
     return MissionModel.findOne({ missionId }).select('+solution').lean<Mission>();
   },
 
-  async insertMany(missions: Mission[]): Promise<void> {
-    await MissionModel.insertMany(missions);
+  /**
+   * Carga idempotente do catálogo: insere as missões que faltam e atualiza o conteúdo das
+   * existentes (mesmo `missionId`, mesmo `_id`). Nunca remove missões nem toca nas
+   * investigações, que referenciam a missão pelo `missionId`.
+   */
+  async upsertMany(missions: Mission[]): Promise<{ inserted: number; updated: number }> {
+    const result = await MissionModel.bulkWrite(
+      missions.map((mission) => ({
+        updateOne: {
+          filter: { missionId: mission.missionId },
+          update: { $set: mission },
+          upsert: true,
+        },
+      })),
+      { ordered: true },
+    );
+    return { inserted: result.upsertedCount, updated: result.modifiedCount };
   },
 
   async count(): Promise<number> {

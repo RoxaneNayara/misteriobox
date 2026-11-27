@@ -23,7 +23,9 @@
     "format:check": "prettier --check .",
     "test": "npm run test -w backend && npm run test -w frontend",
     "test:e2e": "playwright test",
-    "typecheck:e2e": "tsc -p e2e/tsconfig.json"
+    "typecheck:e2e": "tsc -p e2e/tsconfig.json",
+    "typecheck:api": "tsc -p api/tsconfig.json",
+    "smoke": "node scripts/smoke-test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",

@@ -11,7 +11,7 @@ export function createApp(): Express {
   const app = express();
 
   app.disable('x-powered-by');
-  app.use(cors({ origin: env.corsOrigin }));
+  app.use(cors({ origin: env.corsOrigins }));
   // B06: o tipo de mídia é validado antes da leitura do corpo.
   app.use('/api', requireJsonContentType);
   app.use(express.json({ limit: '100kb' }));
