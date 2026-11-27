@@ -155,10 +155,15 @@ exibidos pelo React como texto (sem `innerHTML`).
 └──────────────────────────┘        JSON { data }          └──────────────┬───────────────┘
                                                                           │ Mongoose
                                                            ┌──────────────▼───────────────┐
-                                                           │ MongoDB Memory Server        │
-                                                           │ (iniciado pela própria API)  │
+                                                           │ Local/testes: MongoDB em     │
+                                                           │ memória (temporário)         │
+                                                           │ Production/Preview: MongoDB  │
+                                                           │ Atlas (persistente)          │
                                                            └──────────────────────────────┘
 ```
+
+O diagrama mostra o ambiente local. Em Production e Preview, o site e a API rodam na Vercel (a API
+como função serverless) e usam o MongoDB Atlas — ver [docs/implantacao.md](docs/implantacao.md).
 
 - **Monorepo com npm workspaces**: `backend/` e `frontend/` são projetos independentes, com scripts
   orquestrados pelo `package.json` da raiz.
