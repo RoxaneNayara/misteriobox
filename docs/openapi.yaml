@@ -216,8 +216,9 @@ paths:
         a mais antiga. Não aceita identificador de usuário: não é possível consultar o histórico de
         outro jogador. Os registros não trazem acusação nem solução. `score` e `classification` são
         `null` quando não houve pontuação (tentativa em andamento ou abandonada) e numéricos —
-        inclusive `0` — quando a tentativa foi finalizada por acusação. O histórico existe enquanto o
-        backend estiver em execução (banco em memória).
+        inclusive `0` — quando a tentativa foi finalizada por acusação. Com banco persistente
+        (MongoDB Atlas, em Production e Preview) o histórico é preservado entre reinicializações;
+        no ambiente local sem `MONGODB_URI` (banco em memória) dura até a API reiniciar.
       security: [{ bearerAuth: [] }]
       responses:
         '200':
