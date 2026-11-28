@@ -36,6 +36,23 @@ empresas são fictícios.
 8. [Segurança e privacidade](Seguranca-e-Privacidade)
 9. [Execução local e contribuição](Execucao-Local-e-Contribuicao)
 
+## Documentação de QA — planejamento original
+
+Documentos autorais de planejamento e execução de testes, publicados na íntegra (convertidos de
+DOCX, sem resumo):
+
+- [Plano e Estratégia de Testes — Completo](QA-Plano-e-Estrategia-de-Testes-Completo) — documento
+  único, organizado em quatro épicos: histórias com estimativas, condições de teste com resultado
+  esperado e camada, técnicas, missões exploratórias, testes não funcionais e automação. Recortes
+  de navegação por épico: [Épico 01](QA-EP01-Gestao-de-Usuarios-e-Autenticacao) e
+  [Épico 02](QA-EP02-Catalogo-e-Selecao-de-Missoes).
+- [Condições de Teste](QA-Condicoes-de-Teste) e os cinco relatórios de sessão exploratória (menu
+  lateral).
+- Material complementar: [Rastreabilidade acadêmica](QA-Rastreabilidade-Academica) e
+  [Conferência e observações](QA-Conferencia-e-Observacoes).
+
+As demais páginas desta Wiki descrevem a implementação atual e complementam esses documentos.
+
 ## Documentos do repositório
 
 Na raiz do repositório de apresentação:
