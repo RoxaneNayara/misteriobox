@@ -4,19 +4,20 @@ Páginas da Wiki da MistérioBox, versionadas aqui para revisão antes da public
 páginas usam o formato da Wiki (`[texto](Nome-da-Pagina)`) e só funcionam depois de publicados; na
 revisão pelo pull request, abra cada arquivo pelo nome.
 
-| Arquivo                                          | Página da Wiki                               |
-| ------------------------------------------------ | -------------------------------------------- |
-| `Home.md`                                        | Início                                       |
-| `Funcionalidades-e-Fluxo-do-Jogador.md`          | Funcionalidades e fluxo do jogador           |
-| `Arquitetura-e-Tecnologias.md`                   | Arquitetura e tecnologias                    |
-| `Regras-de-Negocio-e-Criterios-de-Aceitacao.md`  | Regras de negócio e critérios de aceitação   |
-| `Estrategia-de-Testes-e-Quality-Engineering.md`  | Estratégia de testes e Quality Engineering   |
-| `Testes-Automatizados-e-Ferramentas.md`          | Testes automatizados e ferramentas           |
-| `Integracao-Continua-e-Implantacao.md`           | Integração contínua e implantação            |
-| `Gestao-de-Defeitos-Riscos-e-Rastreabilidade.md` | Gestão de defeitos, riscos e rastreabilidade |
-| `Seguranca-e-Privacidade.md`                     | Segurança e privacidade                      |
-| `Execucao-Local-e-Contribuicao.md`               | Execução local e contribuição                |
-| `_Sidebar.md`, `_Footer.md`                      | Menu lateral e rodapé                        |
+| Arquivo                                          | Página da Wiki                                          |
+| ------------------------------------------------ | ------------------------------------------------------- |
+| `Home.md`                                        | Início                                                  |
+| `Funcionalidades-e-Fluxo-do-Jogador.md`          | Funcionalidades e fluxo do jogador                      |
+| `Arquitetura-e-Tecnologias.md`                   | Arquitetura e tecnologias                               |
+| `Regras-de-Negocio-e-Criterios-de-Aceitacao.md`  | Regras de negócio e critérios de aceitação              |
+| `Estrategia-de-Testes-e-Quality-Engineering.md`  | Estratégia de testes e Quality Engineering              |
+| `Testes-Automatizados-e-Ferramentas.md`          | Testes automatizados e ferramentas                      |
+| `Integracao-Continua-e-Implantacao.md`           | Integração contínua e implantação                       |
+| `Gestao-de-Defeitos-Riscos-e-Rastreabilidade.md` | Gestão de defeitos, riscos e rastreabilidade            |
+| `Seguranca-e-Privacidade.md`                     | Segurança e privacidade                                 |
+| `Execucao-Local-e-Contribuicao.md`               | Execução local e contribuição                           |
+| `_Sidebar.md`, `_Footer.md`                      | Menu lateral e rodapé                                   |
+| `../qa/QA-*.md`                                  | Documentação de QA — planejamento original (12 páginas) |
 
 ## Política de links
 
@@ -40,6 +41,6 @@ desenvolvimento continua privado. Por isso:
       ajustar as tabelas de cobertura e de rastreabilidade.
 - [ ] Ativar a Wiki no repositório de apresentação (_Settings → Features → Wikis_) e criar a
       primeira página pela interface.
-- [ ] Copiar os arquivos desta pasta (exceto este `README.md`) para o clone da Wiki
+- [ ] Copiar os arquivos desta pasta (exceto este `README.md`) **e os de `docs/qa/`** para o clone da Wiki
       (`<repositório-de-apresentação>.wiki.git`), fazer o commit e o push.
 - [ ] Conferir o menu lateral e a navegação entre as páginas publicadas.
