@@ -1,3 +1,5 @@
+![MistérioBox — Toda verdade deixa uma pista.](docs/img/banner-misteriobox.png)
+
 # MistérioBox
 
 **Plataforma Web de investigação interativa.** O jogador assume o papel de detetive, examina
@@ -14,8 +16,6 @@ pontuação e uma classificação de detetive.
 
 **Aplicação publicada:** [misteriobox.vercel.app](https://misteriobox.vercel.app) ·
 **Documentação detalhada:** [Wiki do projeto](../../wiki)
-
-![Tela de casos da MistérioBox: credencial do detetive, indicadores e Arquivo central de casos](docs/img/catalogo-misteriobox.png)
 
 > Projeto **acadêmico e experimental**. Histórias, personagens, nomes e empresas são fictícios. Veja
 > [Caráter acadêmico e experimental](#11-caráter-acadêmico-e-experimental).
@@ -76,6 +76,8 @@ executadas no backend; o frontend apenas exibe o que a API retorna.
 5. **Meu histórico** — todas as tentativas do jogador, com o resultado de cada uma.
 6. **Novas tentativas** — missões já encerradas podem ser jogadas de novo, preservando as tentativas
    anteriores.
+
+![Tela de casos da MistérioBox: credencial do detetive, indicadores e Arquivo central de casos](docs/img/catalogo-misteriobox.png)
 
 ### Catálogo: 10 missões em três setores
 
