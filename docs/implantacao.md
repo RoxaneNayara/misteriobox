@@ -79,6 +79,25 @@ Essa abertura é compensada por:
 - troca das senhas ao menor sinal de exposição (Database Access → Edit → Edit Password) e
   atualização da variável na Vercel.
 
+**Use uma entrada permanente.** Uma entrada marcada como temporária (_This entry is temporary_)
+expira e some da lista sem aviso, e a API passa a responder 503 em todas as rotas (ver o
+incidente abaixo).
+
+> **Risco conhecido (aceito em 27/11/2026, para revisão futura):** a entrada `0.0.0.0/0` permite
+> que qualquer endereço tente se conectar ao cluster. A proteção depende das credenciais do
+> usuário do banco (uma por ambiente, `readWrite` em um único banco), do TLS e de nenhum usuário
+> administrativo ser usado pela aplicação. Revisar se o projeto passar a ter IPs de saída fixos
+> (recurso pago da Vercel ou outra hospedagem), se houver suspeita de vazamento da URI ou na
+> preparação de uma versão com usuários reais em maior escala.
+>
+> **Incidente de 27/11/2026:** a entrada temporária `0.0.0.0/0` (seis horas) expirou e foi
+> removida da lista. Sintoma: `503 SERVICE_UNAVAILABLE` em todas as rotas da API, sempre após
+> cerca de 10 s (tempo limite de seleção do servidor); o site estático continuou no ar. Correção,
+> autorizada pela responsável: entrada `0.0.0.0/0` **sem expiração**, apenas como regra de rede,
+> sem alterar usuários, senhas, permissões, bancos ou dados. Sem novo deploy: a API refaz a
+> conexão na requisição seguinte. Smoke test em produção aprovado (somente leitura 8/8; fluxo com
+> conta fictícia 21/21, sem nenhum 503).
+
 Se no futuro o projeto tiver IPs estáticos na Vercel (ou outra hospedagem com IP fixo), substitua
 `0.0.0.0/0` pela lista de IPs. Para executar a carga do catálogo a partir da sua máquina
 (seção 2.5), basta a liberação já existente; se preferir, adicione temporariamente só o seu IP
@@ -255,7 +274,7 @@ nunca a mensagem do driver, a URI, o usuário ou a senha:
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `conexao` / `autenticacao` (código 8000, 18) | Usuário ou senha recusados                                                                                          | Nome do usuário na URI igual ao do Atlas (_Database Access_); senha atual (se trocada, atualizar `MONGODB_URI` e reimplantar); a URI não deve ter `authSource` diferente de `admin`. |
 | `indices` / `permissao` (código 13)          | Conexão aceita, mas o usuário não tem `readWrite` no banco usado. Em geral `MONGODB_DB_NAME` ≠ banco do privilégio. | `MONGODB_DB_NAME` exatamente igual ao banco do privilégio `readWrite` (ex.: `misteriobox` ↔ `readWrite@misteriobox`), sem espaços, maiúsculas diferentes ou sufixos como `-prod`.    |
-| `conexao` / `rede`                           | Cluster inacessível (Network Access, cluster pausado)                                                               | _Network Access_ com a entrada ativa; cluster não pausado.                                                                                                                           |
+| `conexao` / `rede`                           | Cluster inacessível (Network Access, cluster pausado). Sinal típico: 503 em **todas** as rotas, sempre após ~10 s   | _Network Access_ com a entrada ativa e **sem expiração** (entradas temporárias somem ao expirar); cluster não pausado. Não exige novo deploy.                                        |
 | `conexao` / `uri-invalida`                   | `MONGODB_URI` mal formada                                                                                           | Formato `mongodb+srv://<usuário>:<senha>@<host>/?retryWrites=true&w=majority`; sem aspas ou espaços copiados junto.                                                                  |
 | `carga-inicial`                              | Falha ao gravar o catálogo                                                                                          | Mesmo critério de permissão acima; se persistir, abrir Issue com a linha do log.                                                                                                     |
 
@@ -319,18 +338,18 @@ localmente**. Validar primeiro numa **prévia** (banco `misteriobox-preview`):
 Preenchido durante a configuração assistida, **somente com valores não secretos**. Senhas, URIs
 completas e o `JWT_SECRET` nunca são registrados aqui.
 
-| Item                                  | Valor utilizado                                                | Data |
-| ------------------------------------- | -------------------------------------------------------------- | ---- |
-| Projeto do Atlas                      | _a preencher_                                                  |      |
-| Cluster (nome / plano)                | _a preencher_ / M0                                             |      |
-| Provedor e região do Atlas            | _a preencher_                                                  |      |
-| Usuário do banco — Production         | `misteriobox-app-prod` (readWrite em `misteriobox`)            |      |
-| Usuário do banco — Preview            | `misteriobox-app-preview` (readWrite em `misteriobox-preview`) |      |
-| Network Access                        | _a preencher_                                                  |      |
-| Projeto da Vercel                     | _a preencher_                                                  |      |
-| Node.js                               | 24.x                                                           |      |
-| Região da função (Vercel)             | _a preencher_                                                  |      |
-| Variáveis cadastradas — Production    | _a preencher (somente nomes)_                                  |      |
-| Variáveis cadastradas — Preview       | _a preencher (somente nomes)_                                  |      |
-| Deployment Protection (prévias)       | _a preencher_                                                  |      |
-| Primeiro deploy (prévia) e smoke test | _a preencher_                                                  |      |
+| Item                               | Valor utilizado                                                               | Data       |
+| ---------------------------------- | ----------------------------------------------------------------------------- | ---------- |
+| Projeto do Atlas                   | _a preencher_                                                                 |            |
+| Cluster (nome / plano)             | `misteriobox-cluster` / M0                                                    | 27/11/2026 |
+| Provedor e região do Atlas         | _a preencher_                                                                 |            |
+| Usuário do banco — Production      | `misteriobox-prod` (readWrite em `misteriobox`, informado pela responsável)   | 27/11/2026 |
+| Usuário do banco — Preview         | `misteriobox-app-preview` (readWrite em `misteriobox-preview`)                |            |
+| Network Access                     | `0.0.0.0/0` permanente (risco conhecido, seção 2.3)                           | 27/11/2026 |
+| Projeto da Vercel                  | _a preencher_                                                                 |            |
+| Node.js                            | 24.x                                                                          |            |
+| Região da função (Vercel)          | _a preencher_                                                                 |            |
+| Variáveis cadastradas — Production | `MONGODB_URI`, `MONGODB_DB_NAME`, `JWT_SECRET` (informado pela responsável)   | 27/11/2026 |
+| Variáveis cadastradas — Preview    | _a preencher (somente nomes)_                                                 |            |
+| Deployment Protection (prévias)    | _a preencher_                                                                 |            |
+| Smoke test em produção             | `https://misteriobox.vercel.app`: leitura 8/8; fluxo com conta fictícia 21/21 | 27/11/2026 |
