@@ -1,44 +1,40 @@
-# EP01 — Gestão de Usuários e Autenticação
+# Épico 01 — Gestão de Usuários e Autenticação (recorte de navegação)
 
-> **Documento autoral de QA — planejamento original.** Conteúdo convertido do arquivo `Plano e Estratégia de Testes - MisterioBox - Gestão de Usuários e Autenticação.docx`
-> sem resumir, combinar ou reescrever condições de teste. O cabeçalho e o rodapé do modelo de
-> documento (material de curso) não foram reproduzidos. A ISO/IEC/IEEE 29119-3 foi usada como **base metodológica**; este documento não declara conformidade integral com a norma.
->
-> Este é o **planejamento original** (novembro de 2026). O comportamento atual da aplicação e a
-> cobertura automatizada atual estão em [Regras de negócio](Regras-de-Negocio-e-Criterios-de-Aceitacao),
-> [Testes automatizados](Testes-Automatizados-e-Ferramentas) e
-> [Rastreabilidade acadêmica](QA-Rastreabilidade-Academica).
->
-> Documento próprio do Épico 01, elaborado antes do plano completo. O Épico 01 também aparece no
-> [Plano e Estratégia de Testes — Completo](QA-Plano-e-Estrategia-de-Testes-Completo).
+> **Recorte de navegação do [Plano e Estratégia de Testes — Completo](QA-Plano-e-Estrategia-de-Testes-Completo).**
+> O Plano e Estratégia de Testes da MistérioBox é **um único documento**, organizado em quatro
+> épicos. Esta página não é um documento separado: reúne, sem alterações, os trechos do Épico 01
+> que aparecem nas seções do plano completo. Para a leitura integral e as seções que não são
+> divididas por épico, consulte o documento completo.
 
 ---
 
-**Plano e Estratégia**
-
-**de Testes**
-
-Baseado na ISO-29119-3.
-
 **1. Épico e Estimativa Geral de Esforço em Testes**
 
-_Épico 01 — Gestão de Usuários e Autenticação_
+_**Épico 01 — Gestão de Usuários e Autenticação**_
 
 - Permitir que jogadores se cadastrem, realizem login e acessem suas investigações com segurança.
 
 _Funcionalidades:_ cadastro, login, logout e identificação do jogador autenticado.
 
-Estimativa: Média
+Estimativa: Alta
+
+_Regra de Negócio Relacionada:_
+
+- _RN01 — Autenticação de usuários._
 
 **2. User Stories e Estimativa de Esforço em Testes**
 
+_**Épico 01 — Gestão de Usuários e Autenticação**_
+
 | Código | Descrição                           | Esforço - Horas |
 | ------ | ----------------------------------- | --------------- |
-| US01   | Cadastrar-se como detetive          | 1,5 h           |
-| US02   | Autenticar-se na plataforma         | 1,5 h           |
-| US03   | Encerrar sessão e proteger o acesso | 1,5h            |
+| US01   | Cadastrar-se como detetive          | 4,0 h           |
+| US02   | Autenticar-se na plataforma         | 3,0 h           |
+| US03   | Encerrar sessão e proteger o acesso | 2,0 h           |
 
 **3. Condições de Teste e Camadas**
+
+_**Épico 01 — Gestão de Usuários e Autenticação**_
 
 _Código da US: US01 - Cadastrar-se como detetive_
 
@@ -54,13 +50,13 @@ _Código da US: US01 - Cadastrar-se como detetive_
 
 _Código da US: US02 Autenticar-se na plataforma_
 
-| ID        | Condição                                                                                 | Resultado Esperado                                                        | Camada              |
-| --------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------- |
-| US02-CT01 | Validar que o sistema autentica o jogador quando as credenciais forem válidas            | Ver a página secreta / retorno Status Code 200                            | Interface e API     |
-| US02-CT02 | Validar o impedimento de autenticação com credenciais incorretas                         | Autenticação não realizada / Mensagem de erro amigável                    | Interface e API     |
-| US02-CT03 | Validar a identificação do jogador autenticado e apresentar seu nome                     | Autenticação realizada / Nome visível, legível                            | Interface e API\*\* |
-| US02-CT04 | Validar que o jogador consegue acessar o catálogo e seus próprios dados de investigação. | Exibição do catálogo e dados de investigação da própria conta             | Interface e API\*\* |
-| US02-CT05 | Validar que um jogador autenticado não acesso os registro de outro jogador               | Mensagem amigável de bloqueio\*\*/ Exibição apenas dos próprios registros | Interface e API\*\* |
+| ID        | Condição                                                                                 | Resultado Esperado                                                        | Camada          |
+| --------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | --------------- |
+| US02-CT01 | Validar que o sistema autentica o jogador quando as credenciais forem válidas            | Ver a página secreta / retorno Status Code 200                            | Interface e API |
+| US02-CT02 | Validar o impedimento de autenticação com credenciais incorretas                         | Autenticação não realizada / Mensagem de erro amigável                    | Interface e API |
+| US02-CT03 | Validar a identificação do jogador autenticado e apresentar seu nome                     | Autenticação realizada / Nome visível, legível                            | Interface e API |
+| US02-CT04 | Validar que o jogador consegue acessar o catálogo e seus próprios dados de investigação. | Exibição do catálogo e dados de investigação da própria conta             | Interface e API |
+| US02-CT05 | Validar que um jogador autenticado não acesso os registro de outro jogador               | Mensagem amigável de bloqueio\*\*/ Exibição apenas dos próprios registros | Interface e API |
 
 _Código da US: US03 Encerrar sessão e proteger o acesso_
 
@@ -68,28 +64,20 @@ _Código da US: US03 Encerrar sessão e proteger o acesso_
 | ----------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | --------------- |
 | US03 - CT01 | Validar que é exibida a opção sair ao jogador autenticado                                                         | Opção sair, visível e legível                              | Interface       |
 | US03 - CT02 | Validar que o jogador não consegue acessar páginas protegidas sem uma nova autenticação.                          | Mensagem informativa amigável / Não ver a página protegida | Interface e API |
-| US03 - CT03 | Validar que o logout encerra ou abandonar uma investigação.                                                       | A investigação deve estar em andamento\*\*                 | Interface e API |
+| US03 - CT03 | Validar que o logout não encerra ou abandonar uma investigação.                                                   | A investigação deve estar em andamento\*\*                 | Interface e API |
 | US03 - CT04 | Validar que ao autenticar-se novamente, o jogador consegue recuperar seu progresso enquanto o banco estiver ativo | Visualizar progresso correto resgatado da sessão anterior  | Interface e API |
-| US03 - CT05 | Validar que requisições protegidas sem autenticação válida são rejeitadas pela API.                               | Sem acesso as requisições / Mensagem informativa amigável  | Interface e API |
+| US03 - CT05 | Validar que requisições protegidas sem autenticação válida são rejeitadas pela API.                               | Sem acesso as requisições / Mensagem informativa amigável  | API             |
 
-**4. Missões de Teste Exploratório**
+**5. Missões de Teste Exploratório**
 
-- Missão 1 – Validação de cadastro,
-- Missão 2 – Validação de login
-- Missão 3 – Validação de logout
-- Missão 4 – Validação de identificação do jogador autenticado.
+_**Épico 01 — Gestão de Usuários e Autenticação**_
 
-**5. Testes Não-Funcionais**
+- Missão 1 – Validação de cadastro, login, logout e de identificação do jogador autenticado.
+  - relatorio \_de\_sessao\_US01\_cadastrar\_se\_como\_detetive
 
-Definir aqui.
+**7. Automação de Testes**
 
-| Tipo                            | Teste                                                                                                | Resultado Esperado                                                                 |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Usabilidade                     | Validar a facilidade de uso<br>Validar que o site é intuitivo                                        | Site seja fácil de usar<br>Site seja claro como utilizar                           |
-| (Responsividade?)               | Validar que o site se adapta aos tamanhos e formatos de tela e dispositivos de forma automática      | Site acompanhar os tamanhos de telas e dispositivos sem quebrar textos e elementos |
-| Portabilidade / Compatibilidade | Validar que o site renderiza e faz suas funções de forma eficiente em outros browsers ou navegadores | Site renderizar corretamente                                                       |
-
-**6. Automação de Testes**
+_**Épico 01 — Gestão de Usuários e Autenticação**_
 
 | ID          | Condição                                                                                 | Resultado Esperado                                         | Camada          |
 | ----------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------- | --------------- |
@@ -97,3 +85,7 @@ Definir aqui.
 | US01-CT04   | Validar o impedimento de cadastro com dados inválidos: nome, e-mail e senha              | Cadastro não realizado / Mensagem de erro amigável         | Interface e API |
 | US02-CT01   | Validar que o sistema autentica o jogador quando as credenciais forem válidas            | Ver a página secreta / retorno Status Code 200             | Interface e API |
 | US03 - CT02 | Validar que o jogador não consegue acessar páginas protegidas sem uma nova autenticação. | Mensagem informativa amigável / Não ver a página protegida | Interface e API |
+
+_**Obs.: Poderão ser encontradas mais condições de testes futuramente e incrementadas nesse documento.**_
+
+Não haverão cenários automatizados para os Épicos 02, 03 e 04 devido ao prazo de primeira entrega. Poderão ser feitos futuramente.

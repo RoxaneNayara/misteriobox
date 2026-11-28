@@ -3,30 +3,55 @@
 Esta página registra como os documentos autorais de QA foram convertidos de DOCX para Markdown e
 como a fidelidade foi verificada. Nenhum conteúdo foi resumido, combinado, eliminado ou reescrito.
 
-## Documentos publicados
+## Organização dos documentos
 
-| Página                                                                                            | Documento de origem                                                                       | Parágrafos conferidos | Células de tabela | Histórias (US) | Linhas de condição (US-CT)            | Faltando |
-| ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------- | ----------------- | -------------- | ------------------------------------- | -------- |
-| [Plano e Estratégia de Testes — Completo](QA-Plano-e-Estrategia-de-Testes-Completo)               | `plano_e_estrategia_de_testes_misteriobox.docx`                                           | 489                   | 403               | 13             | 67 (seção 3) + 4 (seção 7, automação) | 0        |
-| [EP01 — Gestão de Usuários e Autenticação](QA-EP01-Gestao-de-Usuarios-e-Autenticacao)             | `Plano e Estratégia de Testes - MisterioBox - Gestão de Usuários e Autenticação.docx`     | 147                   | 124               | 3              | 17 (seção 3) + 4 (seção 6, automação) | 0        |
-| [EP02 — Catálogo e Seleção de Missões](QA-EP02-Catalogo-e-Selecao-de-Missoes)                     | Trechos literais do plano completo (documento separado não localizado)                    | —                     | —                 | 3              | 15                                    | —        |
-| [Condições de Teste](QA-Condicoes-de-Teste)                                                       | `condicoes_de_testes_misteriobox.docx`                                                    | 327                   | 234               | —              | 55 (53 identificadores distintos)     | 0        |
-| [Relatório de Sessão — US01 Cadastro](QA-Relatorio-de-Sessao-US01-Cadastro)                       | `relatorio_de_sessao_US01_cadastrar_se_como_detetive.docx`                                | 32                    | 6                 | —              | —                                     | 0        |
-| [Relatório de Sessão — US02, US03 e US04](QA-Relatorio-de-Sessao-US02-US03-US04)                  | `relatorio_de_sessao_US02_US03_US04_autenticar_encerrar_sessao_consultar_catálogo.docx`   | 24                    | 6                 | —              | —                                     | 0        |
-| [Relatório de Sessão — Sessão e relatório final](QA-Relatorio-de-Sessao-Sessao-e-Relatorio-Final) | `relatorio_de_sessao_US01_encerrar_sessão_proteger_acesso_consultar-relatorio_final.docx` | 24                    | 6                 | —              | —                                     | 0        |
-| [Relatório de Sessão — API de investigações](QA-Relatorio-de-Sessao-API-Investigacoes)            | `relatorio_de_sessao_API_investigacoes.docx`                                              | 20                    | 6                 | —              | —                                     | 0        |
-| [Relatório de Sessão — ISO/IEC 25010](QA-Relatorio-de-Sessao-ISO25010)                            | `relatorio_de_sessao_ISO25010_responsividade_usabilidade_e_compatibilidade.docx`          | 26                    | 6                 | —              | —                                     | 0        |
+Os documentos originais de QA da MistérioBox são:
 
-**Método de conferência:** cada parágrafo e cada célula de tabela do DOCX (texto do corpo do
-documento) foi procurado, literalmente, no Markdown publicado. Nos relatórios de sessão, os campos
-"Test Charter" e "Tamanho da Sessão" têm uma quebra de linha entre o rótulo e o valor no original; a
-quebra foi mantida no Markdown.
+1. **Plano e Estratégia de Testes** — **um único documento**, organizado internamente em quatro
+   épicos, com histórias de usuário, condições de teste, resultados esperados, camadas, técnicas,
+   missões exploratórias, testes não funcionais e estratégia de automação.
+2. **Condições de Teste.**
+3. **Relatórios de Sessão** (testes exploratórios), um por sessão.
+
+Além deles, a Wiki traz **páginas de navegação e material complementar**, que não são documentos
+originais:
+
+- **Recortes de navegação** dos Épicos 01 e 02: trechos literais do Plano e Estratégia de Testes,
+  agrupados por épico para facilitar a consulta.
+- **Rastreabilidade acadêmica**: matriz montada a partir do plano e dos testes automatizados.
+- **Esta página de conferência.**
+
+## Documentos originais publicados
+
+| Página                                                                                            | Documento de origem                                                                       | Parágrafos conferidos | Células de tabela | Linhas de tabela (DOCX = MD) | Histórias (US) | Linhas de condição (US-CT)            | Faltando |
+| ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------- | ----------------- | ---------------------------- | -------------- | ------------------------------------- | -------- |
+| [Plano e Estratégia de Testes — Completo](QA-Plano-e-Estrategia-de-Testes-Completo)               | `plano_e_estrategia_de_testes_misteriobox.docx`                                           | 489                   | 403               | 106 = 106                    | 13             | 67 (seção 3) + 4 (seção 7, automação) | 0        |
+| [Condições de Teste](QA-Condicoes-de-Teste)                                                       | `condicoes_de_testes_misteriobox.docx`                                                    | 327                   | 234               | 82 = 82                      | —              | 55 (53 identificadores distintos)     | 0        |
+| [Relatório de Sessão — US01 Cadastro](QA-Relatorio-de-Sessao-US01-Cadastro)                       | `relatorio_de_sessao_US01_cadastrar_se_como_detetive.docx`                                | 32                    | 6                 | 2 = 2                        | —              | —                                     | 0        |
+| [Relatório de Sessão — US02, US03 e US04](QA-Relatorio-de-Sessao-US02-US03-US04)                  | `relatorio_de_sessao_US02_US03_US04_autenticar_encerrar_sessao_consultar_catálogo.docx`   | 24                    | 6                 | 2 = 2                        | —              | —                                     | 0        |
+| [Relatório de Sessão — Sessão e relatório final](QA-Relatorio-de-Sessao-Sessao-e-Relatorio-Final) | `relatorio_de_sessao_US01_encerrar_sessão_proteger_acesso_consultar-relatorio_final.docx` | 24                    | 6                 | 2 = 2                        | —              | —                                     | 0        |
+| [Relatório de Sessão — API de investigações](QA-Relatorio-de-Sessao-API-Investigacoes)            | `relatorio_de_sessao_API_investigacoes.docx`                                              | 20                    | 6                 | 2 = 2                        | —              | —                                     | 0        |
+| [Relatório de Sessão — ISO/IEC 25010](QA-Relatorio-de-Sessao-ISO25010)                            | `relatorio_de_sessao_ISO25010_responsividade_usabilidade_e_compatibilidade.docx`          | 26                    | 6                 | 2 = 2                        | —              | —                                     | 0        |
+
+## Recortes de navegação (não são documentos originais)
+
+| Página                                                          | Conteúdo                                       | Seções do plano incluídas | Linhas de condição         |
+| --------------------------------------------------------------- | ---------------------------------------------- | ------------------------- | -------------------------- |
+| [Épico 01 — recorte](QA-EP01-Gestao-de-Usuarios-e-Autenticacao) | Trechos literais do Épico 01 no plano completo | 1, 2, 3, 5 e 7            | 17 (seção 3) + 4 (seção 7) |
+| [Épico 02 — recorte](QA-EP02-Catalogo-e-Selecao-de-Missoes)     | Trechos literais do Épico 02 no plano completo | 1, 2, 3 e 5               | 15 (seção 3)               |
+
+Cada trecho dos recortes foi conferido como cópia literal do documento completo. As seções do plano
+que não são divididas por épico (técnicas de teste e testes não funcionais) ficam apenas no
+documento completo.
+
+**Método de conferência dos originais:** cada parágrafo e cada célula de tabela do DOCX (texto do
+corpo do documento) foi procurado, literalmente, no Markdown publicado, e o número de linhas de
+tabela foi comparado. Nos relatórios de sessão, os campos "Test Charter" e "Tamanho da Sessão" têm
+uma quebra de linha entre o rótulo e o valor no original; a quebra foi mantida no Markdown.
 
 **Não publicados:**
 
 - Relatórios de defeito (`defeito_*.docx`): registrados como Issues do repositório (B01–B13).
-- **Documento separado do Épico 02 e Plano Mestre consolidado:** não foram localizados nos arquivos
-  disponíveis e **não foram recriados**.
 - Modelos e materiais do curso (cabeçalhos, rodapés e documentos-modelo): não são de autoria do
   projeto e não foram reproduzidos. A conversão usa as versões de publicação dos documentos, cujo
   cabeçalho e rodapé já indicam "Modelo de documentação de testes de origem acadêmica, adaptado para

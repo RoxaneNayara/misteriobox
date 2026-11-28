@@ -1,17 +1,10 @@
-# EP02 — Catálogo e Seleção de Missões
+# Épico 02 — Catálogo e Seleção de Missões (recorte de navegação)
 
-> **Documento autoral de QA — planejamento original.** Conteúdo convertido do arquivo `plano_e_estrategia_de_testes_misteriobox.docx`
-> sem resumir, combinar ou reescrever condições de teste. O cabeçalho e o rodapé do modelo de
-> documento (material de curso) não foram reproduzidos. A ISO/IEC/IEEE 29119-3 foi usada como **base metodológica**; este documento não declara conformidade integral com a norma.
->
-> Este é o **planejamento original** (novembro de 2026). O comportamento atual da aplicação e a
-> cobertura automatizada atual estão em [Regras de negócio](Regras-de-Negocio-e-Criterios-de-Aceitacao),
-> [Testes automatizados](Testes-Automatizados-e-Ferramentas) e
-> [Rastreabilidade acadêmica](QA-Rastreabilidade-Academica).
->
-> **O documento separado do Épico 02 não foi localizado.** Esta página não o recria: reproduz, sem
-> alterações, os trechos do Épico 02 contidos no
-> [Plano e Estratégia de Testes — Completo](QA-Plano-e-Estrategia-de-Testes-Completo).
+> **Recorte de navegação do [Plano e Estratégia de Testes — Completo](QA-Plano-e-Estrategia-de-Testes-Completo).**
+> O Plano e Estratégia de Testes da MistérioBox é **um único documento**, organizado em quatro
+> épicos. Esta página não é um documento separado: reúne, sem alterações, os trechos do Épico 02
+> que aparecem nas seções do plano completo. Para a leitura integral e as seções que não são
+> divididas por épico, consulte o documento completo.
 
 ---
 

@@ -2,6 +2,10 @@
 
 Épico → História de Usuário → Condição de Teste → Camada → Teste automatizado existente.
 
+> **Material complementar, não é um documento original.** A matriz foi montada a partir do
+> [Plano e Estratégia de Testes — Completo](QA-Plano-e-Estrategia-de-Testes-Completo) e dos testes
+> automatizados do repositório, para relacionar o planejamento à cobertura atual.
+
 - **Fonte das condições:** seção 3 do [Plano e Estratégia de Testes — Completo](QA-Plano-e-Estrategia-de-Testes-Completo)
   (67 condições, identificadores preservados como no original).
 - **Critério de correspondência:** um teste só é associado quando **cita o identificador da
